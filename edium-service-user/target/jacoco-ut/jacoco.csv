@@ -1,0 +1,5 @@
+GROUP,PACKAGE,CLASS,INSTRUCTION_MISSED,INSTRUCTION_COVERED,BRANCH_MISSED,BRANCH_COVERED,LINE_MISSED,LINE_COVERED,COMPLEXITY_MISSED,COMPLEXITY_COVERED,METHOD_MISSED,METHOD_COVERED
+edium-service-user,com.edium.service.user.controller,NoteController,79,3,0,0,13,1,8,1,8,1
+edium-service-user,com.edium.service.user.exception,ResourceNotFoundException,37,0,0,0,8,0,4,0,4,0
+edium-service-user,com.edium.service.user.model,Note,35,3,0,0,15,1,10,1,10,1
+edium-service-user,com.edium.service.user,EdiumApiGatewayApplication,5,3,0,0,2,1,1,1,1,1

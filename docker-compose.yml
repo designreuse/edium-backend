@@ -1,0 +1,155 @@
+version: '3'
+services:
+  mariadb:
+    image: mariadb:10.3
+    container_name: mariadb
+    environment:
+      MYSQL_ROOT_PASSWORD: 3141592653a@
+      MYSQL_DATABASE: dolphin
+      MYSQL_USER: dolphin
+      MYSQL_PASSWORD: dolphinX2018
+    ports:
+      - "3306:3306"
+#    logging:
+#      driver: syslog
+#      options:
+#        tag: "{{.DaemonName}}(image={{.ImageName}};name={{.Name}};id={{.ID}})"
+#    networks:
+#    - backend
+    restart: on-failure
+    volumes:
+    - ${PWD}/mariadb:/var/lib/mysql
+    - ./database:/tmp/database
+    command: mysqld --init-file="/tmp/database/install_db.sql"
+
+  # Run Cassandra instead of MySQL
+  cassandra:
+    image: openzipkin/zipkin-cassandra
+    container_name: cassandra
+    # Uncomment to expose the storage port for testing
+    # ports:
+    #   - 9042:9042
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: 'rabbitmq:management'
+    environment:
+    - RABBITMQ_DEFAULT_USER=guest
+    - RABBITMQ_DEFAULT_PASS=guest
+    ports:
+    - "5672:5672"
+    - "15672:15672"
+
+  vault:
+    image: vault
+    container_name: vault
+    cap_add:
+    - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: 934f9eae-31ff-a8ef-e1ca-4bea9e07aa09
+    ports:
+    - 8200:8200
+
+#  setup-vault:
+#    image: vault
+#    container_name: setup-vault
+#    entrypoint: /bin/sh
+#    volumes:
+#    - './config:/config'
+#    environment:
+#      VAULT_ADDR: 'http://vault:8200'
+#      CONFIG_DIR: '/config'
+#    command: >
+#      -c "
+#      sleep 2;
+#      /config/vault-init.sh;
+#      "
+#    depends_on:
+#    - vault
+
+    # Switch storage type to Cassandra
+  zipkin-server:
+    image: openzipkin/zipkin
+    container_name: zipkin-server
+    environment:
+    - STORAGE_TYPE=cassandra
+    # When using the test docker image, or have schema pre-installed, you don't need to re-install it
+    - CASSANDRA_ENSURE_SCHEMA=true
+    # When overriding this value, note the minimum supported version is 3.9
+    # If you you cannot run 3.9+, but can run 2.2+, set STORAGE_TYPE=cassandra
+    - CASSANDRA_CONTACT_POINTS=cassandra
+    depends_on:
+    - cassandra
+    ports:
+    # Port used for the Zipkin UI and HTTP Api
+    - 9411:9411
+
+  config-server:
+    container_name: config-server
+    build: ./edium-config-server
+    ports:
+    - "9999:9999"
+    - "18787:8787"
+    depends_on:
+    - rabbitmq
+
+  service-registry:
+    container_name: service-registry
+    build: ./edium-service-registry
+    ports:
+    - "8761:8761"
+    - "28787:8787"
+#    depends_on:
+#    - config-server
+
+#  hystrix-dashboard:
+#    container_name: hystrix-dashboard
+#    build: ./hystrix-dashboard
+#    ports:
+#    - "8788:8788"
+#    - "38787:8787"
+
+#  oauth2-server:
+#    container_name: oauth2-server
+#    build: ./oauth2-server
+#    ports:
+#    - "8901:8901"
+#    depends_on:
+#    - config-server
+#    entrypoint: /bin/sh
+#    command: >
+#      -c "
+#      while ! (nc -z config-server 8888 && nc -z vault 8200); do sleep 5; echo 'Waiting for vault and config-server services to start-up...'; done;
+#      java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar -Dspring.profiles.active=docker /app.jar
+#      "
+
+  edium-service-user:
+    container_name: edium-service-user
+    build: ./edium-service-user
+    ports:
+    - "8081:8081"
+    - "19797:8787"
+    depends_on:
+    - config-server
+    - mariadb
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z config-server 9999 && nc -z vault 8200); do sleep 5; echo 'Waiting for vault and config-server services to start-up...'; done;
+      java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar -Dspring.profiles.active=docker /app.jar
+      "
+
+  edium-api-gateway:
+    container_name: edium-api-gateway
+    build: ./edium-api-gateway
+    ports:
+    - "8888:8888"
+    - "49797:8787"
+    depends_on:
+    - config-server
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z config-server 9999 && nc -z vault 8200); do sleep 5; echo 'Waiting for vault and config-server services to start-up...'; done;
+      java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar -Dspring.profiles.active=docker /app.jar
+      "

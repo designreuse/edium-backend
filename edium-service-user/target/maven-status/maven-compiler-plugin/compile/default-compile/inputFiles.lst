@@ -1,0 +1,5 @@
+/Users/hohien/IdeaProjects/edium-backend/edium-service-user/src/main/java/com/edium/service/user/controller/NoteController.java
+/Users/hohien/IdeaProjects/edium-backend/edium-service-user/src/main/java/com/edium/service/user/repository/NoteRepository.java
+/Users/hohien/IdeaProjects/edium-backend/edium-service-user/src/main/java/com/edium/service/user/EdiumApiGatewayApplication.java
+/Users/hohien/IdeaProjects/edium-backend/edium-service-user/src/main/java/com/edium/service/user/exception/ResourceNotFoundException.java
+/Users/hohien/IdeaProjects/edium-backend/edium-service-user/src/main/java/com/edium/service/user/model/Note.java
