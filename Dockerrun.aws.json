@@ -1,0 +1,32 @@
+{
+  "AWSEBDockerrunVersion": 2,
+  "containerDefinitions": [
+    {
+      "name": "edium-service-user",
+      "image": "edium/edium-service-user",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "hostPort": 5000,
+          "containerPort": 8081
+        }
+      ]
+    },
+    {
+      "name": "edium-api-gateway",
+      "image": "edium/edium-api-gateway",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "hostPort": 8888,
+          "containerPort": 8888
+        }
+      ],
+      "links": [
+        "edium-service-user"
+      ]
+    }
+  ]
+}

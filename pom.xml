@@ -12,6 +12,7 @@
     <description></description>
 
     <modules>
+        <module>edium-config-server</module>
         <module>edium-api-gateway</module>
         <module>edium-service-registry</module>
         <module>edium-service-user</module>
