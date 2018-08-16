@@ -92,6 +92,9 @@ services:
   config-server:
     container_name: config-server
     build: ./edium-config-server
+    image: edium/config-server:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "9999:9999"
     - "18787:8787"
@@ -101,6 +104,9 @@ services:
   service-registry:
     container_name: service-registry
     build: ./edium-service-registry
+    image: edium/service-registry:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "8761:8761"
     - "28787:8787"
@@ -131,8 +137,9 @@ services:
   edium-service-user:
     container_name: edium-service-user
     build: ./edium-service-user
-#    environment:
-#    - SPRING_PROFILES_ACTIVE=docker
+    image: edium/edium-service-user:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "8081:8081"
     - "19797:8787"
@@ -149,8 +156,9 @@ services:
   edium-api-gateway:
     container_name: edium-api-gateway
     build: ./edium-api-gateway
-#    environment:
-#    - SPRING_PROFILES_ACTIVE=docker
+    image: edium/edium-api-gateway:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "8888:8888"
     - "49797:8787"

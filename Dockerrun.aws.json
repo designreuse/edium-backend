@@ -18,27 +18,27 @@
           "containerPort": 8081
         }
       ]
-    },
-    {
-      "name": "edium-api-gateway",
-      "image": "edium/edium-api-gateway",
-      "essential": true,
-      "memory": 256,
-      "portMappings": [
-        {
-          "hostPort": 8888,
-          "containerPort": 8888
-        }
-      ],
-      "environment": [
-        {
-          "name": "SPRING_PROFILES_ACTIVE",
-          "value": "dev"
-        }
-      ],
-      "links": [
-        "edium-service-user"
-      ]
     }
+//    {
+//      "name": "edium-api-gateway",
+//      "image": "edium/edium-api-gateway",
+//      "essential": true,
+//      "memory": 256,
+//      "portMappings": [
+//        {
+//          "hostPort": 8888,
+//          "containerPort": 8888
+//        }
+//      ],
+//      "environment": [
+//        {
+//          "name": "SPRING_PROFILES_ACTIVE",
+//          "value": "dev"
+//        }
+//      ],
+//      "links": [
+//        "edium-service-user"
+//      ]
+//    }
   ]
 }
