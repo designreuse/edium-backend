@@ -5,10 +5,14 @@ services:
 - docker
 addons:
 - mariadb: '10.2'
+cache:
+  directories:
+  - $HOME/.local
 env:
   global:
   - DOCKER_COMPOSE_VERSION=1.22.0
   - COMMIT=${TRAVIS_COMMIT::8}
+  - PATH=$HOME/.local/bin:$PATH
   - secure: gGv8vIwqVbrX5xA/SxjrYpge5T1PeqsVsOKypriHjnY28FNs+boldVSeJG564DPRSOHC3u40tksdtsngo50R8f1iGJgSs7feNSiq+18/yuUidAxa24OWLKY6hqG8h+F4mRQdeLTteZ/2yF3NyT3bV9E3j1/Y9rO8hyfoZjnWJDx5mCh4N1j4YvXxhF94wa5pMVBt0OWhjOLbyFDIUQjwFZ+YuX2rIWhUWkTflQ9X4X1iZT+5ZCrajMk1w3bVzqLPfRnVBcl9mmPCVMawtVgRPQUMLLPGYM6O0YMui0Lvg/v4ABzhlu46+AtwlXe5MO07mwTAdeLRLylvkUFnpC//znUFkrCJBNwmMcc9tl1DXVE40wsr1VmjEVibl8gEG3G6zii5lnvH+muSKIVbFI53eOcGacDtxugMy+SoN4CBguGnYusdP6iY4FNIhLftm6YBSPCACXmIT6VBhgCXkO8UqV8Eea9IuKQstNDgVeANrFZmc2TJQul+KaeU4a6w3NYFI/e7IqjVgyfaAq8AVQ4oppHTK3mWfjS5kI4yNsW+AMqeLK0HHAcky5N0uk7h2piDZIxKRblIRnUZ4q2rKJWDYDsyGn/nNUAL1hLEyuhW7U5VrH5gO9U308DRsXb3Ur5LWZyiBk//PKkbJDP50wMqX+PZuhjMQ3Jzd1IXnSEXsC4=
   - secure: EwA3Ph1MyzNVmcdH8JRZuq39XqD/EUZwHDEPfC5heAb99pCoxAGY1YKAniS8fJ7mFV3BdwjagG23k5uGvB7gYcRVczd4mSyNvqPnYUnHy98IstkGOk2x0gWOXDmRbcWG8GG5socsr6i6EmVmmM9xZ3kd/kD1+LpMPvYPBaPqBKQmAnxzG8cR08lk7RRFplJ2sl0qJle5bglQKEadIuI/HR6z8jlRQATQIaFLJNBli21IF4enKfrfe7tmDNvktAlTdJYnyy0uL6CouxY1JQGh8JPbkf63bPL7+Jrc7M3NMIq36Ki6Qpup2HjIM8Agox0Hs+2waqqHriptln/BY2IR2RdBKj+q3BAnM0e3foQSh6Hb6u6DHQxDXWLUiBy16g08Rq6XRTJkGJqsbrfF+tnc//3ScN1CLbAPISuB1nAV4ZQbD8PDhx2mAIWv2DYo/i6x86jfztFhUgxB1VWtS3TIjZn4fV9NHgjmfu3e83zEZNecURjGDDZ51bOhqh4CpnZV7ry+v3/Yxa5iFAwDJIl7OEgmtNeQOKAiSszZsq0F995ZMMTjvnNXqu3JxZ6BaXcFZmho8MtViTf8zPzG96nhicCN0ebCdZcZtS+40wKsDO8f2A9iJSmovaZjyk48NuqrbjK7tie+/RiO4mjiTpcixhAnyNo1PYWs8/VF6k/fk3E=
   - secure: CTdgxPj+2nJx38K9aSyDpmoB6HBhkvrY7el62FKTBJFDW6ZQdDZr394v5DDf7Hu7GjXfKDRza91qhEfRMQNVSltEk8z6Y/HadbPTcxXQ6EnzMe3axRAA5BtGC0I9PawkiIdBTH94AoX/qj1ncmhBItclkEEycBtGH0sJw6qYgKOhG6IXIdccaQ7NXflw1/NPisPcLh4hLDSUGWCRdX1e5eDxqlj2a0latnfszsApPS/8vcQNN7oK5hBwaJ+xFR7lZnx+JHL5a+14Zje9xbaguDL/Vuvijn2U1O5DWi/IoEh0r70XJyogWX98Ju1hSt1pUDWyKrUV2f4F/1UZNoQuga8Wcz52cpIKkjXtV1D5F7qwJf8Ca7ry25nUpnABVGUBoVNNEcNB2ucRXcnmq8XoqK6pmRrSi6bc/GmW89LW4OiyPGIfRMf5yMb5XI27unmyTf/vjR6qpdpm6bpT4dLsRMdR10sg3tHUGo+M7TDRX33/nN86cIqXMNrGxgnYDmezm9A5tncDL0SowvbdyYWMOYSLufejBNnBgNwBWRLo9EuTpk3R1jjBF9RNw63dsv5cCXCqaOosQUZ7+heQt8NKztlsXZgh7p1dnywMesS1RxVz78FeYfCmO1m3mM8wSnRrmL3h8o0pncm+BLmQxvk4RgI/86xvlETa1BNfH42rfa4=
@@ -28,31 +32,48 @@ before_install:
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+- pip install --local aws-cli
+- export PATH=$PATH:$HOME/.local/bin
 script:
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
   -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
 before_deploy:
 - docker --version
 - docker-compose --version
+- aws --version
 - ls
-- echo $COMMIT
+- export CHANGED_FILES=($(git diff --name-only $TRAVIS_COMMIT_RANGE))
+- echo $CHANGED_FILES
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
+- export VERSION=travis-$TAG-$TRAVIS_BUILD_NUMBER
+# build user-service
 - docker build edium-service-user -t edium/edium-service-user:$COMMIT
-- docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:travis-$TAG-$TRAVIS_BUILD_NUMBER
-- docker push edium/edium-service-user:travis-$TAG-$TRAVIS_BUILD_NUMBER
+- docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:$VERSION
+- docker push edium/edium-service-user:$VERSION
+# build api-gateway
 - docker build edium-api-gateway -t edium/edium-api-gateway:$COMMIT
-- docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:travis-$TAG-$TRAVIS_BUILD_NUMBER
-- docker push edium/edium-api-gateway:travis-$TAG-$TRAVIS_BUILD_NUMBER
+- docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:$VERSION
+- docker push edium/edium-api-gateway:$VERSION
+# build service-registry
 - docker build edium-service-registry -t edium/service-registry:$COMMIT
-- docker tag edium/service-registry:$COMMIT edium/service-registry:travis-$TAG-$TRAVIS_BUILD_NUMBER
-- docker push edium/service-registry:travis-$TAG-$TRAVIS_BUILD_NUMBER
+- docker tag edium/service-registry:$COMMIT edium/service-registry:$VERSION
+- docker push edium/service-registry:$VERSION
+# build config-server
 - docker build edium-config-server -t edium/config-server:$COMMIT
-- docker tag edium/config-server:$COMMIT edium/config-server:travis-$TAG-$TRAVIS_BUILD_NUMBER
-- docker push edium/config-server:travis-$TAG-$TRAVIS_BUILD_NUMBER
+- docker tag edium/config-server:$COMMIT edium/config-server:$VERSION
+- docker push edium/config-server:$VERSION
+# list docker images
 - docker images
+# edit file elastic beanstalk task
 - sed -i='' "s/<TAG>/travis-$TAG-$TRAVIS_BUILD_NUMBER/" Dockerrun-ci.aws.json
+- aws configure
+- ${aws_access_key_id}
+- ${aws_secret_access_key}
+- us-west-2
+- json
+- ls ~/.aws/
 deploy:
   provider: elasticbeanstalk
   skip_cleanup: true
@@ -66,3 +87,4 @@ deploy:
     secure: "${aws_secret_access_key}"
   on:
     branch: master
+    condition: "a = ab"
