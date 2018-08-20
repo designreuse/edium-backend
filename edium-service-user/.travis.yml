@@ -18,7 +18,7 @@ before_install:
 - mysql -u root -e "CREATE USER 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';"
 - mysql -u root -e "GRANT ALL ON dolphin.* TO 'dolphin'@'localhost';"
 script:
-- "./mvnw clean install -B"
+#- "./mvnw clean install -B"
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
 deploy:
   provider: elasticbeanstalk

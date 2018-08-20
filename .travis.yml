@@ -5,9 +5,6 @@ services:
 - docker
 addons:
 - mariadb: '10.2'
-cache:
-  directories:
-  - $HOME/.local
 env:
   global:
   - DOCKER_COMPOSE_VERSION=1.22.0
@@ -32,7 +29,7 @@ before_install:
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
-- pip install --local aws-cli
+- pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
 script:
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
@@ -43,7 +40,8 @@ after_success:
 - aws --version
 - ls
 - echo $TRAVIS_COMMIT_RANGE
-- export CHANGED_FILES=($(git diff --name-only $TRAVIS_COMMIT_RANGE))
+- git diff --name-only $TRAVIS_COMMIT_RANGE
+- export CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 - echo $CHANGED_FILES
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
