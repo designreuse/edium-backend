@@ -58,7 +58,7 @@
       "name": "edium-api-gateway",
       "image": "edium/edium-api-gateway",
       "essential": true,
-      "memory": 256,
+      "memory": 384,
       "portMappings": [
         {
           "hostPort": 80,
@@ -86,7 +86,7 @@
       "name": "service-registry",
       "image": "edium/service-registry",
       "essential": true,
-      "memory": 256,
+      "memory": 384,
       "portMappings": [
         {
           "hostPort": 8761,
@@ -110,7 +110,7 @@
       "name": "zipkin-server",
       "image": "openzipkin/zipkin",
       "essential": true,
-      "memory": 256,
+      "memory": 384,
       "portMappings": [
         {
           "hostPort": 9411,
