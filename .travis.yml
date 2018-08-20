@@ -38,28 +38,32 @@ script:
 before_deploy:
 - docker --version
 - docker-compose --version
-- docker-compose build
+- ls
+- echo $COMMIT
+#- docker-compose build
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master1" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
-- docker build edium-service-user -t edium/edium-service-user:$COMMIT .
+- docker build edium-service-user -t edium/edium-service-user:$COMMIT
 - docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:$TAG
 - docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/edium-service-user
 
-- docker build edium-api-gateway -t edium/edium-api-gateway:$COMMIT .
+- docker build edium-api-gateway -t edium/edium-api-gateway:$COMMIT
 - docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:$TAG
 - docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/edium-api-gateway
 
-- docker build edium-service-registry -t edium/service-registry:$COMMIT .
+- docker build edium-service-registry -t edium/service-registry:$COMMIT
 - docker tag edium/service-registry:$COMMIT edium/service-registry:$TAG
 - docker tag edium/service-registry:$COMMIT edium/service-registry:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/service-registry
 
-- docker build edium-config-server -t edium/config-server:$COMMIT .
+- docker build edium-config-server -t edium/config-server:$COMMIT
 - docker tag edium/config-server:$COMMIT edium/config-server:$TAG
 - docker tag edium/config-server:$COMMIT edium/config-server:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/config-server
+
+- docker images
 
 #- docker push edium/edium-service-user
 #- docker push edium/edium-api-gateway
