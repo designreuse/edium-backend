@@ -15,6 +15,9 @@ env:
   - secure: esqY0XrKm+d6yv9Ek7ysU2+9GmxYd+exPzsVZmsNu1Gboz4WOlKZq5e+e0As4DPWff9WdP2yPwe44XtPFSkHJVEAnEzV8VxOEOzoqqrMPxvxmGx5Yv2c/CkCd1VN5sLaxVO89yBkWpDMYwLN6cr6WbLP9TSElbJMSXLa9rn1Pg9xf5nLFgfbHEvkEghG95vTfFuKOyZjVYk1MC1P4EnH9+L4ChkgohjJ3fpIT/7jD2abqmnsSvOxmGNka8EqOug4bVSoRSwWM1VDEKyQsC8SGAuOMnUlLhP3Tk7/HOeEnohvgGep6R7x9unQ01hudhoNH057KKUH2lxJLgI1zUM2z433KUj0WZ2wX0mAadcmRwaSUImKmWtYIkMxxeRdF/HRnoslgdQoMmLiX4EAEI2mVMbWX4QIxWHSQzoVZWoOQGMbQwABt3HbgfLWOz46/OB73phnmRciMI/ju43OKYHi15e/Cj9iIzkd04RIsWeO7O3gSIT05DpAxZgcNiXIVOtnX4a3qX2C2xQyaaBlVkhSKgDTG0JZLsatCAElNh/xKO2OwXrspquRyXEUNlmEuvoAIUJ4SDiL3NHl8Y9q0XEhU/AxxzXghbejWlkvrKAgp1FzOF6GIph5PMWoxplCjNaUDzqIztmXoTR9Dm3/vEEJqT4GLsl7WgjsztKEq/9xWXI=
   - secure: xx39TeyHV2wvv08Pblnq8KZJd7OqDeg1GmsCqNvNN54p41dLnw6YZ0ikDXahct7BFnWvVY1RwhR7FYgMAJAz0DQE6TF6sDxtbp1yWJlez1ax7CgCm6e5a4GQfc2ghYI2md7i6OInjan9ggSriUmxZB6M11OK92Vjd/VqJ3+kjxEDcvz91RzDSPeKoOKTIkt48kT4bRODAthjRjLVqyJgaBZM1AFYRhA42X3FPBF8AXwp8945rLg/sx1Tcq5IUMWo2XLKekXSi4F70B/OC/yoW1CwdKQ0pZECflLeNpJvTrxO/k1BDpGus7/JNqJDxPWE7L28ZX6k3nRe/N9SoEI/iI2q6GJi7owz+0PxUOuaXjS09PHJndF0j/Do56Xih2gwzOYQQwfIKCh7NT3f4FkQhQBDLebwcENnJE1zUuIr1eIc//T7AbZwuRWn55lZeY2g9mkd4qbWzwROFZTwU5hf2PsbsDn3F/tTKyeiDvgsB15dnevh8qERBHN4v+cT908juD1Ap1VLrVNcjRUaWZHN6ER3QusmETnQfU+Kb2VansL8PWrejl9EcPkvh5Imfx+rl2I2ogw/xp8Xg654+xEF5U3Khr6/MWkkJGabuFVClngHkwzzix8mCCmhIzzpcxvrL3i5PnMq27n/JAPpSDc2w36XqUbJ0KwTqIdgzDSgLk4=
   - secure: gGv8vIwqVbrX5xA/SxjrYpge5T1PeqsVsOKypriHjnY28FNs+boldVSeJG564DPRSOHC3u40tksdtsngo50R8f1iGJgSs7feNSiq+18/yuUidAxa24OWLKY6hqG8h+F4mRQdeLTteZ/2yF3NyT3bV9E3j1/Y9rO8hyfoZjnWJDx5mCh4N1j4YvXxhF94wa5pMVBt0OWhjOLbyFDIUQjwFZ+YuX2rIWhUWkTflQ9X4X1iZT+5ZCrajMk1w3bVzqLPfRnVBcl9mmPCVMawtVgRPQUMLLPGYM6O0YMui0Lvg/v4ABzhlu46+AtwlXe5MO07mwTAdeLRLylvkUFnpC//znUFkrCJBNwmMcc9tl1DXVE40wsr1VmjEVibl8gEG3G6zii5lnvH+muSKIVbFI53eOcGacDtxugMy+SoN4CBguGnYusdP6iY4FNIhLftm6YBSPCACXmIT6VBhgCXkO8UqV8Eea9IuKQstNDgVeANrFZmc2TJQul+KaeU4a6w3NYFI/e7IqjVgyfaAq8AVQ4oppHTK3mWfjS5kI4yNsW+AMqeLK0HHAcky5N0uk7h2piDZIxKRblIRnUZ4q2rKJWDYDsyGn/nNUAL1hLEyuhW7U5VrH5gO9U308DRsXb3Ur5LWZyiBk//PKkbJDP50wMqX+PZuhjMQ3Jzd1IXnSEXsC4=
+  - secure: EwA3Ph1MyzNVmcdH8JRZuq39XqD/EUZwHDEPfC5heAb99pCoxAGY1YKAniS8fJ7mFV3BdwjagG23k5uGvB7gYcRVczd4mSyNvqPnYUnHy98IstkGOk2x0gWOXDmRbcWG8GG5socsr6i6EmVmmM9xZ3kd/kD1+LpMPvYPBaPqBKQmAnxzG8cR08lk7RRFplJ2sl0qJle5bglQKEadIuI/HR6z8jlRQATQIaFLJNBli21IF4enKfrfe7tmDNvktAlTdJYnyy0uL6CouxY1JQGh8JPbkf63bPL7+Jrc7M3NMIq36Ki6Qpup2HjIM8Agox0Hs+2waqqHriptln/BY2IR2RdBKj+q3BAnM0e3foQSh6Hb6u6DHQxDXWLUiBy16g08Rq6XRTJkGJqsbrfF+tnc//3ScN1CLbAPISuB1nAV4ZQbD8PDhx2mAIWv2DYo/i6x86jfztFhUgxB1VWtS3TIjZn4fV9NHgjmfu3e83zEZNecURjGDDZ51bOhqh4CpnZV7ry+v3/Yxa5iFAwDJIl7OEgmtNeQOKAiSszZsq0F995ZMMTjvnNXqu3JxZ6BaXcFZmho8MtViTf8zPzG96nhicCN0ebCdZcZtS+40wKsDO8f2A9iJSmovaZjyk48NuqrbjK7tie+/RiO4mjiTpcixhAnyNo1PYWs8/VF6k/fk3E=
+  - secure: CTdgxPj+2nJx38K9aSyDpmoB6HBhkvrY7el62FKTBJFDW6ZQdDZr394v5DDf7Hu7GjXfKDRza91qhEfRMQNVSltEk8z6Y/HadbPTcxXQ6EnzMe3axRAA5BtGC0I9PawkiIdBTH94AoX/qj1ncmhBItclkEEycBtGH0sJw6qYgKOhG6IXIdccaQ7NXflw1/NPisPcLh4hLDSUGWCRdX1e5eDxqlj2a0latnfszsApPS/8vcQNN7oK5hBwaJ+xFR7lZnx+JHL5a+14Zje9xbaguDL/Vuvijn2U1O5DWi/IoEh0r70XJyogWX98Ju1hSt1pUDWyKrUV2f4F/1UZNoQuga8Wcz52cpIKkjXtV1D5F7qwJf8Ca7ry25nUpnABVGUBoVNNEcNB2ucRXcnmq8XoqK6pmRrSi6bc/GmW89LW4OiyPGIfRMf5yMb5XI27unmyTf/vjR6qpdpm6bpT4dLsRMdR10sg3tHUGo+M7TDRX33/nN86cIqXMNrGxgnYDmezm9A5tncDL0SowvbdyYWMOYSLufejBNnBgNwBWRLo9EuTpk3R1jjBF9RNw63dsv5cCXCqaOosQUZ7+heQt8NKztlsXZgh7p1dnywMesS1RxVz78FeYfCmO1m3mM8wSnRrmL3h8o0pncm+BLmQxvk4RgI/86xvlETa1BNfH42rfa4=
+  - COMMIT=${TRAVIS_COMMIT::8}
 before_install:
 - mysql -u root -e 'CREATE DATABASE dolphin;'
 - mysql -u root -e "CREATE USER 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';"
@@ -30,17 +33,38 @@ before_install:
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
 script:
-- "./mvnw clean install -B"
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
   -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
 before_deploy:
 - docker --version
 - docker-compose --version
 - docker-compose build
+- docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
+- export TAG=`if [ "$TRAVIS_BRANCH" == "master1" ]; then echo "latest"; else echo $TRAVIS_BRANCH ; fi`
+- docker build edium-service-user -t edium/edium-service-user:$COMMIT .
+- docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:$TAG
+- docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/edium-service-user
+
+- docker build edium-api-gateway -t edium/edium-api-gateway:$COMMIT .
+- docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:$TAG
+- docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/edium-api-gateway
+
+- docker build edium-service-registry -t edium/service-registry:$COMMIT .
+- docker tag edium/service-registry:$COMMIT edium/service-registry:$TAG
+- docker tag edium/service-registry:$COMMIT edium/service-registry:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/service-registry
+
+- docker build edium-config-server -t edium/config-server:$COMMIT .
+- docker tag edium/config-server:$COMMIT edium/config-server:$TAG
+- docker tag edium/config-server:$COMMIT edium/config-server:travis-$TRAVIS_BUILD_NUMBER
 - docker push edium/config-server
+
+#- docker push edium/edium-service-user
+#- docker push edium/edium-api-gateway
+#- docker push edium/service-registry
+#- docker push edium/config-server
 deploy:
   provider: elasticbeanstalk
   skip_cleanup: true
