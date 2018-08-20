@@ -23,7 +23,7 @@
   "containerDefinitions": [
     {
       "name": "edium-service-user",
-      "image": "edium/edium-service-user",
+      "image": "edium/edium-service-user:<TAG>",
       "essential": true,
       "memory": 512,
       "environment": [
@@ -50,7 +50,7 @@
     },
     {
       "name": "edium-api-gateway",
-      "image": "edium/edium-api-gateway",
+      "image": "edium/edium-api-gateway:<TAG>",
       "essential": true,
       "memory": 512,
       "portMappings": [
@@ -78,7 +78,7 @@
     },
     {
       "name": "service-registry",
-      "image": "edium/service-registry",
+      "image": "edium/service-registry:<TAG>",
       "essential": true,
       "memory": 512,
       "portMappings": [

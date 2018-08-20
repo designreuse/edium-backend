@@ -52,12 +52,13 @@ before_deploy:
 - docker tag edium/config-server:$COMMIT edium/config-server:travis-$TAG-$TRAVIS_BUILD_NUMBER
 - docker push edium/config-server:travis-$TAG-$TRAVIS_BUILD_NUMBER
 - docker images
+- sed -i='' "s/<TAG>/travis-$TAG-$TRAVIS_BUILD_NUMBER/" Dockerrun-ci.aws.json
 deploy:
   provider: elasticbeanstalk
   skip_cleanup: true
-  app: edium-service-user
-  env: EdiumServiceUser-env
-  zip_file: Dockerrun.aws.json
+  app: edium-backend
+  env: EdiumBackend-env
+  zip_file: Dockerrun-ci.aws.json
   bucket_name: elasticbeanstalk-us-west-2-940338783322
   region: us-west-2
   access_key_id: "${aws_access_key_id}"
