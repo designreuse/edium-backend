@@ -18,6 +18,12 @@
       "host": {
         "sourcePath": "/var/app/current/service-registry"
       }
+    },
+    {
+      "name": "zipkin-server",
+      "host": {
+        "sourcePath": "/var/app/current/zipkin-server"
+      }
     }
   ],
   "containerDefinitions": [
@@ -52,7 +58,7 @@
       "name": "edium-api-gateway",
       "image": "edium/edium-api-gateway:<TAG>",
       "essential": true,
-      "memory": 512,
+      "memory": 256,
       "portMappings": [
         {
           "hostPort": 80,
@@ -80,7 +86,7 @@
       "name": "service-registry",
       "image": "edium/service-registry:<TAG>",
       "essential": true,
-      "memory": 512,
+      "memory": 256,
       "portMappings": [
         {
           "hostPort": 8761,
@@ -97,6 +103,30 @@
         {
           "sourceVolume": "awseb-logs-service-registry",
           "containerPath": "/var/log/service-registry"
+        }
+      ]
+    },
+    {
+      "name": "zipkin-server",
+      "image": "openzipkin/zipkin",
+      "essential": true,
+      "memory": 256,
+      "portMappings": [
+        {
+          "hostPort": 9411,
+          "containerPort": 9411
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-zipkin-server",
+          "containerPath": "/var/log/zipkin-server"
         }
       ]
     }
