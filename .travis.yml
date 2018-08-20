@@ -37,11 +37,12 @@ before_install:
 script:
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
   -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
-before_deploy:
+after_success:
 - docker --version
 - docker-compose --version
 - aws --version
 - ls
+- echo $TRAVIS_COMMIT_RANGE
 - export CHANGED_FILES=($(git diff --name-only $TRAVIS_COMMIT_RANGE))
 - echo $CHANGED_FILES
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
