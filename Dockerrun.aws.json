@@ -1,11 +1,31 @@
 {
   "AWSEBDockerrunVersion": 2,
+  "volumes": [
+    {
+      "name": "edium-service-user",
+      "host": {
+        "sourcePath": "/var/app/current/edium-service-user"
+      }
+    },
+    {
+      "name": "edium-api-gateway",
+      "host": {
+        "sourcePath": "/var/app/current/edium-api-gateway"
+      }
+    },
+    {
+      "name": "service-registry",
+      "host": {
+        "sourcePath": "/var/app/current/service-registry"
+      }
+    }
+  ],
   "containerDefinitions": [
     {
       "name": "edium-service-user",
       "image": "edium/edium-service-user",
       "essential": true,
-      "memory": 256,
+      "memory": 512,
       "environment": [
         {
           "name": "SPRING_PROFILES_ACTIVE",
@@ -14,8 +34,69 @@
       ],
       "portMappings": [
         {
-          "hostPort": 5000,
+          "hostPort": 8081,
           "containerPort": 8081
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-edium-service-user",
+          "containerPath": "/var/log/edium-service-user"
+        }
+      ],
+      "links": [
+        "service-registry"
+      ]
+    },
+    {
+      "name": "edium-api-gateway",
+      "image": "edium/edium-api-gateway",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "hostPort": 80,
+          "containerPort": 8888
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-edium-api-gateway",
+          "containerPath": "/var/log/edium-api-gateway"
+        }
+      ],
+      "links": [
+        "edium-service-user",
+        "service-registry"
+      ]
+    },
+    {
+      "name": "service-registry",
+      "image": "edium/service-registry",
+      "essential": true,
+      "memory": 512,
+      "portMappings": [
+        {
+          "hostPort": 8761,
+          "containerPort": 8761
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-service-registry",
+          "containerPath": "/var/log/service-registry"
         }
       ]
     }
