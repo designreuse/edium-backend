@@ -19,21 +19,26 @@ env:
   - secure: m30q494UxbWbwzfE7bhUBJsn2/JSyTdBmKQ4cXAmaTI7OCHxbTbONuWP6Yg5FkaiPee9Q9oOF+VSgW68Y4RMcTgYBWrNy4smtBuDKCu6ZEVnZFV2zp4gBt4JvF1AtLIaGDPwoqXHV3tRbTpaG+w7QGTL7yQ8WDAMBZbDhwdsz2+LPxAdMbXsINXzrw90U+QfqwoGbm5qIlGCLfS8TTqTkTf97qqr/NxCW6wKW8tqzybmvpZWWo0cqyi+U2HrWvY6jfiKDMF282GoX6JW9oFkTHCUK7vwBlIRP3vfFVmDrkieW7f+9g+fzH7LhACZJHS/BIky/OMvFx6niV1/Hh8Bw0KykcAi7oLBSheK4C6uWRc6J7z2hnQf7gXaqTDb+hjlGCdb+TGAoyP3sJNgBXdgLDUI50cgKJ7zidyo19SMFnq4Ao/f9IlhGCfxs9FaQfe1mzkfwxyA78hsu/ngnKwn0MDUVSnLzqGU9dFGwPDc1fQcoSW36Eo0vr+SEidDUWldJ9b7M5p2Jp77axDt9bo+wDpdXcRc4T95imDdtKlXzYfDpxSHq1ERioFTPSzYOHCJDAa7mNpw2yl+kpkKBZgztlNt6n9BnGr6PCpDVjf3JDFc86NdxtMgEFHBf7cB9zWfBFSpCmtbtgCI+1objVFvyftoi6jH1zB1y46lFggbMIM=
   - secure: ePVFmjS54XH8sRzJW8tqbuwL2JKsauKB5nrfGfE5iFpMCQBOFHSwkEvjkp1QshMz54p7N5K/H6ODCaq0MCWcw16Xc63H+l8drAUqvC0SakVcF0B+6MYcGNQJAhJ54OjRcyYNuHaPSAY57zEYN2ObXMoyaUrWRRuEmeapjFoV57rFOAOD2jvXh+VJzcOJZi/53MLo6ulLTn3aH72WtvIUoXYzvz+lP1msqjS7tdFqKJQENwrUvPKHCqnsoz6mxVpidV39Spj7VHFw5PxmHomAVrsPH6xZe9FvAKGwlxeQNcvPw1WvHPCCLzElUlNtE2hKPqZxQassMS92HtivL6KYh9l42Yo6F1eH8iUEdpVRcLtscwTZ6S72b+QXYDJygCohFdt40N6c3W8NZiA2xNti8zRLLyq8yLTE72/WwHlmLRtadZVrT+MY+97m2+Q+c3BNpQYbV5iQfktQnpSqNIRGreRZEy4nx/tk+EvEAXGVvRxswGQn40iiGql1YKmC5Jz/DDxmBhQl8v5O9qb8XtYj+qwoMD+bXCY7ijw31jFO6VxmmXedj+LVynwjrN1Lt8IUliWei+gV/8N8Iu/ov1uPes4PglHmrteSx5YsUz+M6USMz7GbqCA40McR2Pb7gPyqFlpAXwhqhhGljHnG/3CFJZKfRRoDnFoUWFMy/ap3RIc=
 before_install:
+# prepare mariadb script
 - mysql -u root -e 'CREATE DATABASE dolphin;'
 - mysql -u root -e "CREATE USER 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';"
 - mysql -u root -e "GRANT ALL ON dolphin.* TO 'dolphin'@'localhost';"
+# update docker
 - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu
   $(lsb_release -cs) stable"
 - sudo apt-get update
 - sudo apt-get -y install docker-ce
+# update docker-compose
 - sudo rm /usr/local/bin/docker-compose
 - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname
   -s`-`uname -m` > docker-compose
 - chmod +x docker-compose
 - sudo mv docker-compose /usr/local/bin
+# install awscli
 - pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
+# show version
 - docker --version
 - docker-compose --version
 - aws --version
@@ -41,16 +46,19 @@ script:
 - "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
   -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
 after_success:
+# check modified file
 - export CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 - echo $CHANGED_FILES
+- export SERVICE_USER_MOD=`if [[ "$CHANGED_FILES" = *"edium-service-user/"* ]]; then echo "1"; else echo "0"; fi`
+- export API_GATEWAY_MOD=`if [[ "$CHANGED_FILES" = *"edium-api-gateway/"* ]]; then echo "1"; else echo "0"; fi`
+- export CONFIG_SERVER_MOD=`if [[ "$CHANGED_FILES" = *"edium-config-server/"* ]]; then echo "1"; else echo "0"; fi`
+- export SERVICE_REGISTRY_MOD=`if [[ "$CHANGED_FILES" = *"edium-service-registry/"* ]]; then echo "1"; else echo "0"; fi`
+- echo $SERVICE_USER_MOD $API_GATEWAY_MOD $CONFIG_SERVER_MOD $SERVICE_REGISTRY_MOD
+# set version variable
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
-- export SERVICE_USER_MOD=`if [ $CHANGED_FILES = *"edium-service-user/"* ]; then echo "1"; else echo "0"; fi`
-- export API_GATEWAY_MOD=`if [ $CHANGED_FILES = *"edium-api-gateway/"* ]; then echo "1"; else echo "0"; fi`
-- export CONFIG_SERVER_MOD=`if [ $CHANGED_FILES = *"edium-config-server/"* ]; then echo "1"; else echo "0"; fi`
-- export SERVICE_REGISTRY_MOD=`if [ $CHANGED_FILES = *"edium-service-registry/"* ]; then echo "1"; else echo "0"; fi`
-- echo $SERVICE_USER_MOD $API_GATEWAY_MOD $CONFIG_SERVER_MOD $SERVICE_REGISTRY_MOD
 - export VERSION=travis-$TAG-$TRAVIS_BUILD_NUMBER
+# login to docker
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 # build user-service
 - docker build edium-service-user -t edium/edium-service-user:$COMMIT
@@ -89,6 +97,7 @@ after_success:
 - aws elasticbeanstalk create-application-version --application-name $APP_NAME --version-label $VERSION --source-bundle S3Bucket=$EB_BUCKET,S3Key=$VERSION.zip
 # Update the environment to use the new application version
 - aws elasticbeanstalk update-environment --environment-name $ENV_NAME --version-label $VERSION
+- chmod 755 check_deploy.sh
 - ./check_deploy.sh
 #deploy:
 #  provider: elasticbeanstalk
