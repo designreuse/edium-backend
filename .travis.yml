@@ -31,10 +31,10 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 - pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
-script:
-- "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
-  -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
-after_success:
+#script:
+#- "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
+#  -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
+after_fail:
 - docker --version
 - docker-compose --version
 - aws --version
@@ -68,10 +68,10 @@ after_success:
 # edit file elastic beanstalk task
 - sed -i='' "s/<TAG>/travis-$TAG-$TRAVIS_BUILD_NUMBER/" Dockerrun-ci.aws.json
 - aws configure
-- ${aws_access_key_id}
-- ${aws_secret_access_key}
-- us-west-2
-- json
+- "${aws_access_key_id}"
+- "${aws_secret_access_key}"
+- "us-west-2"
+- "json"
 - ls ~/.aws/
 deploy:
   provider: elasticbeanstalk
