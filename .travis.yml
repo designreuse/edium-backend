@@ -34,19 +34,24 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 - pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
-#script:
-#- "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
-#  -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
-after_fail:
 - docker --version
 - docker-compose --version
 - aws --version
+script:
+- "./mvnw clean org.jacoco:jacoco-maven-plugin:prepare-agent package sonar:sonar -Dsonar.host.url=https://sonarcloud.io
+  -Dsonar.organization=dolphin -Dsonar.login=${SONAR_TOKEN}"
+after_success:
 - export CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 - echo $CHANGED_FILES
-- docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
+- export SERVICE_USER_MOD=`if [ $CHANGED_FILES = *"edium-service-user/"* ]; then echo "1"; else echo "0"; fi`
+- export API_GATEWAY_MOD=`if [ $CHANGED_FILES = *"edium-api-gateway/"* ]; then echo "1"; else echo "0"; fi`
+- export CONFIG_SERVER_MOD=`if [ $CHANGED_FILES = *"edium-config-server/"* ]; then echo "1"; else echo "0"; fi`
+- export SERVICE_REGISTRY_MOD=`if [ $CHANGED_FILES = *"edium-service-registry/"* ]; then echo "1"; else echo "0"; fi`
+- echo $SERVICE_USER_MOD $API_GATEWAY_MOD $CONFIG_SERVER_MOD $SERVICE_REGISTRY_MOD
 - export VERSION=travis-$TAG-$TRAVIS_BUILD_NUMBER
+- docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
 # build user-service
 - docker build edium-service-user -t edium/edium-service-user:$COMMIT
 - docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:$VERSION
@@ -67,32 +72,32 @@ after_fail:
 - docker images
 # edit file elastic beanstalk task
 - sed -i='' "s/<TAG>/travis-$TAG-$TRAVIS_BUILD_NUMBER/" Dockerrun-ci.aws.json
-after_success:
+# configure aws cli
 - aws configure set aws_access_key_id "${aws_access_key_id}"
 - aws configure set aws_secret_access_key "${aws_secret_access_key}"
 - aws configure set default.region us-west-2
 - cat ~/.aws/credentials
 - cat ~/.aws/config
+# upload version to S3
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
 - export VERSION=travis-$COMMIT-$TAG-$TRAVIS_BUILD_NUMBER
-- zip -r $VERSION.zip Dockerrun.aws.json
+- zip -r $VERSION.zip Dockerrun-ci.aws.json
 - aws s3 cp $VERSION.zip s3://$EB_BUCKET/$VERSION.zip
 # Create a new application version with the zipped up Dockerrun file
 - aws elasticbeanstalk create-application-version --application-name $APP_NAME --version-label $VERSION --source-bundle S3Bucket=$EB_BUCKET,S3Key=$VERSION.zip
 # Update the environment to use the new application version
 - aws elasticbeanstalk update-environment --environment-name $ENV_NAME --version-label $VERSION
-deploy:
-  provider: elasticbeanstalk
-  skip_cleanup: true
-  app: edium-backend
-  env: EdiumBackend-env
-  zip_file: Dockerrun-ci.aws.json
-  bucket_name: elasticbeanstalk-us-west-2-940338783322
-  region: us-west-2
-  access_key_id: "${aws_access_key_id}"
-  secret_access_key:
-    secure: "${aws_secret_access_key}"
-  on:
-    branch: master
-    condition: "a = ab"
+#deploy:
+#  provider: elasticbeanstalk
+#  skip_cleanup: true
+#  app: edium-backend
+#  env: EdiumBackend-env
+#  zip_file: Dockerrun-ci.aws.json
+#  bucket_name: elasticbeanstalk-us-west-2-940338783322
+#  region: us-west-2
+#  access_key_id: "${aws_access_key_id}"
+#  secret_access_key:
+#    secure: "${aws_secret_access_key}"
+#  on:
+#    branch: master
