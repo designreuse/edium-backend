@@ -38,9 +38,6 @@ after_fail:
 - docker --version
 - docker-compose --version
 - aws --version
-- ls
-- echo $TRAVIS_COMMIT_RANGE
-- git diff --name-only $TRAVIS_COMMIT_RANGE
 - export CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 - echo $CHANGED_FILES
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
@@ -67,6 +64,7 @@ after_fail:
 - docker images
 # edit file elastic beanstalk task
 - sed -i='' "s/<TAG>/travis-$TAG-$TRAVIS_BUILD_NUMBER/" Dockerrun-ci.aws.json
+after_success:
 - aws configure
 - "${aws_access_key_id}"
 - "${aws_secret_access_key}"
