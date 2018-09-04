@@ -1,6 +1,9 @@
 /target/
 !.mvn/wrapper/maven-wrapper.jar
 .DS_STORE
+*.log
+/logs/
+/mariadb/
 
 ### STS ###
 .apt_generated

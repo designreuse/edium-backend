@@ -22,27 +22,15 @@ services:
     - ./database:/tmp/database
     command: mysqld --init-file="/tmp/database/install_db.sql"
 
-  neo4j:
-    image: neo4j:3.4.5
+  vault:
+    image: vault
+    container_name: vault
+    cap_add:
+    - IPC_LOCK
+    environment:
+      VAULT_DEV_ROOT_TOKEN_ID: 934f9eae-31ff-a8ef-e1ca-4bea9e07aa09
     ports:
-    - "17474:7474"
-
-  # Run Cassandra instead of MySQL
-  cassandra:
-    image: openzipkin/zipkin-cassandra
-    container_name: cassandra
-    # Uncomment to expose the storage port for testing
-    # ports:
-
-#  vault:
-#    image: vault
-#    container_name: vault
-#    cap_add:
-#    - IPC_LOCK
-#    environment:
-#      VAULT_DEV_ROOT_TOKEN_ID: 934f9eae-31ff-a8ef-e1ca-4bea9e07aa09
-#    ports:
-#    - 8200:8200
+    - 8200:8200
 
 #  setup-vault:
 #    image: vault
@@ -61,38 +49,42 @@ services:
 #    depends_on:
 #    - vault
 
-    # Switch storage type to Cassandra
   zipkin-server:
     image: openzipkin/zipkin
     container_name: zipkin-server
     environment:
-    - STORAGE_TYPE=cassandra
-    # When using the test docker image, or have schema pre-installed, you don't need to re-install it
-    - CASSANDRA_ENSURE_SCHEMA=true
-    # When overriding this value, note the minimum supported version is 3.9
-    # If you you cannot run 3.9+, but can run 2.2+, set STORAGE_TYPE=cassandra
-    - CASSANDRA_CONTACT_POINTS=cassandra
+      - STORAGE_TYPE=mysql
+      # Point the zipkin at the storage backend
+      - MYSQL_HOST=mariadb
+      - MYSQL_USER=dolphin
+      - MYSQL_PASS=dolphinX2018
+      # Uncomment to enable scribe
+      # - SCRIBE_ENABLED=true
+      # Uncomment to enable self-tracing
+      # - SELF_TRACING_ENABLED=true
+      # Uncomment to enable debug logging
+      # - JAVA_OPTS=-Dlogging.level.zipkin=DEBUG -Dlogging.level.zipkin2=DEBUG
     depends_on:
-    - cassandra
+      - mariadb
     ports:
     # Port used for the Zipkin UI and HTTP Api
     - 9411:9411
 
-#  config-server:
-#    container_name: config-server
-#    build: ./edium-config-server
-#    image: edium/config-server:latest
-#    environment:
-#    - SPRING_PROFILES_ACTIVE=dev
-#    ports:
-#    - "9999:9999"
-#    - "18787:8787"
+  config-server:
+    container_name: config-server
+    build: ./config-server
+    image: edium/config-server:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
+    ports:
+    - "9999:9999"
+    - "18787:8787"
 #    depends_on:
 #    - rabbitmq
 
   service-registry:
     container_name: service-registry
-    build: ./edium-service-registry
+    build: ./service-registry
     image: edium/service-registry:latest
     environment:
     - SPRING_PROFILES_ACTIVE=dev
@@ -109,26 +101,30 @@ services:
 #    - "8788:8788"
 #    - "38787:8787"
 
-#  oauth2-server:
-#    container_name: oauth2-server
-#    build: ./oauth2-server
-#    ports:
-#    - "8901:8901"
-#    depends_on:
-#    - config-server
-#    entrypoint: /bin/sh
-#    command: >
-#      -c "
-#      while ! (nc -z config-server 8888 && nc -z vault 8200); do sleep 5; echo 'Waiting for vault and config-server services to start-up...'; done;
-#      java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar -Dspring.profiles.active=docker /app.jar
-#      "
-
-  edium-service-user:
-    container_name: edium-service-user
-    build: ./edium-service-user
-    image: edium/edium-service-user:latest
+  auth-service:
+    container_name: auth-service
+    build: ./auth-service
+    image: edium/auth-service:latest
     environment:
-    - SPRING_PROFILES_ACTIVE=dev
+    - SPRING_PROFILES_ACTIVE=docker
+    ports:
+    - "8088:8088"
+    - "29797:8787"
+    depends_on:
+    - config-server
+    - mariadb
+    entrypoint: /bin/sh
+    command: >
+      -c "
+      while ! (nc -z config-server 9999 && nc -z vault 8200); do sleep 5; echo 'Waiting for vault and config-server services to start-up...'; done;
+      java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar /app.jar
+
+  core-service:
+    container_name: core-service
+    build: ./core-service
+    image: edium/core-service:latest
+    environment:
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "8081:8081"
     - "19797:8787"
@@ -142,12 +138,12 @@ services:
       java -Xdebug -Xrunjdwp:server=y,transport=dt_socket,address=8787,suspend=n -jar /app.jar
       "
 
-  edium-api-gateway:
-    container_name: edium-api-gateway
-    build: ./edium-api-gateway
-    image: edium/edium-api-gateway:latest
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    image: edium/api-gateway:latest
     environment:
-    - SPRING_PROFILES_ACTIVE=dev
+    - SPRING_PROFILES_ACTIVE=docker
     ports:
     - "8888:8888"
     - "49797:8787"

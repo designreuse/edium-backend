@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>EdiumApiGatewayApplication.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.user</a> &gt; <span class="el_source">EdiumApiGatewayApplication.java</span></div><h1>EdiumApiGatewayApplication.java</h1><pre class="source lang-java linenums">package com.edium.service.user;
+
+import com.netflix.appinfo.AmazonInfo;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
+import org.springframework.cloud.commons.util.InetUtils;
+import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Profile;
+import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
+
+@SpringBootApplication
+@EnableJpaAuditing
+@EnableCircuitBreaker
+@EnableResourceServer
+@EnableWebSecurity
+<span class="fc" id="L21">public class EdiumApiGatewayApplication {</span>
+
+    @Value(&quot;${server.port}&quot;)
+    private int port;
+
+    public static void main(String[] args) {
+<span class="nc" id="L27">        SpringApplication.run(EdiumApiGatewayApplication.class, args);</span>
+<span class="nc" id="L28">    }</span>
+
+    @Bean
+    @Profile({&quot;dev&quot;, &quot;prod&quot;})
+    public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
+<span class="nc" id="L33">        System.out.println(&quot;hehe&quot;);</span>
+<span class="nc" id="L34">        EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);</span>
+<span class="nc" id="L35">        AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild(&quot;eureka&quot;);</span>
+
+<span class="nc bnc" id="L37" title="All 2 branches missed.">        if (info != null) {</span>
+<span class="nc" id="L38">            config.setDataCenterInfo(info);</span>
+<span class="nc" id="L39">            info.getMetadata()</span>
+<span class="nc" id="L40">                    .put(AmazonInfo.MetaDataKey.publicHostname.getName(), info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
+<span class="nc" id="L41">            config.setHostname(info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
+<span class="nc" id="L42">            config.setIpAddress(info.get(AmazonInfo.MetaDataKey.publicIpv4));</span>
+<span class="nc" id="L43">            config.setNonSecurePort(port);</span>
+        } else {
+<span class="nc" id="L45">            System.out.println(&quot;AmazonInfo is null&quot;);</span>
+        }
+
+<span class="nc" id="L48">        return config;</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

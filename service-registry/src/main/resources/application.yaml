@@ -1,0 +1,50 @@
+spring:
+  application:
+    name: service-registry
+    zipkin:
+    base-url: http://localhost:9411/
+  sleuth:
+    sampler:
+      probability: 1
+
+server:
+  port: 8761
+  error:
+    whitelabel:
+      enabled: false
+
+eureka:
+  instance:
+    hostname: localhost
+    prefer-ip-address: true
+    instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+  client:
+      register-with-eureka: false
+      fetch-registry: false
+      service-url:
+        defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+  server:
+    wait-time-in-ms-when-sync-empty: 0
+    enable-self-preservation: false
+
+logging:
+  file: logs/application.log
+---
+spring:
+  profiles: dev
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+eureka:
+  instance:
+    hostname: service-registry
+
+---
+spring:
+  profiles: docker
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+eureka:
+  instance:
+    hostname: service-registry

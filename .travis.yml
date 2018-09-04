@@ -49,31 +49,37 @@ after_success:
 # check modified file
 - export CHANGED_FILES=$(git diff --name-only $TRAVIS_COMMIT_RANGE)
 - echo $CHANGED_FILES
-- export SERVICE_USER_MOD=`if [[ "$CHANGED_FILES" = *"edium-service-user/"* ]]; then echo "1"; else echo "0"; fi`
-- export API_GATEWAY_MOD=`if [[ "$CHANGED_FILES" = *"edium-api-gateway/"* ]]; then echo "1"; else echo "0"; fi`
-- export CONFIG_SERVER_MOD=`if [[ "$CHANGED_FILES" = *"edium-config-server/"* ]]; then echo "1"; else echo "0"; fi`
-- export SERVICE_REGISTRY_MOD=`if [[ "$CHANGED_FILES" = *"edium-service-registry/"* ]]; then echo "1"; else echo "0"; fi`
-- echo $SERVICE_USER_MOD $API_GATEWAY_MOD $CONFIG_SERVER_MOD $SERVICE_REGISTRY_MOD
+- export SERVICE_CORE_MOD=`if [[ "$CHANGED_FILES" = *"core_service/"* ]]; then echo "1"; else echo "0"; fi`
+- export SERVICE_AUTH_MOD=`if [[ "$CHANGED_FILES" = *"auth_service/"* ]]; then echo "1"; else echo "0"; fi`
+- export API_GATEWAY_MOD=`if [[ "$CHANGED_FILES" = *"api-gateway/"* ]]; then echo "1"; else echo "0"; fi`
+- export CONFIG_SERVER_MOD=`if [[ "$CHANGED_FILES" = *"config-server/"* ]]; then echo "1"; else echo "0"; fi`
+- export SERVICE_REGISTRY_MOD=`if [[ "$CHANGED_FILES" = *"service-registry/"* ]]; then echo "1"; else echo "0"; fi`
+- echo $SERVICE_AUTH_MOD $SERVICE_CORE_MOD $API_GATEWAY_MOD $CONFIG_SERVER_MOD $SERVICE_REGISTRY_MOD
 # set version variable
 - export TAG=`if [ "$TRAVIS_BRANCH" == "master" ]; then echo "latest"; else echo $TRAVIS_BRANCH
   ; fi`
 - export VERSION=travis-$TAG-$TRAVIS_BUILD_NUMBER
 # login to docker
 - docker login -u ${DOCKER_USERNAME} -p ${DOCKER_PASSWORD};
-# build user-service
-- docker build edium-service-user -t edium/edium-service-user:$COMMIT
-- docker tag edium/edium-service-user:$COMMIT edium/edium-service-user:$VERSION
-- docker push edium/edium-service-user:$VERSION
+# build auth-service
+- docker build auth-service -t edium/auth-service:$COMMIT
+- docker tag edium/auth-service:$COMMIT edium/auth-service:$VERSION
+- docker push edium/auth-service:$VERSION
+
+# build core-service
+- docker build core-service -t edium/core-service:$COMMIT
+- docker tag edium/core-service:$COMMIT edium/core-service:$VERSION
+- docker push edium/core-service:$VERSION
 # build api-gateway
-- docker build edium-api-gateway -t edium/edium-api-gateway:$COMMIT
-- docker tag edium/edium-api-gateway:$COMMIT edium/edium-api-gateway:$VERSION
-- docker push edium/edium-api-gateway:$VERSION
+- docker build api-gateway -t edium/api-gateway:$COMMIT
+- docker tag edium/api-gateway:$COMMIT edium/api-gateway:$VERSION
+- docker push edium/api-gateway:$VERSION
 # build service-registry
-- docker build edium-service-registry -t edium/service-registry:$COMMIT
+- docker build service-registry -t edium/service-registry:$COMMIT
 - docker tag edium/service-registry:$COMMIT edium/service-registry:$VERSION
 - docker push edium/service-registry:$VERSION
 # build config-server
-- docker build edium-config-server -t edium/config-server:$COMMIT
+- docker build config-server -t edium/config-server:$COMMIT
 - docker tag edium/config-server:$COMMIT edium/config-server:$VERSION
 - docker push edium/config-server:$VERSION
 # list docker images

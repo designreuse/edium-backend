@@ -1,0 +1,7 @@
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/EdiumApiGatewayApplication.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/config/CustomAccessTokenConverter.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/controller/NoteController.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/model/Note.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/config/ResourceServerConfig.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/repository/NoteRepository.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/user/exception/ResourceNotFoundException.java

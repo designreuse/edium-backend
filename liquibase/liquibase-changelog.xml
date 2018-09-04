@@ -8,4 +8,19 @@
     <changeSet author="hohien (generated)" id="1533876595421-1">
         <modifyDataType columnName="content" newDataType="varchar(500)" tableName="notes"/>
     </changeSet>
+    <changeSet author="hohien (generated)" id="1536034317826-2">
+        <createTable tableName="token_black_list">
+            <column name="jti" type="VARCHAR(255)">
+                <constraints primaryKey="true"/>
+            </column>
+            <column name="black_listed" type="BIT(1)">
+                <constraints nullable="false"/>
+            </column>
+            <column defaultValueComputed="NULL" name="expires" type="BIGINT"/>
+            <column name="username" type="VARCHAR(255)"/>
+        </createTable>
+    </changeSet>
+    <changeSet author="hohien (generated)" id="1536034317826-1">
+        <modifyDataType columnName="content" newDataType="varchar(500)" tableName="notes"/>
+    </changeSet>
 </databaseChangeLog>

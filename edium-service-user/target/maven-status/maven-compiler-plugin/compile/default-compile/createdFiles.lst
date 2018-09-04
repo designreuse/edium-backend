@@ -1,5 +1,0 @@
-com/edium/service/user/repository/NoteRepository.class
-com/edium/service/user/EdiumApiGatewayApplication.class
-com/edium/service/user/exception/ResourceNotFoundException.class
-com/edium/service/user/controller/NoteController.class
-com/edium/service/user/model/Note.class

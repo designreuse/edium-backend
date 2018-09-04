@@ -1,0 +1,85 @@
+spring:
+  application:
+    name: api-gateway
+  zipkin:
+    base-url: http://localhost:9411/
+  sleuth:
+    sampler:
+      probability: 1
+
+security:
+  oauth2:
+    resource:
+      filter-order: 3
+    client:
+      authenticationScheme: header
+
+logging:
+  level:
+   org.springframework.security: DEBUG
+  file: logs/application.log
+
+server:
+  port: 8888
+  error:
+    whitelabel:
+      enabled: false
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    enabled: true
+  instance:
+    instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+    prefer-ip-address: true
+
+zuul:
+  ignoredServices: '*'
+  routes:
+    core-route:
+      path: /api/notes/**
+      service-id: core-service
+      sensitiveHeaders:
+      strip-prefix: false
+
+    auth-route:
+      path: /v1/oauth2/**
+      service-id: auth-service
+      sensitiveHeaders:
+      strip-prefix: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["*"]
+
+---
+
+spring:
+  profiles: dev
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+
+---
+
+spring:
+  profiles: docker
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+---
+
+spring:
+  profiles: prod
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/

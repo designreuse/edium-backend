@@ -1,0 +1,77 @@
+spring:
+  application:
+    name: config-server
+  config:
+    name: config-server
+  profiles:
+    include: native
+  zipkin:
+    base-url: http://localhost:9411/
+  sleuth:
+    sampler:
+      probability: 1
+  cloud:
+    config:
+      server:
+        native:
+          search-locations: classpath:/config-repo
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://localhost:8761/eureka/
+    enabled: true
+  instance:
+    instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+    prefer-ip-address: true
+
+logging:
+  level:
+    org.springframework.security: DEBUG
+  file: logs/application.log
+
+server:
+  port: 9999
+  error:
+    whitelabel:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: ["*"]
+
+---
+
+spring:
+  profiles: docker
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+---
+
+spring:
+  profiles: dev
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+---
+
+spring:
+  profiles: prod
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/

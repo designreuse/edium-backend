@@ -12,10 +12,11 @@
     <description></description>
 
     <modules>
-        <module>edium-config-server</module>
-        <module>edium-api-gateway</module>
-        <module>edium-service-registry</module>
-        <module>edium-service-user</module>
+        <module>config-server</module>
+        <module>api-gateway</module>
+        <module>service-registry</module>
+        <module>core-service</module>
+        <module>auth-service</module>
     </modules>
 
 </project>

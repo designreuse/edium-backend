@@ -2,15 +2,21 @@
   "AWSEBDockerrunVersion": 2,
   "volumes": [
     {
-      "name": "edium-service-user",
+      "name": "core-service",
       "host": {
-        "sourcePath": "/var/app/current/edium-service-user"
+        "sourcePath": "/var/app/current/core-service"
       }
     },
     {
-      "name": "edium-api-gateway",
+      "name": "auth-service",
       "host": {
-        "sourcePath": "/var/app/current/edium-api-gateway"
+        "sourcePath": "/var/app/current/auth-service"
+      }
+    },
+    {
+      "name": "api-gateway",
+      "host": {
+        "sourcePath": "/var/app/current/api-gateway"
       }
     },
     {
@@ -24,14 +30,48 @@
       "host": {
         "sourcePath": "/var/app/current/zipkin-server"
       }
+    },
+    {
+      "name": "config-server",
+      "host": {
+        "sourcePath": "/var/app/current/config-server"
+      }
     }
   ],
   "containerDefinitions": [
     {
-      "name": "edium-service-user",
-      "image": "edium/edium-service-user:<TAG>",
+      "name": "auth-service",
+      "image": "edium/auth-service:<TAG>",
       "essential": true,
-      "memory": 512,
+      "memory": 1280,
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "portMappings": [
+        {
+          "hostPort": 8088,
+          "containerPort": 8088
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-auth-service",
+          "containerPath": "/var/log/auth-service"
+        }
+      ],
+      "links": [
+        "service-registry",
+        "config-server"
+      ]
+    },
+    {
+      "name": "core-service",
+      "image": "edium/core-service:<TAG>",
+      "essential": true,
+      "memory": 1280,
       "environment": [
         {
           "name": "SPRING_PROFILES_ACTIVE",
@@ -46,19 +86,20 @@
       ],
       "mountPoints": [
         {
-          "sourceVolume": "awseb-logs-edium-service-user",
-          "containerPath": "/var/log/edium-service-user"
+          "sourceVolume": "awseb-logs-core-service",
+          "containerPath": "/var/log/core-service"
         }
       ],
       "links": [
-        "service-registry"
+        "service-registry",
+        "config-server"
       ]
     },
     {
-      "name": "edium-api-gateway",
-      "image": "edium/edium-api-gateway:<TAG>",
+      "name": "api-gateway",
+      "image": "edium/api-gateway:<TAG>",
       "essential": true,
-      "memory": 384,
+      "memory": 1024,
       "portMappings": [
         {
           "hostPort": 80,
@@ -73,20 +114,21 @@
       ],
       "mountPoints": [
         {
-          "sourceVolume": "awseb-logs-edium-api-gateway",
-          "containerPath": "/var/log/edium-api-gateway"
+          "sourceVolume": "awseb-logs-api-gateway",
+          "containerPath": "/var/log/api-gateway"
         }
       ],
       "links": [
-        "edium-service-user",
-        "service-registry"
+        "core-service",
+        "service-registry",
+        "auth-service"
       ]
     },
     {
       "name": "service-registry",
       "image": "edium/service-registry:<TAG>",
       "essential": true,
-      "memory": 384,
+      "memory": 1024,
       "portMappings": [
         {
           "hostPort": 8761,
@@ -104,13 +146,42 @@
           "sourceVolume": "awseb-logs-service-registry",
           "containerPath": "/var/log/service-registry"
         }
+      ],
+      "links": [
+      ]
+    },
+    {
+      "name": "config-server",
+      "image": "edium/config-server:<TAG>",
+      "essential": true,
+      "memory": 1280,
+      "portMappings": [
+        {
+          "hostPort": 9999,
+          "containerPort": 9999
+        }
+      ],
+      "environment": [
+        {
+          "name": "SPRING_PROFILES_ACTIVE",
+          "value": "dev"
+        }
+      ],
+      "mountPoints": [
+        {
+          "sourceVolume": "awseb-logs-config-server",
+          "containerPath": "/var/log/config-server"
+        }
+      ],
+      "links": [
+        "service-registry"
       ]
     },
     {
       "name": "zipkin-server",
       "image": "openzipkin/zipkin",
-      "essential": true,
-      "memory": 384,
+      "essential": false,
+      "memory": 700,
       "portMappings": [
         {
           "hostPort": 9411,

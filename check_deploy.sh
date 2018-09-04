@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 deploystart=$(date +%s)
 timeout=3000 # Seconds to wait before error. If it's taking awhile - your boxes probably are too small.
 threshhold=$((deploystart + timeout))
@@ -10,6 +11,7 @@ while true; do
     fi
 
     # See what's deployed
+    echo $(aws elasticbeanstalk describe-environments --application-name $APP_NAME --environment-name $ENV_NAME)
     current_version=`aws elasticbeanstalk describe-environments --application-name $APP_NAME --environment-name $ENV_NAME --query "Environments[*].VersionLabel" --output text`
 
     status=`aws elasticbeanstalk describe-environments --application-name $APP_NAME --environment-name $ENV_NAME --query "Environments[*].Status" --output text`
