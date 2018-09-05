@@ -17,7 +17,7 @@ while true; do
     status=`aws elasticbeanstalk describe-environments --application-name $APP_NAME --environment-name $ENV_NAME --query "Environments[*].Status" --output text`
 
     if [ "$current_version" != "$VERSION" ]; then
-        echo "Tag not updated (currently $version). Waiting."
+        echo "Tag not updated (currently $current_version). Waiting."
         sleep 10
         continue
     fi
