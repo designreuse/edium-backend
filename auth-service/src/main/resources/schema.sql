@@ -62,3 +62,37 @@ create table if not exists ClientDetails (
   additionalInformation VARCHAR(4096),
   autoApproveScopes VARCHAR(255)
 );
+
+create table account
+(
+	id bigint auto_increment
+		primary key,
+	credentials_expired bit not null,
+	enabled bit not null,
+	expired bit not null,
+	locked bit not null,
+	password varchar(255) not null,
+	username varchar(255) not null,
+	constraint UK_ACCOUNT
+		unique (username)
+);
+
+create table role
+(
+	id bigint not null
+		primary key,
+	code varchar(255) not null,
+	label varchar(255) not null
+);
+
+create table account_role
+(
+	account_id bigint not null,
+	role_id bigint not null,
+	primary key (account_id, role_id),
+	constraint FK_ACCOUNT_ACCOUNT_ROLE
+		foreign key (account_id) references account (id),
+	constraint FK_ROLE_ACCOUNT_ROLE
+		foreign key (role_id) references role (id)
+);
+
