@@ -64,7 +64,8 @@
       ],
       "links": [
         "service-registry",
-        "config-server"
+        "config-server",
+        "zipkin-server"
       ]
     },
     {
@@ -92,7 +93,8 @@
       ],
       "links": [
         "service-registry",
-        "config-server"
+        "config-server",
+        "zipkin-server"
       ]
     },
     {
@@ -121,7 +123,8 @@
       "links": [
         "core-service",
         "service-registry",
-        "auth-service"
+        "auth-service",
+        "zipkin-server"
       ]
     },
     {
@@ -148,6 +151,7 @@
         }
       ],
       "links": [
+        "zipkin-server"
       ]
     },
     {
@@ -174,7 +178,8 @@
         }
       ],
       "links": [
-        "service-registry"
+        "service-registry",
+        "zipkin-server"
       ]
     },
     {
