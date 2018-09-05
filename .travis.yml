@@ -38,7 +38,7 @@ before_install:
 - sudo mv docker-compose /usr/local/bin
 # install awscli
 - pip --version
-- pip install --upgrade pip
+- sudo pip install --upgrade pip
 - pip --version
 - pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
