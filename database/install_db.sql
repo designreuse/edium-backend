@@ -118,6 +118,16 @@ create table account_role
 	constraint FK_ROLE_ACCOUNT_ROLE
 		foreign key (role_id) references role (id)
 );
+
+create table token_black_list
+(
+	jti varchar(255) not null
+		primary key,
+	black_listed bit not null,
+	expires bigint null,
+	username varchar(255) null
+);
+
 INSERT INTO oauth_client_details (client_id, resource_ids, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
     VALUES ('admin', 'admin-resource', '$2a$10$I7pizsIZDriQUV0BH5IQmut1YpuAn.RYqQ.lm4UZl3CpK3t7UVB5u', 'trust', 'client_credentials', 'ROLE_ADMIN', 28800);
 
