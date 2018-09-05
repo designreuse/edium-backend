@@ -20,9 +20,10 @@ env:
   - secure: ePVFmjS54XH8sRzJW8tqbuwL2JKsauKB5nrfGfE5iFpMCQBOFHSwkEvjkp1QshMz54p7N5K/H6ODCaq0MCWcw16Xc63H+l8drAUqvC0SakVcF0B+6MYcGNQJAhJ54OjRcyYNuHaPSAY57zEYN2ObXMoyaUrWRRuEmeapjFoV57rFOAOD2jvXh+VJzcOJZi/53MLo6ulLTn3aH72WtvIUoXYzvz+lP1msqjS7tdFqKJQENwrUvPKHCqnsoz6mxVpidV39Spj7VHFw5PxmHomAVrsPH6xZe9FvAKGwlxeQNcvPw1WvHPCCLzElUlNtE2hKPqZxQassMS92HtivL6KYh9l42Yo6F1eH8iUEdpVRcLtscwTZ6S72b+QXYDJygCohFdt40N6c3W8NZiA2xNti8zRLLyq8yLTE72/WwHlmLRtadZVrT+MY+97m2+Q+c3BNpQYbV5iQfktQnpSqNIRGreRZEy4nx/tk+EvEAXGVvRxswGQn40iiGql1YKmC5Jz/DDxmBhQl8v5O9qb8XtYj+qwoMD+bXCY7ijw31jFO6VxmmXedj+LVynwjrN1Lt8IUliWei+gV/8N8Iu/ov1uPes4PglHmrteSx5YsUz+M6USMz7GbqCA40McR2Pb7gPyqFlpAXwhqhhGljHnG/3CFJZKfRRoDnFoUWFMy/ap3RIc=
 before_install:
 # prepare mariadb script
-- mysql -u root -e 'CREATE DATABASE dolphin;'
-- mysql -u root -e "CREATE USER 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';"
-- mysql -u root -e "GRANT ALL ON dolphin.* TO 'dolphin'@'localhost';"
+#- mysql -u root -e 'CREATE DATABASE dolphin;'
+#- mysql -u root -e "CREATE USER 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';"
+#- mysql -u root -e "GRANT ALL ON dolphin.* TO 'dolphin'@'localhost';"
+- mysql -u root < database/install_db.sql
 # update docker
 - curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo apt-key add -
 - sudo add-apt-repository "deb [arch=amd64] https://download.docker.com/linux/ubuntu

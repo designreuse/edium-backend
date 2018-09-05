@@ -8,6 +8,7 @@ CREATE DATABASE zipkin;
 
 GRANT ALL PRIVILEGES ON zipkin.* TO 'dolphin'@'%' IDENTIFIED BY 'dolphinX2018';
 GRANT ALL PRIVILEGES ON zipkin.* TO 'dolphin'@'localhost' IDENTIFIED BY 'dolphinX2018';
+
 USE dolphin;
 create table notes
 (
@@ -17,9 +18,118 @@ create table notes
 	title varchar(255) null,
 	updated_at datetime not null,
 	PRIMARY KEY (id)
-)
-;
+);
 INSERT INTO dolphin.notes (id, content, created_at, title, updated_at) VALUES (1, '1', '2018-08-10 02:37:17', '1', '2018-08-10 02:37:20');
+
+create table if not exists oauth_client_details (
+  client_id VARCHAR(255) PRIMARY KEY,
+  resource_ids VARCHAR(255),
+  client_secret VARCHAR(255),
+  scope VARCHAR(255),
+  authorized_grant_types VARCHAR(255),
+  web_server_redirect_uri VARCHAR(255),
+  authorities VARCHAR(255),
+  access_token_validity INTEGER,
+  refresh_token_validity INTEGER,
+  additional_information VARCHAR(4096),
+  autoapprove VARCHAR(255)
+);
+
+create table if not exists oauth_client_token (
+  token_id VARCHAR(255),
+  token LONG VARBINARY,
+  authentication_id VARCHAR(255) PRIMARY KEY,
+  user_name VARCHAR(255),
+  client_id VARCHAR(255)
+);
+
+create table if not exists oauth_access_token (
+  token_id VARCHAR(255),
+  token LONG VARBINARY,
+  authentication_id VARCHAR(255) PRIMARY KEY,
+  user_name VARCHAR(255),
+  client_id VARCHAR(255),
+  authentication LONG VARBINARY,
+  refresh_token VARCHAR(255)
+);
+
+create table if not exists oauth_refresh_token (
+  token_id VARCHAR(255),
+  token LONG VARBINARY,
+  authentication LONG VARBINARY
+);
+
+create table if not exists oauth_code (
+  code VARCHAR(255), authentication LONG VARBINARY
+);
+
+create table if not exists oauth_approvals (
+    userId VARCHAR(255),
+    clientId VARCHAR(255),
+    scope VARCHAR(255),
+    status VARCHAR(10),
+    expiresAt TIMESTAMP,
+    lastModifiedAt TIMESTAMP
+);
+
+create table if not exists ClientDetails (
+  appId VARCHAR(255) PRIMARY KEY,
+  resourceIds VARCHAR(255),
+  appSecret VARCHAR(255),
+  scope VARCHAR(255),
+  grantTypes VARCHAR(255),
+  redirectUrl VARCHAR(255),
+  authorities VARCHAR(255),
+  access_token_validity INTEGER,
+  refresh_token_validity INTEGER,
+  additionalInformation VARCHAR(4096),
+  autoApproveScopes VARCHAR(255)
+);
+
+create table account
+(
+	id bigint auto_increment
+		primary key,
+	credentials_expired bit not null,
+	enabled bit not null,
+	expired bit not null,
+	locked bit not null,
+	password varchar(255) not null,
+	username varchar(255) not null,
+	constraint UK_ACCOUNT
+		unique (username)
+);
+
+create table role
+(
+	id bigint not null
+		primary key,
+	code varchar(255) not null,
+	label varchar(255) not null
+);
+
+create table account_role
+(
+	account_id bigint not null,
+	role_id bigint not null,
+	primary key (account_id, role_id),
+	constraint FK_ACCOUNT_ACCOUNT_ROLE
+		foreign key (account_id) references account (id),
+	constraint FK_ROLE_ACCOUNT_ROLE
+		foreign key (role_id) references role (id)
+);
+INSERT INTO oauth_client_details (client_id, resource_ids, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
+    VALUES ('admin', 'admin-resource', '$2a$10$I7pizsIZDriQUV0BH5IQmut1YpuAn.RYqQ.lm4UZl3CpK3t7UVB5u', 'trust', 'client_credentials', 'ROLE_ADMIN', 28800);
+
+INSERT INTO oauth_client_details (client_id, resource_ids, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
+    VALUES ('sample', 'sample-resource', '$2a$10$I7pizsIZDriQUV0BH5IQmut1YpuAn.RYqQ.lm4UZl3CpK3t7UVB5u', 'read,write', 'client_credentials', 'ROLE_CLIENT', 60);
+
+INSERT INTO oauth_client_details (client_id, resource_ids, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
+    VALUES ('another', 'sample-resource', '$2a$10$YwGLqLAHVzEzO4lV.1.wm.1kpFtaXa/xhwWQbPYillCginsVi2U8S', 'read,write', 'client_credentials', 'ROLE_CLIENT', 60);
+
+INSERT INTO oauth_client_details (client_id, resource_ids, client_secret, scope, authorized_grant_types, authorities, access_token_validity)
+    VALUES ('bogus', 'bogus-resource', '$2a$10$gESF6FbqpiczVLj2zs1TCe48Vtc/pfuIKngWZ1VltJwnd.AFwcqv6', 'bogus', 'client_credentials', 'ROLE_CLIENT', 60);
+
 USE zipkin;
 CREATE TABLE IF NOT EXISTS zipkin_spans (
   `trace_id_high` BIGINT NOT NULL DEFAULT 0 COMMENT 'If non zero, this means the trace uses 128 bit traceIds instead of 64 bit',
