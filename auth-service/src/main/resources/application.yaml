@@ -15,7 +15,7 @@ spring:
   jpa:
     hibernate:
       naming-strategy: org.hibernate.cfg.DefaultNamingStrategy
-      ddl-auto: validate
+      ddl-auto: none
     properties:
       hibernate:
         temp:
@@ -39,6 +39,7 @@ spring:
           port: 465
           class: javax.net.ssl.SSLSocketFactory
           fallback: false
+
 security:
   oauth2:
     client:
@@ -66,7 +67,7 @@ oauth2:
   keystore_password: $ampl3
   keystore_alias: mykey
   custom_token_field_name: custom_field
-  access_token_validity_seconds: 600
+  access_token_validity_seconds: 86400
   refresh_token_validity_seconds: 86400
   reuse_refresh_token: true
   resourceId: auth-service
@@ -85,6 +86,16 @@ management:
       exposure:
         include: ["*"]
 
+policy:
+  json:
+    filePath: policy/default-policy.json
+
+facebook:
+  appId: 2077266045922491
+  appSecret: 956b865612495680eb4e8b0df1b92655
+  scope: public_profile,email
+  token_link: https://graph.facebook.com/oauth/access_token?client_id=%s&client_secret=%s&redirect_uri=%s&code=%s
+
 ---
 
 spring:
@@ -96,7 +107,7 @@ spring:
     password: ${RDS_PASSWORD}
     initialization-mode: never
   zipkin:
-    base-url: http://localhost:9411/
+    base-url: http://zipkin-server:9411/
 
 logging:
   level:
@@ -106,3 +117,27 @@ eureka:
   client:
     service-url:
       defaultZone: http://service-registry:8761/eureka/
+
+oauth2:
+  access_token_validity_seconds: 600
+  refresh_token_validity_seconds: 86400
+
+---
+
+spring:
+  profiles: docker
+  zipkin:
+    base-url: http://zipkin-server:9411/
+
+logging:
+  level:
+    org.springframework.security: INFO
+
+eureka:
+  client:
+    service-url:
+      defaultZone: http://service-registry:8761/eureka/
+
+oauth2:
+  access_token_validity_seconds: 600
+  refresh_token_validity_seconds: 86400

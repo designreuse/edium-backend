@@ -23,7 +23,7 @@ script:
 deploy:
   provider: elasticbeanstalk
   skip_cleanup: true
-  app: edium-service-user
+  app: edium-service-core
   env: EdiumServiceUser-env
   zip_file: target/core-service-0.0.1-SNAPSHOT-exec.jar
   bucket_name: elasticbeanstalk-us-west-2-940338783322

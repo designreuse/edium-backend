@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>ResourceServerConfig.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.config</a> &gt; <span class="el_source">ResourceServerConfig.java</span></div><h1>ResourceServerConfig.java</h1><pre class="source lang-java linenums">package com.edium.service.core.config;
+
+import com.edium.library.spring.AbacPermissionEvaluator;
+import com.edium.library.spring.JwtAuthenticationEntryPoint;
+import org.apache.commons.io.IOUtils;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Primary;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.Resource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
+import org.springframework.security.access.PermissionEvaluator;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.config.annotation.web.configuration.ResourceServerConfigurerAdapter;
+import org.springframework.security.oauth2.config.annotation.web.configurers.ResourceServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
+import org.springframework.security.oauth2.provider.token.ResourceServerTokenServices;
+import org.springframework.security.oauth2.provider.token.TokenStore;
+import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
+import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.social.connect.ConnectionFactoryLocator;
+import org.springframework.social.connect.UsersConnectionRepository;
+import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
+import org.springframework.social.connect.web.ProviderSignInController;
+
+@Configuration
+@ComponentScan(&quot;com.edium.library&quot;)
+@EnableJpaRepositories({&quot;com.edium.library.repository&quot;, &quot;com.edium.service.core.repository&quot;})
+@EntityScan({&quot;com.edium.library.model&quot;, &quot;com.edium.service.core.model&quot;})
+<span class="fc" id="L36">public class ResourceServerConfig extends ResourceServerConfigurerAdapter {</span>
+
+    @Value(&quot;${oauth2.resourceId}&quot;)
+    private String resourceId;
+
+    @Value(&quot;${oauth2.paths.resource_file_uri}&quot;)
+    private String resourceFileUri;
+
+    @Autowired
+    private CustomAccessTokenConverter customAccessTokenConverter;
+
+    @Autowired
+    private JwtAuthenticationEntryPoint authenticationEntryPoint;
+
+    @Override
+    public void configure(ResourceServerSecurityConfigurer securityConfigurer) {
+<span class="fc" id="L52">        securityConfigurer</span>
+<span class="fc" id="L53">                .tokenServices(tokenServices())</span>
+<span class="fc" id="L54">                .resourceId(resourceId);</span>
+<span class="fc" id="L55">    }</span>
+
+    @Bean
+    public TokenStore tokenStore() {
+<span class="fc" id="L59">        return new JwtTokenStore(accessTokenConverter());</span>
+    }
+
+    @Bean
+    public JwtAccessTokenConverter accessTokenConverter() {
+<span class="fc" id="L64">        JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();</span>
+<span class="fc" id="L65">        jwtAccessTokenConverter.setAccessTokenConverter(customAccessTokenConverter);</span>
+<span class="fc" id="L66">        final Resource resource = new ClassPathResource(resourceFileUri);</span>
+        String publicKey;
+        try {
+<span class="fc" id="L69">            publicKey = IOUtils.toString(resource.getInputStream());</span>
+<span class="nc" id="L70">        } catch (final Exception ex) {</span>
+<span class="nc" id="L71">            throw new RuntimeException(ex);</span>
+<span class="fc" id="L72">        }</span>
+<span class="fc" id="L73">        jwtAccessTokenConverter.setVerifierKey(publicKey);</span>
+<span class="fc" id="L74">        return jwtAccessTokenConverter;</span>
+    }
+
+    @Bean
+    @Primary
+    public ResourceServerTokenServices tokenServices() {
+<span class="fc" id="L80">        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();</span>
+<span class="fc" id="L81">        defaultTokenServices.setTokenStore(tokenStore());</span>
+<span class="fc" id="L82">        return defaultTokenServices;</span>
+    }
+
+    @Override
+    public void configure(HttpSecurity http) throws Exception {
+<span class="fc" id="L87">        http</span>
+<span class="fc" id="L88">                .headers().frameOptions().disable()</span>
+<span class="fc" id="L89">                .and()</span>
+<span class="fc" id="L90">                .csrf().disable()</span>
+<span class="fc" id="L91">                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()</span>
+<span class="fc" id="L92">                .authorizeRequests()</span>
+<span class="fc" id="L93">                .antMatchers(&quot;/api/user/checkUsernameAvailability&quot;, &quot;/api/user/checkEmailAvailability&quot;)</span>
+<span class="fc" id="L94">                .permitAll()</span>
+<span class="fc" id="L95">                .antMatchers(&quot;/login*&quot;,&quot;/signin/**&quot;,&quot;/signup/**&quot;).permitAll()</span>
+<span class="fc" id="L96">                .anyRequest()</span>
+<span class="fc" id="L97">                .authenticated();</span>
+<span class="fc" id="L98">    }</span>
+
+    @Bean
+    public PermissionEvaluator permissionEvaluator() {
+<span class="fc" id="L102">        return new AbacPermissionEvaluator();</span>
+    }
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+<span class="fc" id="L107">        return new BCryptPasswordEncoder();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

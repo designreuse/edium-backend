@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationPermission.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.security</a> &gt; <span class="el_source">OrganizationPermission.java</span></div><h1>OrganizationPermission.java</h1><pre class="source lang-java linenums">package com.edium.service.core.security;
+
+import com.edium.service.core.model.Organization;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;
+
+import java.util.Map;
+
+<span class="nc" id="L9">public class OrganizationPermission implements Permission {</span>
+
+<span class="nc" id="L11">    private final String ORGANIZATION_ID = &quot;organizationId&quot;;</span>
+
+    @Override
+    public boolean isAllowed(Authentication authentication, Object targetDomainObject, PermissionType permissionType) {
+<span class="nc" id="L15">        boolean hasPermission = false;</span>
+
+<span class="nc" id="L17">        Long organizationId = getOrganizationId(authentication);</span>
+
+<span class="nc bnc" id="L19" title="All 4 branches missed.">        if (isAuthenticated(authentication) &amp;&amp; organizationId != null) {</span>
+<span class="nc bnc" id="L20" title="All 2 branches missed.">            if (targetDomainObject instanceof Organization) {</span>
+<span class="nc" id="L21">                hasPermission = organizationId.equals(((Organization) targetDomainObject).getId());</span>
+<span class="nc bnc" id="L22" title="All 2 branches missed.">            } else if (isLong(targetDomainObject)) {</span>
+<span class="nc" id="L23">                hasPermission = organizationId.equals(targetDomainObject);</span>
+            }
+        }
+<span class="nc" id="L26">        return hasPermission;</span>
+    }
+
+    private Long getOrganizationId(Authentication authentication) {
+<span class="nc" id="L30">        OAuth2AuthenticationDetails oauthDetails = (OAuth2AuthenticationDetails) authentication.getDetails();</span>
+<span class="nc" id="L31">        Map&lt;String, Object&gt; details = (Map&lt;String, Object&gt;) oauthDetails.getDecodedDetails();</span>
+
+<span class="nc bnc" id="L33" title="All 2 branches missed.">        if (details.containsKey(ORGANIZATION_ID)) {</span>
+<span class="nc" id="L34">            return Long.parseLong(details.get(ORGANIZATION_ID).toString());</span>
+        }
+<span class="nc" id="L36">        return null;</span>
+    }
+
+    private boolean isLong(Object targetDomainObject) {
+<span class="nc bnc" id="L40" title="All 4 branches missed.">        return targetDomainObject instanceof Long &amp;&amp; (Long) targetDomainObject &gt; 0;</span>
+    }
+
+    private boolean isAuthenticated(Authentication authentication) {
+<span class="nc bnc" id="L44" title="All 6 branches missed.">        return authentication != null &amp;&amp; authentication.getPrincipal() != null &amp;&amp; !authentication.getPrincipal().toString().isEmpty();</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

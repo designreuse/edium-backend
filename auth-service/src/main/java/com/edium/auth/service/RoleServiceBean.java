@@ -1,15 +1,15 @@
 package com.edium.auth.service;
 
-import com.edium.auth.exceptions.ResourceNotFoundException;
-import com.edium.auth.model.Role;
-import com.edium.auth.repository.RoleRepository;
+import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.model.Role;
+import com.edium.library.repository.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 /**
- * Manage the data from database from Role table user
+ * Manage the data from database from Role table core
  */
 @Service
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
@@ -17,7 +17,7 @@ public class RoleServiceBean implements RoleService{
 
 
     /**
-     * The Spring Data repository for Account entities.
+     * The Spring Data repository for User entities.
      */
     @Autowired
     private RoleRepository roleRepository;
@@ -40,6 +40,6 @@ public class RoleServiceBean implements RoleService{
      */
     @Override
     public Role findByCode(String code) {
-        return roleRepository.findByCode(code);
+        return roleRepository.findByCode(code).get();
     }
 }

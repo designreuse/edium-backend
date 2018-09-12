@@ -7,7 +7,7 @@ spring:
     password: dolphinX2018
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
@@ -18,6 +18,10 @@ spring:
   sleuth:
     sampler:
       probability: 1
+  jackson:
+    serialization:
+      WRITE_DATES_AS_TIMESTAMPS: false
+    time-zone: UTC
 
 logging:
   level:
@@ -29,6 +33,12 @@ server:
   error:
     whitelabel:
       enabled: false
+  ssl:
+    key-store: classpath:keystore.p12
+    key-store-password: edium@123
+    keyStoreType: PKCS12
+    keyAlias: edium
+    enabled: false
 
 eureka:
   client:
@@ -50,6 +60,9 @@ oauth2:
   paths:
     resource_file_uri: key/jwt_oauth2_key.pub
 
+policy:
+  json:
+    filePath: policy/default-policy.json
 ---
 spring:
   profiles: docker

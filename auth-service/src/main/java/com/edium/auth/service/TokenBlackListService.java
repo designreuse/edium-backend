@@ -1,6 +1,6 @@
 package com.edium.auth.service;
 
-import com.edium.auth.exceptions.ResourceNotFoundException;
+import com.edium.library.exception.ResourceNotFoundException;
 import org.springframework.scheduling.annotation.Async;
 
 public interface TokenBlackListService {

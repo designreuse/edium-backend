@@ -4,6 +4,7 @@ import com.edium.auth.model.TokenBlackList;
 import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.Repository;
+import org.springframework.data.repository.query.Param;
 
 import javax.transaction.Transactional;
 import java.util.List;
@@ -19,5 +20,5 @@ public interface TokenBlackListRepo extends Repository<TokenBlackList, Long> {
     @Transactional
     @Modifying
     @Query("update TokenBlackList set blackListed = 1 where username = :username and (blackListed <> 1 or blackListed is null)")
-    void setBlackListByUser(String username);
+    void setBlackListByUser(@Param(value = "username") String username);
 }

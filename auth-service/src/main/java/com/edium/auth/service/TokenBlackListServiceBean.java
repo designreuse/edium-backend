@@ -1,16 +1,17 @@
 package com.edium.auth.service;
 
-import com.edium.auth.exceptions.ResourceNotFoundException;
 import com.edium.auth.model.TokenBlackList;
 import com.edium.auth.repository.TokenBlackListRepo;
+import com.edium.library.exception.ResourceNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Date;
-import java.util.List;
 import java.util.Optional;
 
 @Service
+@Transactional
 public class TokenBlackListServiceBean implements TokenBlackListService {
     @Autowired
     TokenBlackListRepo tokenBlackListRepo;
@@ -27,7 +28,7 @@ public class TokenBlackListServiceBean implements TokenBlackListService {
 
     @Override
     public void addToEnabledList(String username, String jti, Long expired) {
-        // clean all black listed tokens for user
+        // clean all black listed tokens for core
         tokenBlackListRepo.setBlackListByUser(username);
 
         // Add new token white listed
@@ -51,7 +52,7 @@ public class TokenBlackListServiceBean implements TokenBlackListService {
 
     @Override
     public void addAllToBlackList(String username) {
-        // clean all black listed tokens for user
+        // clean all black listed tokens for core
         tokenBlackListRepo.setBlackListByUser(username);
     }
 

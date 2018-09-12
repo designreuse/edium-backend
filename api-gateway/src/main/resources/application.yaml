@@ -59,6 +59,8 @@ management:
 
 spring:
   profiles: dev
+  zipkin:
+    base-url: http://zipkin-server:9411/
 
 eureka:
   client:
@@ -69,6 +71,8 @@ eureka:
 
 spring:
   profiles: docker
+  zipkin:
+    base-url: http://zipkin-server:9411/
 
 eureka:
   client:
@@ -78,6 +82,8 @@ eureka:
 
 spring:
   profiles: prod
+  zipkin:
+    base-url: http://zipkin-server:9411/
 
 eureka:
   client:

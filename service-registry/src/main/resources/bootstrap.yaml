@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: service-registry
+  cloud:
+    config:
+      uri: http://localhost:9999
+
+---
+
+spring:
+  profiles: dev
+  cloud:
+    config:
+      uri: http://config-server:9999
+
+---
+
+spring:
+  profiles: docker
+  cloud:
+    config:
+      uri: http://config-server:9999

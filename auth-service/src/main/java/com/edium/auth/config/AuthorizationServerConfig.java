@@ -1,11 +1,17 @@
 package com.edium.auth.config;
 
+import com.edium.auth.security.CustomTokenConverter;
+import com.edium.auth.security.CustomTokenService;
+import com.edium.auth.security.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -13,11 +19,12 @@ import org.springframework.security.oauth2.config.annotation.web.configuration.A
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableAuthorizationServer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerEndpointsConfigurer;
 import org.springframework.security.oauth2.config.annotation.web.configurers.AuthorizationServerSecurityConfigurer;
+import org.springframework.security.oauth2.provider.ClientDetailsService;
+import org.springframework.security.oauth2.provider.client.JdbcClientDetailsService;
+import org.springframework.security.oauth2.provider.request.DefaultOAuth2RequestFactory;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
-import org.springframework.security.oauth2.provider.token.TokenEnhancer;
 import org.springframework.security.oauth2.provider.token.TokenEnhancerChain;
 import org.springframework.security.oauth2.provider.token.TokenStore;
-import org.springframework.security.oauth2.provider.token.store.JdbcTokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
@@ -27,6 +34,9 @@ import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
+@ComponentScan({"com.edium.library", "com.edium.auth"})
+@EnableJpaRepositories({"com.edium.library.repository", "com.edium.auth.repository"})
+@EntityScan({"com.edium.library.model", "com.edium.auth.model"})
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     @Value("${oauth2.paths.token}")
@@ -124,9 +134,20 @@ public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdap
 
     @Override
     public void configure(ClientDetailsServiceConfigurer clients) throws Exception {
-        clients
-                .jdbc(datasource)
-                .passwordEncoder(passwordEncoder);
+        clients.withClientDetails(clientDetailsService());
+    }
+
+    @Bean
+    public ClientDetailsService clientDetailsService() {
+        JdbcClientDetailsService clientDetailsService = new JdbcClientDetailsService(datasource);
+        clientDetailsService.setPasswordEncoder(passwordEncoder);
+
+        return clientDetailsService;
+    }
+
+    @Bean
+    public DefaultOAuth2RequestFactory defaultOAuth2RequestFactory() {
+        return new DefaultOAuth2RequestFactory(clientDetailsService());
     }
 
     @Override

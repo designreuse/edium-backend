@@ -1,0 +1,14 @@
+[
+  {
+    "name": "Admin",
+    "description": "Admin can do all.",
+    "target": "subject.roles.contains('ADMIN')",
+    "condition": "true"
+  },
+  {
+    "name": "User view ",
+    "description": "Admin can do all.",
+    "target": "subject.roles.contains('ROLE_USER')",
+    "condition": "subject.organizationId == resource.id"
+  }
+]
