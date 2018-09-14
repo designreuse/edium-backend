@@ -1,8 +1,8 @@
 package com.edium.auth.service;
 
-import com.edium.library.model.User;
-import com.edium.library.model.Role;
-import com.edium.library.repository.UserRepository;
+import com.edium.library.model.core.User;
+import com.edium.library.model.core.Role;
+import com.edium.library.repository.core.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

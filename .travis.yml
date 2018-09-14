@@ -43,7 +43,7 @@ install:
 - pip --version
 - sudo pip install --upgrade pip
 - pip --version
-- pip install --core awscli
+- pip install --user awscli
 - export PATH=$PATH:$HOME/.local/bin
 # show version
 - docker --version

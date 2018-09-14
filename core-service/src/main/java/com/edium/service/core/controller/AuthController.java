@@ -1,12 +1,12 @@
 package com.edium.service.core.controller;
 
 import com.edium.library.exception.AppException;
-import com.edium.library.model.Role;
-import com.edium.library.model.User;
+import com.edium.library.model.core.Role;
+import com.edium.library.model.core.User;
 import com.edium.library.payload.ApiResponse;
 import com.edium.library.model.RoleCode;
-import com.edium.library.repository.RoleRepository;
-import com.edium.library.repository.UserRepository;
+import com.edium.library.repository.core.RoleRepository;
+import com.edium.library.repository.core.UserRepository;
 import com.edium.service.core.payload.SignUpRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;

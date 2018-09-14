@@ -1,6 +1,6 @@
 package com.edium.auth.security;
 
-import com.edium.library.model.User;
+import com.edium.library.model.core.User;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.restfb.DefaultFacebookClient;

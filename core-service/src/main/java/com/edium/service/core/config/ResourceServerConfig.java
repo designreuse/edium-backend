@@ -1,5 +1,6 @@
 package com.edium.service.core.config;
 
+import com.edium.library.config.CustomAccessTokenConverter;
 import com.edium.library.spring.AbacPermissionEvaluator;
 import com.edium.library.spring.JwtAuthenticationEntryPoint;
 import org.apache.commons.io.IOUtils;
@@ -24,10 +25,6 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
-import org.springframework.social.connect.ConnectionFactoryLocator;
-import org.springframework.social.connect.UsersConnectionRepository;
-import org.springframework.social.connect.mem.InMemoryUsersConnectionRepository;
-import org.springframework.social.connect.web.ProviderSignInController;
 
 @Configuration
 @ComponentScan("com.edium.library")

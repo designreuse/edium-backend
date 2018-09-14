@@ -1,8 +1,8 @@
 package com.edium.auth.security;
 
-import com.edium.library.model.User;
+import com.edium.library.model.core.User;
 import com.edium.library.model.UserPrincipal;
-import com.edium.library.repository.UserRepository;
+import com.edium.library.repository.core.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;

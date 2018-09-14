@@ -30,6 +30,15 @@ public class Group extends UserDateAudit {
     @Column(nullable = false)
     private String rootPath;
 
+//    @JsonManagedReference
+//    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+//    private List<Menu> menus;
+//
+//    @JsonBackReference
+//    @ManyToOne(cascade = CascadeType.ALL)
+//    @JoinColumn(name = "parent_id")
+//    private Menu parent;
+
     public Long getId() {
         return id;
     }

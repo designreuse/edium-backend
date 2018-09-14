@@ -10,6 +10,7 @@ import org.springframework.security.oauth2.provider.authentication.OAuth2Authent
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Map;
 
 public class Utils {
@@ -66,7 +67,7 @@ public class Utils {
         return currentUser;
     }
 
-    private void validatePageNumberAndSize(int page, int size) {
+    public static void validatePageNumberAndSize(int page, int size) {
         if(page < 0) {
             throw new BadRequestException("Page number cannot be less than zero.");
         }
@@ -74,5 +75,19 @@ public class Utils {
         if(size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
+    }
+
+    public static List<Long> getGroupPathOfGroup(String rootPath) {
+        List<Long> groupId = new ArrayList<>();
+
+        String groupPath = rootPath == null ? "" : rootPath;
+
+        String[] ids = groupPath.split("\\/");
+
+        for (String id : ids) {
+            groupId.add(Long.parseLong(id));
+        }
+
+        return groupId;
     }
 }

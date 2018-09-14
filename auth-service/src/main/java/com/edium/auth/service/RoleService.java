@@ -1,6 +1,6 @@
 package com.edium.auth.service;
 
-import com.edium.library.model.Role;
+import com.edium.library.model.core.Role;
 
 public interface RoleService {
 

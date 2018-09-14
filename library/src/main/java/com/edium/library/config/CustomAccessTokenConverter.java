@@ -1,4 +1,4 @@
-package com.edium.service.core.config;
+package com.edium.library.config;
 
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.util.Utils;

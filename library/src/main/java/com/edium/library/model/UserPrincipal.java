@@ -1,5 +1,7 @@
 package com.edium.library.model;
 
+import com.edium.library.model.core.Role;
+import com.edium.library.model.core.User;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;

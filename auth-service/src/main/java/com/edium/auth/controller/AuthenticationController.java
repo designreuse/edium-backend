@@ -5,7 +5,7 @@ import com.edium.auth.config.SmtpMailSender;
 import com.edium.auth.exceptions.InvalidRequestException;
 import com.edium.auth.security.RestFB;
 import com.edium.auth.security.TokenUtils;
-import com.edium.library.model.User;
+import com.edium.library.model.core.User;
 import com.edium.auth.service.UserService;
 import com.edium.library.model.UserPrincipal;
 import org.apache.commons.lang.RandomStringUtils;

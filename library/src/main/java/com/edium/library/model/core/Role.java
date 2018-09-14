@@ -1,9 +1,9 @@
-package com.edium.library.model;
+package com.edium.library.model.core;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 public class Role implements Serializable {
@@ -16,6 +16,11 @@ public class Role implements Serializable {
 
     @NotNull
     private String label;
+
+    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinTable(name = "RoleAuthority", joinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id"),
+            inverseJoinColumns = @JoinColumn(name = "authorityId", referencedColumnName = "id"))
+    private Set<Authority> authorities;
 
     public Role() {
     }
@@ -55,4 +60,11 @@ public class Role implements Serializable {
         this.label = label;
     }
 
+    public Set<Authority> getAuthorities() {
+        return authorities;
+    }
+
+    public void setAuthorities(Set<Authority> authorities) {
+        this.authorities = authorities;
+    }
 }

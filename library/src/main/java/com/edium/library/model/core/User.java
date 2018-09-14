@@ -1,5 +1,6 @@
-package com.edium.library.model;
+package com.edium.library.model.core;
 
+import com.edium.library.model.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 
@@ -8,7 +9,6 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -66,6 +66,10 @@ public class User extends DateAudit {
             inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id"))
     private Set<Role> roles;
 
+    private Long organizationId;
+
+    private Long groupId;
+
     public User() {
     }
 
@@ -76,6 +80,14 @@ public class User extends DateAudit {
         this.password = password;
     }
 
+    public Long getGroupId() {
+        return groupId;
+    }
+
+    public void setGroupId(Long groupId) {
+        this.groupId = groupId;
+    }
+
     public String getProvider() {
         return provider;
     }
@@ -83,8 +95,6 @@ public class User extends DateAudit {
     public void setProvider(String provider) {
         this.provider = provider;
     }
-
-    private Long organizationId;
 
     public Long getId() {
         return id;

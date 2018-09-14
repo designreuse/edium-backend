@@ -1,8 +1,8 @@
 package com.edium.auth.service;
 
 import com.edium.library.exception.ResourceNotFoundException;
-import com.edium.library.model.Role;
-import com.edium.library.repository.RoleRepository;
+import com.edium.library.model.core.Role;
+import com.edium.library.repository.core.RoleRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;

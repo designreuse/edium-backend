@@ -1,38 +1,36 @@
 package com.edium.service.core.controller;
 
 import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.payload.PagedResponse;
 import com.edium.library.spring.ContextAwarePolicyEnforcement;
+import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
 import com.edium.service.core.payload.GroupRequest;
-import com.edium.service.core.repository.GroupRepository;
-import com.edium.service.core.repository.NoteRepository;
 import com.edium.service.core.repository.OrganizationRepository;
+import com.edium.service.core.service.GroupService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/group")
 public class GroupController {
     @Autowired
-    GroupRepository groupRepository;
+    GroupService groupService;
 
     @Autowired
     OrganizationRepository organizationRepository;
 
     @Autowired
-    NoteRepository noteRepository;
-
-    @Autowired
     private ContextAwarePolicyEnforcement policy;
 
     @GetMapping("")
-    public List<Group> getAllGroup() {
-        return groupRepository.findAll();
+    public PagedResponse<Group> getAllGroup(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                            @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return groupService.findAll(page, size);
     }
 
     @PostMapping("")
@@ -47,8 +45,7 @@ public class GroupController {
         group.setParentId(details.getParentId());
 
         if (details.getParentId() != null) {
-            Group parent = groupRepository.findById(details.getParentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Group", "id", details.getParentId()));
+            Group parent = groupService.findById(details.getParentId());
 
             group.setGroupLevel(parent.getGroupLevel() + 1);
             group.setRootPath(parent.getRootPath() + "/" + parent.getId());
@@ -57,21 +54,19 @@ public class GroupController {
             group.setRootPath("/");
         }
 
-        return groupRepository.save(group);
+        return groupService.save(group);
     }
 
     @GetMapping("/{id}")
     public Group getGroupById(@PathVariable(value = "id") Long id) {
-        return groupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", id));
+        return groupService.findById(id);
     }
 
     @PutMapping("/{id}")
     public Group updateGroup(@PathVariable(value = "id") Long id,
                                            @Valid @RequestBody GroupRequest details) {
 
-        Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Group", "id", id));
+        Group group = groupService.findById(id);
 
         Organization organization = organizationRepository.findById(details.getOrganizationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", details.getOrganizationId()));
@@ -81,8 +76,8 @@ public class GroupController {
         group.setParentId(details.getParentId());
 
         if (details.getParentId() != null) {
-            Group parent = groupRepository.findById(details.getParentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Group", "id", details.getParentId()));
+            Group parent = groupService.findById(details.getParentId());
+
             group.setGroupLevel(parent.getGroupLevel() + 1);
             group.setRootPath(parent.getRootPath() + "/" + parent.getId());
         } else {
@@ -90,15 +85,12 @@ public class GroupController {
             group.setRootPath("/");
         }
 
-        return groupRepository.save(group);
+        return groupService.update(group);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteGroup(@PathVariable(value = "id") Long id) {
-        Group group = groupRepository.findById(id)
-                .orElseThrow(() -> new ResourceNotFoundException("Group", "id", id));
-
-        groupRepository.delete(group);
+        groupService.deleteById(id);
 
         return ResponseEntity.ok().build();
     }

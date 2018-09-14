@@ -1,6 +1,6 @@
 package com.edium.auth.service;
 
-import com.edium.library.model.User;
+import com.edium.library.model.core.User;
 
 import java.util.Collection;
 
