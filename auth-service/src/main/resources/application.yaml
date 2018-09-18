@@ -67,8 +67,8 @@ oauth2:
   keystore_password: $ampl3
   keystore_alias: mykey
   custom_token_field_name: custom_field
-  access_token_validity_seconds: 86400
-  refresh_token_validity_seconds: 86400
+  access_token_validity_seconds: 864000
+  refresh_token_validity_seconds: 864000
   reuse_refresh_token: true
   resourceId: auth-service
 

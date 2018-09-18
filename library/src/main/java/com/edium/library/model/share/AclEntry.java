@@ -6,7 +6,9 @@ import javax.persistence.*;
 import javax.validation.constraints.NotNull;
 
 @Entity()
-@Table(name = "acl_entry_grant")
+@Table(name = "acl_entry_grant", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"resourceTypeId", "resourceId", "subjectTypeId", "subjectId"}, name = "acl_entry_resource_subject_uk")
+})
 public class AclEntry {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -39,7 +41,7 @@ public class AclEntry {
     private boolean inherit = true;
 
     public void entryRequestToEntry(AclEntryRequest entryRequest, AclResourceType resourceType,
-                                               AclSubjectType subjectType) {
+                                    AclSubjectType subjectType) {
         this.setDeleteGrant(entryRequest.isDeleteGrant());
         this.setInherit(entryRequest.isInherit());
         this.setPositionId(entryRequest.getPositionId());

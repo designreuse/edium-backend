@@ -23,10 +23,7 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 
 import javax.validation.ConstraintViolation;
 import javax.validation.ConstraintViolationException;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -217,7 +214,7 @@ public class ApiValidationExceptionHandler extends ResponseEntityExceptionHandle
         logger.error("error", ex);
 
         ApiErrorsView apiErrorsView;
-        if (ex instanceof ResourceNotFoundException || ex instanceof BadRequestException) {
+        if (ex instanceof ResourceNotFoundException || ex instanceof BadRequestException || ex instanceof ResourceExistException) {
             apiErrorsView = new ApiErrorsView(HttpStatus.BAD_REQUEST, ex.getMessage(), getPath(request));
         } else {
             apiErrorsView = new ApiErrorsView(HttpStatus.BAD_REQUEST, "error occurred", getPath(request));

@@ -2,6 +2,7 @@ package com.edium.service.data.controller;
 
 import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.AclEntryPermission;
+import com.edium.library.model.share.AclEntry;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.util.AppConstants;
 import com.edium.service.data.model.Course;
@@ -48,12 +49,12 @@ public class CourseController {
     }
 
     @PostMapping("")
-    public Course createGroup(@Valid @RequestBody Course details) {
+    public Course createCourse(@Valid @RequestBody Course details) {
         return courseService.saveOrUpdate(details);
     }
 
     @PutMapping("/{id}")
-    public Course updateGroup(@PathVariable(value = "id") Long id,
+    public Course updateCourse(@PathVariable(value = "id") Long id,
                               @Valid @RequestBody Course details) {
         return courseService.findById(id)
                 .map(course -> {
@@ -64,8 +65,8 @@ public class CourseController {
                 .orElseThrow(() -> new ResourceNotFoundException("Course", "id", id));
     }
 
-    @GetMapping("/{id}/check/user/{userId}")
-    public boolean checkPermissionReadUser(@PathVariable(value = "id") Long courseId,
+    @GetMapping("/{id}/user/{userId}/check")
+    public boolean checkPermissionUser(@PathVariable(value = "id") Long courseId,
                                            @PathVariable(value = "userId") Long userId,
                                            @RequestParam(value = "permission") String permission) {
 
@@ -79,13 +80,17 @@ public class CourseController {
     }
 
     @PostMapping("/permission/group/{groupId}")
-    public void setPermissionForGroup(@Valid @RequestBody EntryCourseGrantRequest grantRequest) {
-        courseService.setPermissionForGroup(grantRequest);
+    public AclEntry setPermissionForGroup(@Valid @RequestBody EntryCourseGrantRequest grantRequest,
+                                          @PathVariable(name = "groupId") Long groupId) {
+        grantRequest.setGroupId(groupId);
+        return courseService.setPermissionForGroup(grantRequest);
     }
 
     @PostMapping("/permission/user/{userId}")
-    public void setPermissionForUser(@Valid @RequestBody EntryCourseGrantRequest grantRequest) {
-        courseService.setPermissionForUser(grantRequest);
+    public AclEntry setPermissionForUser(@Valid @RequestBody EntryCourseGrantRequest grantRequest,
+                                     @PathVariable(name = "userId") Long userId) {
+        grantRequest.setUserId(userId);
+        return courseService.setPermissionForUser(grantRequest);
     }
 
     @GetMapping("/user/{userId}/owner")

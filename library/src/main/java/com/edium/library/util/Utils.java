@@ -77,7 +77,7 @@ public class Utils {
         }
     }
 
-    public static List<Long> getGroupPathOfGroup(String rootPath) {
+    public static List<Long> getGroupPathOfGroup(String rootPath, Long currGroupId) {
         List<Long> groupId = new ArrayList<>();
 
         String groupPath = rootPath == null ? "" : rootPath;
@@ -86,6 +86,10 @@ public class Utils {
 
         for (String id : ids) {
             groupId.add(Long.parseLong(id));
+        }
+
+        if (!groupId.contains(currGroupId)) {
+            groupId.add(currGroupId);
         }
 
         return groupId;

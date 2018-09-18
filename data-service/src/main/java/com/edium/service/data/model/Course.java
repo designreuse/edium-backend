@@ -3,7 +3,7 @@ package com.edium.service.data.model;
 import com.edium.library.model.UserDateAudit;
 
 import javax.persistence.*;
-import javax.validation.constraints.NotNull;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Course extends UserDateAudit {
@@ -12,11 +12,11 @@ public class Course extends UserDateAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String name;
 
-    @NotNull
+    @NotBlank
     @Column(nullable = false)
     private String shortDescription;
 

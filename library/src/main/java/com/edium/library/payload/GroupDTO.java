@@ -7,6 +7,17 @@ public class GroupDTO {
     private Long groupLevel;
     private String rootPath;
 
+    public GroupDTO() {
+    }
+
+    public GroupDTO(Long id, String name, Long parentId, Long groupLevel, String rootPath) {
+        this.id = id;
+        this.name = name;
+        this.parentId = parentId;
+        this.groupLevel = groupLevel;
+        this.rootPath = rootPath;
+    }
+
     public Long getId() {
         return id;
     }

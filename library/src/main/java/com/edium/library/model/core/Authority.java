@@ -12,6 +12,9 @@ public class Authority {
     @NotNull
     private String code;
 
+    public Authority() {
+    }
+
     public Authority(Long id, @NotNull String code) {
         this.id = id;
         this.code = code;

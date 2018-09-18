@@ -1,14 +1,13 @@
 package com.edium.service.data.payload;
 
-import com.edium.library.model.ResourceTypeCode;
 import com.edium.library.model.share.AclEntry;
 import com.edium.library.payload.EntryGrantRequest;
 
-import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 public class EntryCourseGrantRequest extends EntryGrantRequest {
 
-    @NotBlank
+    @NotNull
     private Long courseId;
 
     private Long groupId;

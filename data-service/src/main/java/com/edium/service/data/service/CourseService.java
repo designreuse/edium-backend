@@ -1,5 +1,6 @@
 package com.edium.service.data.service;
 
+import com.edium.library.model.share.AclEntry;
 import com.edium.library.payload.PagedResponse;
 import com.edium.service.data.model.Course;
 import com.edium.service.data.payload.EntryCourseGrantRequest;
@@ -23,9 +24,9 @@ public interface CourseService {
 
     void deleteById(Long id);
 
-    void setPermissionForGroup(EntryCourseGrantRequest grantRequest);
+    AclEntry setPermissionForGroup(EntryCourseGrantRequest grantRequest);
 
-    void setPermissionForUser(EntryCourseGrantRequest grantRequest);
+    AclEntry setPermissionForUser(EntryCourseGrantRequest grantRequest);
 
     List<Course> findPriCourseForUser(Long userId);
 

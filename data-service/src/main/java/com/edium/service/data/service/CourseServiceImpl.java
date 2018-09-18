@@ -1,9 +1,11 @@
 package com.edium.service.data.service;
 
 import com.edium.library.exception.BadRequestException;
+import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.AclEntryPermission;
 import com.edium.library.model.ResourceTypeCode;
 import com.edium.library.model.SubjectTypeCode;
+import com.edium.library.model.share.AclEntry;
 import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.PagedResponse;
@@ -22,7 +24,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
-import javax.validation.Valid;
 import java.util.List;
 import java.util.Optional;
 
@@ -87,31 +88,37 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public void setPermissionForGroup(EntryCourseGrantRequest grantRequest) {
+    public AclEntry setPermissionForGroup(EntryCourseGrantRequest grantRequest) {
         if (Utils.isNullOrEmpty(grantRequest.getGroupId())) {
             throw new BadRequestException("GroupId is null");
         }
 
-        if (grantRequest.isReadGrant() || grantRequest.isWriteGrant() || grantRequest.isDeleteGrant()) {
-            AclResourceType resourceType = aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString());
-            AclSubjectType subjectType = aclService.getSubjectTypeByType(SubjectTypeCode.GROUP.toString());
+        courseRepository.findById(grantRequest.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", grantRequest.getCourseId()));
 
-            aclService.save(grantRequest.mapToAclEntry(resourceType.getId(), subjectType.getId()));
-        }
+        //check group exist
+
+        AclResourceType resourceType = aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString());
+        AclSubjectType subjectType = aclService.getSubjectTypeByType(SubjectTypeCode.GROUP.toString());
+
+        return aclService.saveOrUpdate(grantRequest.mapToAclEntry(resourceType.getId(), subjectType.getId()));
     }
 
     @Override
-    public void setPermissionForUser(EntryCourseGrantRequest grantRequest) {
+    public AclEntry setPermissionForUser(EntryCourseGrantRequest grantRequest) {
         if (Utils.isNullOrEmpty(grantRequest.getUserId())) {
             throw new BadRequestException("UserId is null");
         }
 
-        if (grantRequest.isReadGrant() || grantRequest.isWriteGrant() || grantRequest.isDeleteGrant()) {
-            AclResourceType resourceType = aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString());
-            AclSubjectType subjectType = aclService.getSubjectTypeByType(SubjectTypeCode.USER.toString());
+        courseRepository.findById(grantRequest.getCourseId())
+                .orElseThrow(() -> new ResourceNotFoundException("Course", "id", grantRequest.getCourseId()));
 
-            aclService.save(grantRequest.mapToAclEntry(resourceType.getId(), subjectType.getId()));
-        }
+        //check user exist
+
+        AclResourceType resourceType = aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString());
+        AclSubjectType subjectType = aclService.getSubjectTypeByType(SubjectTypeCode.USER.toString());
+
+        return aclService.saveOrUpdate(grantRequest.mapToAclEntry(resourceType.getId(), subjectType.getId()));
     }
 
     @Override
