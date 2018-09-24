@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/group")
@@ -34,25 +35,13 @@ public class GroupController {
     }
 
     @PostMapping("")
-    public Group createGroup(@Valid @RequestBody GroupRequest details) {
+    public Group createGroup(@Valid @RequestBody GroupRequest details) throws Exception {
         Group group = new Group();
 
         Organization organization = organizationRepository.findById(details.getOrganizationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", details.getOrganizationId()));
 
-        group.setName(details.getName());
-        group.setOrganization(organization);
-        group.setParentId(details.getParentId());
-
-        if (details.getParentId() != null) {
-            Group parent = groupService.findById(details.getParentId());
-
-            group.setGroupLevel(parent.getGroupLevel() + 1);
-            group.setRootPath(parent.getRootPath() + "/" + parent.getId());
-        } else {
-            group.setGroupLevel(0l);
-            group.setRootPath("/");
-        }
+        mapGroupRequestToModel(details, group, organization);
 
         return groupService.save(group);
     }
@@ -71,19 +60,7 @@ public class GroupController {
         Organization organization = organizationRepository.findById(details.getOrganizationId())
                 .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", details.getOrganizationId()));
 
-        group.setName(details.getName());
-        group.setOrganization(organization);
-        group.setParentId(details.getParentId());
-
-        if (details.getParentId() != null) {
-            Group parent = groupService.findById(details.getParentId());
-
-            group.setGroupLevel(parent.getGroupLevel() + 1);
-            group.setRootPath(parent.getRootPath() + "/" + parent.getId());
-        } else {
-            group.setGroupLevel(0l);
-            group.setRootPath("/");
-        }
+        mapGroupRequestToModel(details, group, organization);
 
         return groupService.update(group);
     }
@@ -93,5 +70,34 @@ public class GroupController {
         groupService.deleteById(id);
 
         return ResponseEntity.ok().build();
+    }
+
+    @GetMapping("/{id}/parent")
+    public Group getParentGroup(@PathVariable(value = "id") Long groupId) {
+        return groupService.getParentOfGroup(groupId);
+    }
+
+    @GetMapping("/{id}/children")
+    public List<Group> getChildrens(@PathVariable(value = "id") Long groupId) {
+        return groupService.getAllChildenGroups(groupId);
+    }
+
+    @GetMapping("/{id}/tree")
+    public List<Group> getTree(@PathVariable(value = "id") Long groupId) {
+        return groupService.getTreeGroupByGroupId(groupId);
+    }
+
+    private void mapGroupRequestToModel(GroupRequest details, Group group, Organization organization) {
+        group.setName(details.getName());
+        group.setOrganization(organization);
+        group.setParentId(details.getParentId());
+
+        if (details.getParentId() != null) {
+            Group parent = groupService.findById(details.getParentId());
+
+            group.setGroupLevel(parent.getGroupLevel() + 1);
+            group.setParentPath(parent.getRootPath());
+            group.setParentEncodedPath(parent.getEncodedRootPath());
+        }
     }
 }

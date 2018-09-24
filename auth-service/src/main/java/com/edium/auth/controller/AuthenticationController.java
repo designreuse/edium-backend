@@ -1,13 +1,19 @@
 package com.edium.auth.controller;
 
-import com.edium.auth.security.CustomTokenService;
 import com.edium.auth.config.SmtpMailSender;
 import com.edium.auth.exceptions.InvalidRequestException;
+import com.edium.auth.security.CustomTokenService;
 import com.edium.auth.security.RestFB;
 import com.edium.auth.security.TokenUtils;
-import com.edium.library.model.core.User;
 import com.edium.auth.service.UserService;
+import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.UserPrincipal;
+import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserOrganization;
+import com.edium.library.model.core.UserRole;
+import com.edium.library.repository.core.RoleRepository;
+import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.util.AppConstants;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,12 +24,16 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.provider.OAuth2Authentication;
 import org.springframework.security.oauth2.provider.token.DefaultTokenServices;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RestController;
 
 import javax.mail.MessagingException;
 import javax.servlet.http.HttpServletRequest;
 import javax.validation.Valid;
 import java.security.Principal;
+import java.util.Collections;
 
 /**
  * This controller is responsible to manage the authentication
@@ -52,6 +62,12 @@ public class AuthenticationController extends BaseController{
 
     @Autowired
     private TokenUtils tokenUtils;
+
+    @Autowired
+    RoleRepository roleRepository;
+
+    @Autowired
+    UserRoleRepository userRoleRepository;
 
     @RequestMapping("/auth/user")
     public Principal user(Principal user) {
@@ -82,9 +98,28 @@ public class AuthenticationController extends BaseController{
             localUser.setPassword(passwordEncoder.encode(RandomStringUtils.randomAlphabetic(8)));
         }
         restFB.buildUser(user, localUser);
-        accountService.saveOrUpdate(localUser);
 
-        UserPrincipal principal = UserPrincipal.create(localUser);
+        UserPrincipal principal;
+        if (localUser.getId() == null) {
+            UserOrganization userOrganization = new UserOrganization();
+            userOrganization.setOrganizationId(AppConstants.DEFAULT_ORGANIZATION_ID);
+            userOrganization.setGroupId(AppConstants.DEFAULT_GROUP_ID);
+            userOrganization.setUser(localUser);
+
+            UserRole userRole = new UserRole();
+            userRole.setRole(roleRepository.findByCode(AppConstants.DEFAULT_ROLE.toString())
+                    .orElseThrow(() -> new ResourceNotFoundException("Role", "code", AppConstants.DEFAULT_ROLE.toString())));
+            userRole.setUserOrganization(userOrganization);
+
+            userRoleRepository.save(userRole);
+
+
+            principal = UserPrincipal.create(userRole.getUserOrganization().getUser(), Collections.singletonList(userRole));
+        } else {
+            accountService.saveOrUpdate(localUser);
+
+            principal = UserPrincipal.create(localUser, userRoleRepository.getByUserId(localUser.getId()));
+        }
 
         return new ResponseEntity<>(tokenUtils.getToken(principal, clientId), HttpStatus.OK);
     }

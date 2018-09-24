@@ -1,9 +1,6 @@
-com/edium/service/core/controller/NoteController.class
-com/edium/service/core/service/AclServiceImpl$1.class
 com/edium/service/core/exception/PermissionNotDefinedException.class
 com/edium/service/core/CoreServiceApplication.class
 com/edium/service/core/repository/OrganizationRepository.class
-com/edium/service/core/model/Note.class
 com/edium/service/core/controller/AuthController.class
 com/edium/service/core/controller/UserController.class
 com/edium/service/core/service/GroupService.class
@@ -23,9 +20,9 @@ com/edium/service/core/service/UserService.class
 com/edium/service/core/controller/GroupController.class
 com/edium/service/core/service/AclServiceImpl.class
 com/edium/service/core/payload/SignUpRequest.class
-com/edium/service/core/repository/NoteRepository.class
 com/edium/service/core/config/MethodSecurityConfig.class
 com/edium/service/core/security/Permission.class
 com/edium/service/core/service/UserServiceImpl.class
+com/edium/service/core/payload/SetGroupRequest.class
 com/edium/service/core/payload/LoginRequest.class
 com/edium/service/core/config/ResourceServerConfig.class

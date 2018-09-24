@@ -3,17 +3,26 @@ package com.edium.service.core.model;
 import com.edium.library.model.UserDateAudit;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
-@Table(name = "team_group")
+@Table(name = "team_group", indexes = {
+        @Index(name = "group_idx1", columnList = "organizationId"),
+        @Index(name = "group_idx2", columnList = "parentId"),
+}, uniqueConstraints = {
+        @UniqueConstraint(name = "uk_group_name", columnNames = "name"),
+        @UniqueConstraint(name = "uk_group_encode_id", columnNames = "encodedId"),
+        @UniqueConstraint(name = "uk_group_encode_path", columnNames = "encodedRootPath"),
+        @UniqueConstraint(name = "uk_group_root_path", columnNames = "rootPath"),
+})
 public class Group extends UserDateAudit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
-    @Column(nullable = false, unique = true)
+    @NotBlank
+    @Column(nullable = false)
     private String name;
 
     private Long parentId;
@@ -26,9 +35,20 @@ public class Group extends UserDateAudit {
     @Column(nullable = false)
     private Long groupLevel = 0l;
 
-    @NotNull
-    @Column(nullable = false)
+    @Column(nullable = true, length = 1000)
     private String rootPath;
+
+    @Column(nullable = true)
+    private String encodedId;
+
+    @Column(nullable = true, length = 1000)
+    private String encodedRootPath;
+
+    @Transient
+    private String parentPath;
+
+    @Transient
+    private String parentEncodedPath;
 
 //    @JsonManagedReference
 //    @OneToMany(mappedBy = "parent", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
@@ -85,5 +105,37 @@ public class Group extends UserDateAudit {
 
     public void setRootPath(String rootPath) {
         this.rootPath = rootPath;
+    }
+
+    public String getEncodedId() {
+        return encodedId;
+    }
+
+    public void setEncodedId(String encodedId) {
+        this.encodedId = encodedId;
+    }
+
+    public String getEncodedRootPath() {
+        return encodedRootPath;
+    }
+
+    public void setEncodedRootPath(String encodedRootPath) {
+        this.encodedRootPath = encodedRootPath;
+    }
+
+    public String getParentPath() {
+        return parentPath;
+    }
+
+    public void setParentPath(String parentPath) {
+        this.parentPath = parentPath;
+    }
+
+    public String getParentEncodedPath() {
+        return parentEncodedPath;
+    }
+
+    public void setParentEncodedPath(String parentEncodedPath) {
+        this.parentEncodedPath = parentEncodedPath;
     }
 }

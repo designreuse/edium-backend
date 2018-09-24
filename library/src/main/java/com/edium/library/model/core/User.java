@@ -9,16 +9,12 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
-import java.util.Set;
+import java.util.List;
 
 @Entity
-@Table(name = "account", uniqueConstraints = {
-        @UniqueConstraint(columnNames = {
-                "username"
-        }),
-        @UniqueConstraint(columnNames = {
-                "email"
-        })
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_user_idx1", columnNames = {"username"}),
+        @UniqueConstraint(name = "uk_user_idx2", columnNames = {"email"})
 })
 public class User extends DateAudit {
 
@@ -27,7 +23,8 @@ public class User extends DateAudit {
     private Long id;
 
     @Size(min = 8, max = 255, message = "Username have to be greater than 8 characters")
-    @Column(unique = true)
+    @Column(nullable = false, unique = true)
+    @NotNull
     private String username;
 
     @NotNull
@@ -43,6 +40,7 @@ public class User extends DateAudit {
     @NotBlank
     @Size(max = 40)
     @Email
+    @Column(nullable = false, unique = true)
     private String email;
 
     @NotNull
@@ -61,10 +59,8 @@ public class User extends DateAudit {
         isPasswordDefault = passwordDefault;
     }
 
-    @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
-    @JoinTable(name = "AccountRole", joinColumns = @JoinColumn(name = "accountId", referencedColumnName = "id"),
-            inverseJoinColumns = @JoinColumn(name = "roleId", referencedColumnName = "id"))
-    private Set<Role> roles;
+    @Transient
+    private List<UserOrganization> userOrganizations;
 
     private Long organizationId;
 
@@ -128,14 +124,6 @@ public class User extends DateAudit {
         this.enabled = enabled;
     }
 
-    public Set<Role> getRoles() {
-        return roles;
-    }
-
-    public void setRoles(Set<Role> roles) {
-        this.roles = roles;
-    }
-
     public Long getOrganizationId() {
         return organizationId;
     }
@@ -158,5 +146,13 @@ public class User extends DateAudit {
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public List<UserOrganization> getUserOrganizations() {
+        return userOrganizations;
+    }
+
+    public void setUserOrganizations(List<UserOrganization> userOrganizations) {
+        this.userOrganizations = userOrganizations;
     }
 }

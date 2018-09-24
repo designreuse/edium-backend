@@ -6,6 +6,9 @@ spring:
   sleuth:
     sampler:
       probability: 1
+  boot:
+    admin:
+      context-path: /admin
 
 server:
   port: 8761
@@ -18,17 +21,28 @@ eureka:
     hostname: localhost
     prefer-ip-address: true
     instance-id: ${spring.application.name}:${vcap.application.instance_id:${spring.application.instance_id:${random.value}}}
+    leaseRenewalIntervalInSeconds: 10
+    health-check-url-path: /actuator/health
   client:
-      register-with-eureka: false
-      fetch-registry: false
-      service-url:
-        defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
+    registryFetchIntervalSeconds: 5
+    register-with-eureka: false
+    fetch-registry: true
+    service-url:
+      defaultZone: http://${eureka.instance.hostname}:${server.port}/eureka/
   server:
     wait-time-in-ms-when-sync-empty: 0
     enable-self-preservation: false
 
 logging:
   file: logs/application.log
+
+management:
+  endpoints:
+      exposure:
+        include: "*"
+  endpoint:
+    health:
+      show-details: ALWAYS
 ---
 spring:
   profiles: dev

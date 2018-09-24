@@ -1,7 +1,7 @@
 package com.edium.library.model;
 
-import com.edium.library.model.core.Role;
 import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserRole;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -47,14 +47,44 @@ public class UserPrincipal implements UserDetails {
         this.authorities = authorities;
         this.enable = isEnable;
         this.organizationId = organizationId;
+
+        roles = new ArrayList<>();
+        authorities.stream().forEach(o -> roles.add(((GrantedAuthority) o).getAuthority()));
     }
 
-    public static UserPrincipal create(User user) {
+//    public static UserPrincipal create(User user) {
+//        Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
+//        if (user.getOrganizationId() != null) {
+//            for (UserOrganization userOrganization : user.getUserOrganizations()) {
+//                if (userOrganization.getOrganizationId().equals(user.getOrganizationId())) {
+//                    for (UserRole role : userOrganization.getRoles()) {
+//                        grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole().getCode()));
+//                    }
+//                }
+//            }
+//        } else {
+//            grantedAuthorities.add(new SimpleGrantedAuthority(RoleCode.ROLE_NORMAL_USER.toString()));
+//        }
+//        return new UserPrincipal(
+//                user.getId(),
+//                user.getName(),
+//                user.getUsername(),
+//                user.getEmail(),
+//                user.getPassword(),
+//                user.isEnabled(),
+//                user.getOrganizationId(),
+//                grantedAuthorities
+//        );
+//    }
+
+    public static UserPrincipal create(User user, List<UserRole> roles) {
         Collection<GrantedAuthority> grantedAuthorities = new ArrayList<>();
-        List<String> roles = new ArrayList<>();
-        for (Role role : user.getRoles()) {
-            grantedAuthorities.add(new SimpleGrantedAuthority(role.getCode()));
-            roles.add(role.getCode());
+        if (user.getOrganizationId() != null) {
+            for (UserRole role : roles) {
+                grantedAuthorities.add(new SimpleGrantedAuthority(role.getRole().getCode()));
+            }
+        } else {
+            grantedAuthorities.add(new SimpleGrantedAuthority(RoleCode.ROLE_NORMAL_USER.toString()));
         }
         return new UserPrincipal(
                 user.getId(),

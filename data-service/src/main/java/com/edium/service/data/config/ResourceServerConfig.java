@@ -88,6 +88,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
                 .csrf().disable()
                 .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
                 .authorizeRequests()
+                .antMatchers("/actuator/**").permitAll()
                 .anyRequest()
                 .authenticated();
     }

@@ -1,8 +1,12 @@
 package com.edium.auth.service;
 
-import com.edium.library.model.core.User;
 import com.edium.library.model.core.Role;
+import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserOrganization;
+import com.edium.library.model.core.UserRole;
 import com.edium.library.repository.core.UserRepository;
+import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,6 +35,9 @@ public class UserServiceBean implements UserService {
      */
     @Autowired
     private UserRepository accountRepository;
+
+    @Autowired
+    private UserRoleRepository userRoleRepository;
 
     /**
      * The Spring Data repository for Role entities
@@ -81,9 +88,16 @@ public class UserServiceBean implements UserService {
         // Encode the password
         account.setPassword(new BCryptPasswordEncoder().encode(account.getPassword()));
 
-        // Create the role
-        account.setRoles(roles);
-        return accountRepository.save(account);
+        UserOrganization userOrganization = new UserOrganization();
+        userOrganization.setOrganizationId(AppConstants.DEFAULT_ORGANIZATION_ID);
+        userOrganization.setGroupId(AppConstants.DEFAULT_GROUP_ID);
+        userOrganization.setUser(account);
+
+        UserRole userRole = new UserRole();
+        userRole.setRole(roleService.findByCode(AppConstants.DEFAULT_ROLE.toString()));
+        userRole.setUserOrganization(userOrganization);
+
+        return userRoleRepository.save(userRole).getUserOrganization().getUser();
     }
 
     @Override
