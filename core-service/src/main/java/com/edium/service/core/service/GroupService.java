@@ -33,4 +33,8 @@ public interface GroupService {
 
     Long getGroupOfUserInOrganization(Long userId, Long organizationId);
 
+    PagedResponse<Group> getGroupsOfUser(Long userId, int page, int size);
+
+    Group getCurrentGroupOfUser(Long userId);
+
 }

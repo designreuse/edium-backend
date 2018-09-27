@@ -72,6 +72,10 @@ public class Utils {
             throw new BadRequestException("Page number cannot be less than zero.");
         }
 
+        if(size < 1) {
+            throw new BadRequestException("Page size cannot be less than zero.");
+        }
+
         if(size > AppConstants.MAX_PAGE_SIZE) {
             throw new BadRequestException("Page size must not be greater than " + AppConstants.MAX_PAGE_SIZE);
         }
@@ -85,6 +89,9 @@ public class Utils {
         String[] ids = groupPath.split("\\/");
 
         for (String id : ids) {
+            if (id == null || id.trim().isEmpty()) {
+                continue;
+            }
             groupId.add(Long.parseLong(id));
         }
 

@@ -12,8 +12,6 @@ public interface UserService {
 
     Optional<User> getById(Long userId);
 
-    Group getGroupOfUser(Long userId);
-
     boolean existsByUsername(String username);
 
     boolean existsByEmail(String email);

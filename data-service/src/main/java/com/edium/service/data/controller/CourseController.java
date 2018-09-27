@@ -3,19 +3,18 @@ package com.edium.service.data.controller;
 import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.AclEntryPermission;
 import com.edium.library.model.share.AclEntry;
+import com.edium.library.payload.ApiResponse;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.util.AppConstants;
 import com.edium.service.data.model.Course;
 import com.edium.service.data.payload.EntryCourseGrantRequest;
 import com.edium.service.data.service.CourseService;
 import com.google.common.base.Enums;
+import com.google.common.base.Optional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 
 import javax.validation.Valid;
-import java.util.List;
 
 @RestController
 @RequestMapping("api/courses")
@@ -23,9 +22,6 @@ public class CourseController {
 
     @Autowired
     CourseService courseService;
-
-    @Autowired
-    RestTemplate restTemplate;
 
     @GetMapping("")
     public PagedResponse<Course> getAllCourse(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -39,13 +35,13 @@ public class CourseController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteCourse(@PathVariable(value = "id") Long id) {
+    public ApiResponse deleteCourse(@PathVariable(value = "id") Long id) {
         Course course = courseService.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Course", "id", id));
 
         courseService.delete(course);
 
-        return ResponseEntity.ok().build();
+        return new ApiResponse(true, "SUCCESS");
     }
 
     @PostMapping("")
@@ -70,13 +66,13 @@ public class CourseController {
                                            @PathVariable(value = "userId") Long userId,
                                            @RequestParam(value = "permission") String permission) {
 
-        AclEntryPermission entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission).get();
+        Optional<AclEntryPermission> entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission);
 
-        if (entryPermission == null) {
+        if (!entryPermission.isPresent()) {
             throw new ResourceNotFoundException("Permission", "value", permission);
         }
 
-        return courseService.checkPermissionUser(courseId, userId, entryPermission.toString());
+        return courseService.checkPermissionUser(courseId, userId, entryPermission.get().toString());
     }
 
     @PostMapping("/permission/group/{groupId}")
@@ -101,18 +97,24 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/read")
-    public List<Course> getAllReadableCourse(@PathVariable(name = "userId") Long userId) {
-        return courseService.findPriCourseForUser(userId);
+    public PagedResponse<Course> getAllReadableCourse(@PathVariable(name = "userId") Long userId,
+                                             @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                             @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return courseService.findPriCourseForUserNew(userId, AclEntryPermission.READ, page, size);
     }
 
     @GetMapping("/user/{userId}/write")
-    public List<Course> getAllWriteableCourse(@PathVariable(name = "userId") Long userId) {
-        return courseService.findWriteableCourseForUser(userId);
+    public PagedResponse<Course> getAllWriteableCourse(@PathVariable(name = "userId") Long userId,
+                                              @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                              @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return courseService.findPriCourseForUserNew(userId, AclEntryPermission.WRITE, page, size);
     }
 
     @GetMapping("/user/{userId}/delete")
-    public List<Course> getAllDeleteableCourse(@PathVariable(name = "userId") Long userId) {
-        return courseService.findDeleteableCourseForUser(userId);
+    public PagedResponse<Course> getAllDeleteableCourse(@PathVariable(name = "userId") Long userId,
+                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return courseService.findPriCourseForUserNew(userId, AclEntryPermission.DELETE, page, size);
     }
 
 }

@@ -4,8 +4,11 @@ import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.model.core.User;
 import com.edium.library.payload.ApiResponse;
+import com.edium.library.payload.PagedResponse;
+import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.payload.SetGroupRequest;
+import com.edium.service.core.service.GroupService;
 import com.edium.service.core.service.UserService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -21,6 +24,9 @@ public class UserController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private GroupService groupService;
+
     private static final Logger logger = LoggerFactory.getLogger(UserController.class);
 
     @GetMapping("/{id}")
@@ -29,9 +35,16 @@ public class UserController {
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
     }
 
-    @GetMapping("/{id}/group")
-    public Group getGroupOfUser(@PathVariable(name = "id") Long id) {
-        return userService.getGroupOfUser(id);
+    @GetMapping("/{id}/currentGroup")
+    public Group getCurrentGroupOfUser(@PathVariable(name = "id") Long id) {
+        return groupService.getCurrentGroupOfUser(id);
+    }
+
+    @GetMapping("/{id}/groups")
+    public PagedResponse<Group> getCurrentGroupOfUser(@PathVariable(name = "id") Long id,
+                                                      @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                      @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return groupService.getGroupsOfUser(id, page, size);
     }
 
     @PutMapping("/{id}/setCurrentOrganization/{organizationId}")

@@ -20,6 +20,14 @@ public class Course extends UserDateAudit {
     @Column(nullable = false)
     private String shortDescription;
 
+    public Course(@NotBlank String name, @NotBlank String shortDescription) {
+        this.name = name;
+        this.shortDescription = shortDescription;
+    }
+
+    public Course() {
+    }
+
     public Long getId() {
         return id;
     }

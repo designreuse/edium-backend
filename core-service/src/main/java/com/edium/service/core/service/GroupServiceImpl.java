@@ -1,8 +1,10 @@
 package com.edium.service.core.service;
 
 import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.model.core.User;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.repository.core.UserOrganizationRepository;
+import com.edium.library.repository.core.UserRepository;
 import com.edium.library.util.BaseX;
 import com.edium.library.util.Utils;
 import com.edium.service.core.model.Group;
@@ -23,6 +25,9 @@ public class GroupServiceImpl implements GroupService {
 
     @Autowired
     GroupRepository groupRepository;
+
+    @Autowired
+    UserRepository userRepository;
 
     @Autowired
     UserOrganizationRepository userOrganizationRepository;
@@ -125,5 +130,24 @@ public class GroupServiceImpl implements GroupService {
     @Override
     public Long getGroupOfUserInOrganization(Long userId, Long organizationId) {
         return userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId).getGroupId();
+    }
+
+    @Override
+    public PagedResponse<Group> getGroupsOfUser(Long userId, int page, int size) {
+        Utils.validatePageNumberAndSize(page, size);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+        Page<Group> groups = groupRepository.getGroupsOfUser(userId, pageable);
+
+        return new PagedResponse<>(groups.getContent(), groups.getNumber(),
+                groups.getSize(), groups.getTotalElements(), groups.getTotalPages(), groups.isLast());
+    }
+
+    @Override
+    public Group getCurrentGroupOfUser(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
+
+        return findById(user.getGroupId());
     }
 }

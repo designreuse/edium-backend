@@ -4,6 +4,7 @@ import com.edium.library.payload.AclEntryRequest;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import java.util.Objects;
 
 @Entity()
 @Table(name = "acl_entry_grant", uniqueConstraints = {
@@ -39,6 +40,23 @@ public class AclEntry {
 
     @NotNull
     private boolean inherit = true;
+
+    public AclEntry() {
+    }
+
+    public AclEntry(@NotNull Long resourceTypeId, @NotNull Long resourceId, @NotNull Long subjectTypeId,
+                    @NotNull Long subjectId, @NotNull boolean readGrant, @NotNull boolean writeGrant,
+                    @NotNull boolean deleteGrant, Long positionId, @NotNull boolean inherit) {
+        this.resourceTypeId = resourceTypeId;
+        this.resourceId = resourceId;
+        this.subjectTypeId = subjectTypeId;
+        this.subjectId = subjectId;
+        this.readGrant = readGrant;
+        this.writeGrant = writeGrant;
+        this.deleteGrant = deleteGrant;
+        this.positionId = positionId;
+        this.inherit = inherit;
+    }
 
     public void entryRequestToEntry(AclEntryRequest entryRequest, AclResourceType resourceType,
                                     AclSubjectType subjectType) {
@@ -131,5 +149,27 @@ public class AclEntry {
 
     public void setInherit(boolean inherit) {
         this.inherit = inherit;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        AclEntry entry = (AclEntry) o;
+        return readGrant == entry.readGrant &&
+                writeGrant == entry.writeGrant &&
+                deleteGrant == entry.deleteGrant &&
+                inherit == entry.inherit &&
+                Objects.equals(id, entry.id) &&
+                Objects.equals(resourceTypeId, entry.resourceTypeId) &&
+                Objects.equals(resourceId, entry.resourceId) &&
+                Objects.equals(subjectTypeId, entry.subjectTypeId) &&
+                Objects.equals(subjectId, entry.subjectId) &&
+                Objects.equals(positionId, entry.positionId);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, resourceTypeId, resourceId, subjectTypeId, subjectId, readGrant, writeGrant, deleteGrant, positionId, inherit);
     }
 }

@@ -17,6 +17,14 @@ public class AclSubjectType implements Serializable {
     @Column(nullable = false, unique = true)
     private String type;
 
+    public AclSubjectType(Long id, @NotNull String type) {
+        this.id = id;
+        this.type = type;
+    }
+
+    public AclSubjectType() {
+    }
+
     public Long getId() {
         return id;
     }

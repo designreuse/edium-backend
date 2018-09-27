@@ -14,6 +14,6 @@ public class AclServiceImpl extends BaseAclServiceImpl {
 
     @Override
     public GroupDTO getGroupOfUser(Long userId) {
-        return restTemplate.getForObject("http://core-service/api/user/" + userId + "/group", GroupDTO.class);
+        return restTemplate.getForObject("http://core-service/api/user/" + userId + "/currentGroup", GroupDTO.class);
     }
 }

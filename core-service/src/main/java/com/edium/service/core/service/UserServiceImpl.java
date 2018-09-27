@@ -57,14 +57,6 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Group getGroupOfUser(Long userId) {
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-
-        return groupService.findById(user.getGroupId());
-    }
-
-    @Override
     public boolean existsByUsername(String username) {
         return userRepository.existsByUsername(username);
     }

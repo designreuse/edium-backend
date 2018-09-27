@@ -8,6 +8,7 @@ import com.edium.library.model.SubjectTypeCode;
 import com.edium.library.model.share.AclEntry;
 import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
+import com.edium.library.payload.GroupDTO;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.service.AclService;
 import com.edium.library.util.Utils;
@@ -15,15 +16,12 @@ import com.edium.service.data.model.Course;
 import com.edium.service.data.payload.EntryCourseGrantRequest;
 import com.edium.service.data.repository.CourseRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.client.RestTemplate;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -33,9 +31,6 @@ public class CourseServiceImpl implements CourseService {
 
     @Autowired
     CourseRepository courseRepository;
-
-    @Autowired
-    RestTemplate restTemplate;
 
     @Autowired
     AclService aclService;
@@ -68,11 +63,6 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> findByGroupId(Long groupId) {
-        return null;
-    }
-
-    @Override
     public Course saveOrUpdate(Course course) {
         return courseRepository.save(course);
     }
@@ -80,11 +70,6 @@ public class CourseServiceImpl implements CourseService {
     @Override
     public void delete(Course course) {
         courseRepository.delete(course);
-    }
-
-    @Override
-    public void deleteById(Long id) {
-        courseRepository.deleteById(id);
     }
 
     @Override
@@ -129,17 +114,50 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
-    public List<Course> findWriteableCourseForUser(Long userId) {
+    public List<Course> findWritableCourseForUser(Long userId) {
         List<Long> ids = aclService.getAllResourceId(userId, ResourceTypeCode.COURSE.toString(), AclEntryPermission.WRITE.toString());
 
         return courseRepository.findAllById(ids);
     }
 
     @Override
-    public List<Course> findDeleteableCourseForUser(Long userId) {
+    public List<Course> findDeletableCourseForUser(Long userId) {
         List<Long> ids = aclService.getAllResourceId(userId, ResourceTypeCode.COURSE.toString(), AclEntryPermission.DELETE.toString());
 
         return courseRepository.findAllById(ids);
+    }
+
+    @Override
+    public PagedResponse<Course> findPriCourseForUserNew(Long userId, AclEntryPermission entryPermission, int page, int size) {
+        Utils.validatePageNumberAndSize(page, size);
+
+        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
+
+        GroupDTO group = aclService.getGroupOfUser(userId);
+
+        List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(group.getRootPath(), group.getId());
+
+        Page<Course> courses = new PageImpl<>(Collections.emptyList());
+        switch (entryPermission) {
+            case READ:
+                courses = courseRepository.findCoursePermissionRead(userId, group.getId(), groupIdOfUser,
+                        ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(),
+                        pageable);
+                break;
+            case DELETE:
+                courses = courseRepository.findCoursePermissionDelete(userId, group.getId(), groupIdOfUser,
+                        ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(),
+                        pageable);
+                break;
+            case WRITE:
+                courses = courseRepository.findCoursePermissionWrite(userId, group.getId(), groupIdOfUser,
+                        ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(),
+                        pageable);
+                break;
+        }
+
+        return new PagedResponse<>(courses.getContent(), courses.getNumber(),
+                courses.getSize(), courses.getTotalElements(), courses.getTotalPages(), courses.isLast());
     }
 
     @Override

@@ -10,11 +10,11 @@ import org.springframework.stereotype.Service;
 public class AclServiceImpl extends BaseAclServiceImpl {
 
     @Autowired
-    UserService userService;
+    GroupService groupService;
 
     @Override
     public GroupDTO getGroupOfUser(Long userId) {
-        Group group = userService.getGroupOfUser(userId);
+        Group group = groupService.getCurrentGroupOfUser(userId);
 
         return new GroupDTO(group.getId(), group.getName(), group.getParentId(), group.getGroupLevel(), group.getRootPath());
     }

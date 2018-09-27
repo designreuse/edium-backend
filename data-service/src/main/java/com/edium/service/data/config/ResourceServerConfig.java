@@ -5,6 +5,11 @@ import com.edium.library.spring.AbacPermissionEvaluator;
 import com.edium.library.spring.AuthenticationHolder;
 import com.edium.library.spring.JwtAuthenticationEntryPoint;
 import com.edium.library.spring.OAuthInterceptor;
+import com.edium.library.util.AppConstants;
+import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
+import com.fasterxml.jackson.databind.*;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -12,8 +17,11 @@ import org.springframework.cloud.client.loadbalancer.LoadBalanced;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
+import org.springframework.http.converter.HttpMessageConverter;
+import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.Authentication;
@@ -30,6 +38,14 @@ import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenCo
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 import org.springframework.web.client.RestTemplate;
 
+import java.io.IOException;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
 @Configuration
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
@@ -38,6 +54,11 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Value("${oauth2.paths.resource_file_uri}")
     private String resourceFileUri;
+
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern(AppConstants.DATE_FORMAT).withZone(ZoneId.systemDefault());
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private CustomAccessTokenConverter customAccessTokenConverter;
@@ -82,15 +103,26 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http
-                .headers().frameOptions().disable()
-                .and()
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-                .authorizeRequests()
-                .antMatchers("/actuator/**").permitAll()
-                .anyRequest()
-                .authenticated();
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("test"))) {
+            http
+                    .headers().frameOptions().disable()
+                    .and()
+                    .csrf().disable()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                    .authorizeRequests()
+                    .anyRequest()
+                    .permitAll();
+        } else {
+            http
+                    .headers().frameOptions().disable()
+                    .and()
+                    .csrf().disable()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                    .authorizeRequests()
+                    .antMatchers("/actuator/**").permitAll()
+                    .anyRequest()
+                    .authenticated();
+        }
     }
 
     @Bean
@@ -121,6 +153,39 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         RestTemplate restTemplate = new RestTemplate();
         restTemplate.getInterceptors().add(new OAuthInterceptor());
 
+        List<HttpMessageConverter<?>> converters = new ArrayList<>();
+        MappingJackson2HttpMessageConverter jsonConverter = new MappingJackson2HttpMessageConverter();
+        jsonConverter.setObjectMapper(serializingObjectMapper());
+        converters.add(jsonConverter);
+        restTemplate.setMessageConverters(converters);
+
         return restTemplate;
+    }
+
+    @Bean
+    @Primary
+    public ObjectMapper serializingObjectMapper() {
+        ObjectMapper objectMapper = new ObjectMapper();
+        JavaTimeModule javaTimeModule = new JavaTimeModule();
+        javaTimeModule.addSerializer(Instant.class, new LocalDateSerializer());
+        javaTimeModule.addDeserializer(Instant.class, new LocalDateDeserializer());
+        objectMapper.registerModule(javaTimeModule);
+        return objectMapper;
+    }
+
+    public class LocalDateSerializer extends JsonSerializer<Instant> {
+
+        @Override
+        public void serialize(Instant value, JsonGenerator gen, SerializerProvider serializers) throws IOException {
+            gen.writeString(FORMATTER.format(value));
+        }
+    }
+
+    public class LocalDateDeserializer extends JsonDeserializer<Instant> {
+
+        @Override
+        public Instant deserialize(JsonParser p, DeserializationContext ctxt) throws IOException {
+            return Instant.from(FORMATTER.parse(p.getValueAsString()));
+        }
     }
 }

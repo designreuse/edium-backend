@@ -19,6 +19,14 @@ public class AclResourceType implements Serializable {
     @Column(nullable = false, unique = true)
     private String type;
 
+    public AclResourceType() {
+    }
+
+    public AclResourceType(Long id, @NotNull @NotBlank String type) {
+        this.id = id;
+        this.type = type;
+    }
+
     public Long getId() {
         return id;
     }
