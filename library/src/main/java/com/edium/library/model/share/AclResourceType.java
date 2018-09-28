@@ -4,7 +4,6 @@ import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Id;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 
 @Entity
@@ -14,7 +13,6 @@ public class AclResourceType implements Serializable {
     @Id
     private Long id;
 
-    @NotNull
     @NotBlank
     @Column(nullable = false, unique = true)
     private String type;
@@ -22,7 +20,7 @@ public class AclResourceType implements Serializable {
     public AclResourceType() {
     }
 
-    public AclResourceType(Long id, @NotNull @NotBlank String type) {
+    public AclResourceType(Long id, @NotBlank String type) {
         this.id = id;
         this.type = type;
     }

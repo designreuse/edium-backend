@@ -38,8 +38,8 @@ public abstract class BaseAclServiceImpl implements AclService {
     public List<Long> getAllResourceId(Long userId, String resourceType, String permission) {
         AclResourceType aclResourceType = this.getResourceTypeByType(resourceType);
 
-        AclEntryPermission entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission).get();
-        if (entryPermission == null) {
+        Optional<AclEntryPermission> entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission).toJavaUtil();
+        if (!entryPermission.isPresent()) {
             return Collections.emptyList();
         }
 
@@ -51,7 +51,7 @@ public abstract class BaseAclServiceImpl implements AclService {
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(group.getRootPath(), group.getId());
 
         List<AclEntry> entries = null;
-        switch (entryPermission) {
+        switch (entryPermission.get()) {
             case READ:
                 entries = aclEntryRepository.findEntryPermissionRead(aclResourceType.getId(), userType.getId(), userId,
                         groupType.getId(), group.getId(), groupIdOfUser);
@@ -81,8 +81,8 @@ public abstract class BaseAclServiceImpl implements AclService {
     public List<Long> getResourceIdByResourceId(Long userId, Long resourceId, String resourceType, String permission) {
         AclResourceType aclResourceType = this.getResourceTypeByType(resourceType);
 
-        AclEntryPermission entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission).get();
-        if (entryPermission == null) {
+        Optional<AclEntryPermission> entryPermission = Enums.getIfPresent(AclEntryPermission.class, permission).toJavaUtil();
+        if (!entryPermission.isPresent()) {
             return Collections.emptyList();
         }
 
@@ -94,7 +94,7 @@ public abstract class BaseAclServiceImpl implements AclService {
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(group.getRootPath(), group.getId());
 
         List<AclEntry> entries = null;
-        switch (entryPermission) {
+        switch (entryPermission.get()) {
             case READ:
                 entries = aclEntryRepository.findEntryPermissionReadResource(aclResourceType.getId(), resourceId, userType.getId(), userId,
                         groupType.getId(), group.getId(), groupIdOfUser);
@@ -186,9 +186,9 @@ public abstract class BaseAclServiceImpl implements AclService {
     }
 
     @Override
-    public AclEntry findOne(Long resourceTypeId, Long resourceId, Long subjectTypeId, Long subjectid) {
+    public AclEntry findOne(Long resourceTypeId, Long resourceId, Long subjectTypeId, Long subjectId) {
         List<AclEntry> aclEntries = aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(resourceTypeId, resourceId,
-                subjectTypeId, subjectid);
+                subjectTypeId, subjectId);
 
         if (aclEntries != null && !aclEntries.isEmpty()) {
             return aclEntries.get(0);
@@ -197,7 +197,7 @@ public abstract class BaseAclServiceImpl implements AclService {
         return null;
     }
 
-    // AclResoureType methods
+    // AclResourceType methods
     @Override
     public List<AclResourceType> findAllResourceType() {
         return aclResourceTypeRepository.findAll();
