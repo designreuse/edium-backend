@@ -60,4 +60,16 @@ public class AclSubjectTypeRepositoryTest {
         }
     }
 
+    @Test(expected = Exception.class)
+    public void whenSave_withTypeDuplicate_thenException() {
+        try {
+            aclSubjectTypeRepository.saveAndFlush(new AclSubjectType(1L, "test"));
+            aclSubjectTypeRepository.saveAndFlush(new AclSubjectType(2L, "test"));
+        } catch (Exception ex) {
+            Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("ConstraintViolationException"));
+            Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("could not execute statement"));
+            throw ex;
+        }
+    }
+
 }

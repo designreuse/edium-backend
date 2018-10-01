@@ -4,9 +4,9 @@ import com.edium.library.model.share.AclEntry;
 import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.AclEntryRequest;
+import com.edium.library.payload.ApiResponse;
 import com.edium.library.service.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -26,12 +26,9 @@ public class AclController {
 
     @PostMapping("")
     public AclEntry createEntry(@Valid @RequestBody AclEntryRequest entryRequest) {
-        AclResourceType resourceType = aclService.getResourceTypeByType(entryRequest.getResourceType());
-
-        AclSubjectType subjectType = aclService.getSubjectTypeByType(entryRequest.getSubjectType());
-
         AclEntry aclEntry = new AclEntry();
-        aclEntry.entryRequestToEntry(entryRequest, resourceType, subjectType);
+        aclEntry.entryRequestToEntry(entryRequest, aclService.getResourceTypeByType(entryRequest.getResourceType()),
+                aclService.getSubjectTypeByType(entryRequest.getSubjectType()));
 
         return aclService.save(aclEntry);
     }
@@ -50,21 +47,21 @@ public class AclController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteEntry(@PathVariable(name = "id") Long entryId) {
+    public ApiResponse deleteEntry(@PathVariable(name = "id") Long entryId) {
         AclEntry aclEntry = aclService.findById(entryId);
 
         aclService.delete(aclEntry);
-        return ResponseEntity.ok().build();
+        return new ApiResponse(true, "success");
     }
 
     // AclResourceType methods
     @GetMapping("/resourceType")
-    public List<AclResourceType> getRecourceTypeByType() {
+    public List<AclResourceType> getResourceTypeByType() {
         return aclService.findAllResourceType();
     }
 
     @GetMapping("/resourceType/{type}")
-    public AclResourceType getRecourceTypeByType(@PathVariable(name = "type") String type) {
+    public AclResourceType getResourceTypeByType(@PathVariable(name = "type") String type) {
         return aclService.getResourceTypeByType(type);
     }
 
@@ -79,9 +76,9 @@ public class AclController {
     }
 
     @DeleteMapping("/resourceType/{type}")
-    public ResponseEntity<?> deleteResourceType(@PathVariable(name = "type") String type) {
+    public ApiResponse deleteResourceType(@PathVariable(name = "type") String type) {
         aclService.deleteResourceTypeByType(type);
-        return ResponseEntity.ok().build();
+        return new ApiResponse(true, "success");
     }
 
     // AclSubjectType methods
@@ -106,9 +103,9 @@ public class AclController {
     }
 
     @DeleteMapping("/subjectType/{type}")
-    public ResponseEntity<?> deleteSubjectType(@PathVariable(name = "type") String type) {
+    public ApiResponse deleteSubjectType(@PathVariable(name = "type") String type) {
         aclService.deleteSubjectTypeByType(type);
-        return ResponseEntity.ok().build();
+        return new ApiResponse(true, "success");
     }
 
     @RequestMapping("/resources/user/{userId}")

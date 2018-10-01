@@ -60,4 +60,16 @@ public class AclResourceTypeRepositoryTest {
         }
     }
 
+    @Test(expected = Exception.class)
+    public void whenSave_withTypeDuplicate_thenException() {
+        try {
+            aclResourceTypeRepository.saveAndFlush(new AclResourceType(1L, "test"));
+            aclResourceTypeRepository.saveAndFlush(new AclResourceType(2L, "test"));
+        } catch (Exception ex) {
+            Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("ConstraintViolationException"));
+            Assert.assertThat(ex.getMessage(), CoreMatchers.containsString("could not execute statement"));
+            throw ex;
+        }
+    }
+
 }

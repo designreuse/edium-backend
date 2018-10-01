@@ -140,3 +140,5 @@ spring:
     url: jdbc:mariadb://localhost:3306/data-db-test?useSSL=false
     username: dolphin
     password: dolphinX2018
+  liquibase:
+    enabled: false

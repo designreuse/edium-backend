@@ -217,7 +217,7 @@ public class ApiValidationExceptionHandler extends ResponseEntityExceptionHandle
         if (ex instanceof ResourceNotFoundException || ex instanceof BadRequestException || ex instanceof ResourceExistException) {
             apiErrorsView = new ApiErrorsView(HttpStatus.BAD_REQUEST, ex.getMessage(), getPath(request));
         } else {
-            apiErrorsView = new ApiErrorsView(HttpStatus.BAD_REQUEST, "error occurred", getPath(request));
+            apiErrorsView = new ApiErrorsView(HttpStatus.BAD_REQUEST, "error occurred: " + ex.getClass(), getPath(request));
         }
 
         return new ResponseEntity<>(apiErrorsView, new HttpHeaders(), HttpStatus.BAD_REQUEST);

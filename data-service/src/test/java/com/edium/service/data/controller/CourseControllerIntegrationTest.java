@@ -5,7 +5,6 @@ import com.edium.service.data.DataServiceApplication;
 import com.edium.service.data.model.Course;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.google.gson.Gson;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -54,7 +53,7 @@ public class CourseControllerIntegrationTest {
         // Create
         MvcResult response = mvc.perform(post("/api/courses/")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(course)))
+                .content(objectMapper.writeValueAsString(course)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is(course.getName()))).andReturn();
@@ -82,7 +81,7 @@ public class CourseControllerIntegrationTest {
         Course courseNew = new Course("test" + timestamp, "test" + timestamp);
         mvc.perform(put("/api/courses/" + course.getId())
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(courseNew)))
+                .content(objectMapper.writeValueAsString(courseNew)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.name", is(courseNew.getName())));
@@ -133,7 +132,7 @@ public class CourseControllerIntegrationTest {
 
         mvc.perform(put("/api/courses/0")
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(new Gson().toJson(courseNew)))
+                .content(objectMapper.writeValueAsString(courseNew)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());

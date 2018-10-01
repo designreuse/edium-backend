@@ -6,12 +6,27 @@ import javax.validation.constraints.NotNull;
 public class AclEntryRequest extends EntryGrantRequest {
     @NotBlank
     private String resourceType;
+
     @NotNull
     private Long resourceId;
+
     @NotBlank
     private String subjectType;
+
     @NotNull
     private Long subjectId;
+
+    private Long positionId;
+
+    public AclEntryRequest(@NotBlank String resourceType, @NotNull Long resourceId, @NotBlank String subjectType, @NotNull Long subjectId) {
+        this.resourceType = resourceType;
+        this.resourceId = resourceId;
+        this.subjectType = subjectType;
+        this.subjectId = subjectId;
+    }
+
+    public AclEntryRequest() {
+    }
 
     public String getResourceType() {
         return resourceType;
@@ -52,6 +67,4 @@ public class AclEntryRequest extends EntryGrantRequest {
     public void setPositionId(Long positionId) {
         this.positionId = positionId;
     }
-
-    private Long positionId;
 }
