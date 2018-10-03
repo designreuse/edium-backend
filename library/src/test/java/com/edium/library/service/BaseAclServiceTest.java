@@ -30,7 +30,7 @@ import java.util.Optional;
 @RunWith(SpringRunner.class)
 public class BaseAclServiceTest {
 
-    private static GroupDTO groupDTO = new GroupDTO(2l, "test", null, 0l, "/1/2");
+    private static GroupDTO groupDTO = new GroupDTO(2L, "test", null, 0L, "/1/2");
 
     @TestConfiguration
     static class BaseAclServiceTestContextConfiguration {
@@ -67,7 +67,7 @@ public class BaseAclServiceTest {
                     .thenThrow(new ResourceNotFoundException("AclResourceType", "type", resourceType));
 
             // when
-            aclService.getAllResourceId(1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getAllResourceId(1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclResourceType");
         }
@@ -77,10 +77,10 @@ public class BaseAclServiceTest {
     public void whenGetAllResourceId_withPermissionNotFound_thenReturnEmpty() {
         // setup
         String resourceType = "EXIST";
-        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
         // when
-        List<Long> entries = aclService.getAllResourceId(1l, resourceType, "NO");
+        List<Long> entries = aclService.getAllResourceId(1L, resourceType, "NO");
 
         // then
         Assert.assertTrue(entries.isEmpty());
@@ -91,14 +91,14 @@ public class BaseAclServiceTest {
         try {
             // setup
             String resourceType = "EXIST";
-            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
             String subjectType = SubjectTypeCode.USER.toString();
             Mockito.when(aclSubjectTypeRepository.findByType(subjectType))
                     .thenThrow(new ResourceNotFoundException("AclSubjectType", "type", subjectType));
 
             // when
-            aclService.getAllResourceId(1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getAllResourceId(1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclSubjectType");
         }
@@ -109,15 +109,15 @@ public class BaseAclServiceTest {
         try {
             // setup
             String resourceType = "EXIST";
-            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
-            Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(new AclSubjectType(1l, "test")));
+            Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(new AclSubjectType(1L, "test")));
 
             Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString()))
                     .thenThrow(new ResourceNotFoundException("AclSubjectType", "type", SubjectTypeCode.GROUP.toString()));
 
             // when
-            aclService.getAllResourceId(1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getAllResourceId(1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclSubjectType");
         }
@@ -127,65 +127,7 @@ public class BaseAclServiceTest {
     public void whenGetAllResourceId_withPermissionRead_thenReturn() {
         // setup
         AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
-
-        String resourceType = "COURSE";
-        AclResourceType aclResourceType = new AclResourceType(1l, "test");
-        AclSubjectType userType = new AclSubjectType(1l, "user");
-        AclSubjectType groupType = new AclSubjectType(2l, "group");
-
-        List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
-
-        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(aclResourceType));
-        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(userType));
-        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
-
-
-        Mockito.when(aclEntryRepository.findEntryPermissionRead(aclResourceType.getId(), userType.getId(), 1l,
-                groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
-
-        // when
-        List<Long> ids = aclService.getAllResourceId(1l, resourceType, AclEntryPermission.READ.toString());
-
-        // then
-        Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
-    }
-
-    @Test
-    public void whenGetAllResourceId_withPermissionWrite_thenReturn() {
-        // setup
-        AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
-
-        String resourceType = "COURSE";
-        AclResourceType aclResourceType = new AclResourceType(1l, "test");
-        AclSubjectType userType = new AclSubjectType(1l, "user");
-        AclSubjectType groupType = new AclSubjectType(2l, "group");
-
-        List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
-
-        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(aclResourceType));
-        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(userType));
-        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
-
-
-        Mockito.when(aclEntryRepository.findEntryPermissionWrite(aclResourceType.getId(), userType.getId(), 1l,
-                groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
-
-        // when
-        List<Long> ids = aclService.getAllResourceId(1l, resourceType, AclEntryPermission.WRITE.toString());
-
-        // then
-        Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
-    }
-
-    @Test
-    public void whenGetAllResourceId_withPermissionDelete_thenReturn() {
-        // setup
-        AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
+        entry.setResourceId(1L);
 
         String resourceType = "COURSE";
         AclResourceType aclResourceType = new AclResourceType(1L, "test");
@@ -199,15 +141,73 @@ public class BaseAclServiceTest {
         Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
 
 
-        Mockito.when(aclEntryRepository.findEntryPermissionDelete(aclResourceType.getId(), userType.getId(), 1l,
+        Mockito.when(aclEntryRepository.findEntryPermissionRead(aclResourceType.getId(), userType.getId(), 1L,
                 groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
 
         // when
-        List<Long> ids = aclService.getAllResourceId(1l, resourceType, AclEntryPermission.DELETE.toString());
+        List<Long> ids = aclService.getAllResourceId(1L, resourceType, AclEntryPermission.READ.toString());
 
         // then
         Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
+    }
+
+    @Test
+    public void whenGetAllResourceId_withPermissionWrite_thenReturn() {
+        // setup
+        AclEntry entry = new AclEntry();
+        entry.setResourceId(1L);
+
+        String resourceType = "COURSE";
+        AclResourceType aclResourceType = new AclResourceType(1L, "test");
+        AclSubjectType userType = new AclSubjectType(1L, "user");
+        AclSubjectType groupType = new AclSubjectType(2L, "group");
+
+        List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
+
+        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(aclResourceType));
+        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(userType));
+        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
+
+
+        Mockito.when(aclEntryRepository.findEntryPermissionWrite(aclResourceType.getId(), userType.getId(), 1L,
+                groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
+
+        // when
+        List<Long> ids = aclService.getAllResourceId(1L, resourceType, AclEntryPermission.WRITE.toString());
+
+        // then
+        Assert.assertEquals(ids.size(), 1);
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
+    }
+
+    @Test
+    public void whenGetAllResourceId_withPermissionDelete_thenReturn() {
+        // setup
+        AclEntry entry = new AclEntry();
+        entry.setResourceId(1L);
+
+        String resourceType = "COURSE";
+        AclResourceType aclResourceType = new AclResourceType(1L, "test");
+        AclSubjectType userType = new AclSubjectType(1L, "user");
+        AclSubjectType groupType = new AclSubjectType(2L, "group");
+
+        List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
+
+        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(aclResourceType));
+        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(userType));
+        Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
+
+
+        Mockito.when(aclEntryRepository.findEntryPermissionDelete(aclResourceType.getId(), userType.getId(), 1L,
+                groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
+
+        // when
+        List<Long> ids = aclService.getAllResourceId(1L, resourceType, AclEntryPermission.DELETE.toString());
+
+        // then
+        Assert.assertEquals(ids.size(), 1);
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
     }
 
     @Test
@@ -219,7 +219,7 @@ public class BaseAclServiceTest {
                     .thenThrow(new ResourceNotFoundException("AclResourceType", "type", resourceType));
 
             // when
-            aclService.getResourceIdByResourceId(1l, 1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getResourceIdByResourceId(1L, 1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclResourceType");
         }
@@ -229,10 +229,10 @@ public class BaseAclServiceTest {
     public void whenGetResourceIdByResourceId_withPermissionNotFound_thenReturnEmpty() {
         // setup
         String resourceType = "EXIST";
-        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+        Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
         // when
-        List<Long> entries = aclService.getResourceIdByResourceId(1l, 1l, resourceType, "NO");
+        List<Long> entries = aclService.getResourceIdByResourceId(1L, 1L, resourceType, "NO");
 
         // then
         Assert.assertTrue(entries.isEmpty());
@@ -243,14 +243,14 @@ public class BaseAclServiceTest {
         try {
             // setup
             String resourceType = "EXIST";
-            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
             String subjectType = SubjectTypeCode.USER.toString();
             Mockito.when(aclSubjectTypeRepository.findByType(subjectType))
                     .thenThrow(new ResourceNotFoundException("AclSubjectType", "type", subjectType));
 
             // when
-            aclService.getResourceIdByResourceId(1l, 1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getResourceIdByResourceId(1L, 1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclSubjectType");
         }
@@ -261,15 +261,15 @@ public class BaseAclServiceTest {
         try {
             // setup
             String resourceType = "EXIST";
-            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1l, "test")));
+            Mockito.when(aclResourceTypeRepository.findByType(resourceType)).thenReturn(Optional.of(new AclResourceType(1L, "test")));
 
-            Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(new AclSubjectType(1l, "test")));
+            Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.USER.toString())).thenReturn(Optional.of(new AclSubjectType(1L, "test")));
 
             Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString()))
                     .thenThrow(new ResourceNotFoundException("AclSubjectType", "type", SubjectTypeCode.GROUP.toString()));
 
             // when
-            aclService.getResourceIdByResourceId(1l, 1l, resourceType, AclEntryPermission.READ.toString());
+            aclService.getResourceIdByResourceId(1L, 1L, resourceType, AclEntryPermission.READ.toString());
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "AclSubjectType");
         }
@@ -279,12 +279,12 @@ public class BaseAclServiceTest {
     public void whenGetResourceIdByResourceId_withPermissionRead_thenReturn() {
         // setup
         AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
+        entry.setResourceId(1L);
 
         String resourceType = "COURSE";
-        AclResourceType aclResourceType = new AclResourceType(1l, "test");
-        AclSubjectType userType = new AclSubjectType(1l, "user");
-        AclSubjectType groupType = new AclSubjectType(2l, "group");
+        AclResourceType aclResourceType = new AclResourceType(1L, "test");
+        AclSubjectType userType = new AclSubjectType(1L, "user");
+        AclSubjectType groupType = new AclSubjectType(2L, "group");
 
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
 
@@ -293,28 +293,28 @@ public class BaseAclServiceTest {
         Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
 
 
-        Mockito.when(aclEntryRepository.findEntryPermissionReadResource(aclResourceType.getId(), 1l, userType.getId(), 1l,
+        Mockito.when(aclEntryRepository.findEntryPermissionReadResource(aclResourceType.getId(), 1L, userType.getId(), 1L,
                 groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
 
         // when
-        List<Long> ids = aclService.getResourceIdByResourceId(1l, 1l, resourceType,
+        List<Long> ids = aclService.getResourceIdByResourceId(1L, 1L, resourceType,
                 AclEntryPermission.READ.toString());
 
         // then
         Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
     }
 
     @Test
     public void whenGetResourceIdByResourceId_withPermissionWrite_thenReturn() {
         // setup
         AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
+        entry.setResourceId(1L);
 
         String resourceType = "COURSE";
-        AclResourceType aclResourceType = new AclResourceType(1l, "test");
-        AclSubjectType userType = new AclSubjectType(1l, "user");
-        AclSubjectType groupType = new AclSubjectType(2l, "group");
+        AclResourceType aclResourceType = new AclResourceType(1L, "test");
+        AclSubjectType userType = new AclSubjectType(1L, "user");
+        AclSubjectType groupType = new AclSubjectType(2L, "group");
 
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
 
@@ -323,28 +323,28 @@ public class BaseAclServiceTest {
         Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
 
 
-        Mockito.when(aclEntryRepository.findEntryPermissionWriteResource(aclResourceType.getId(), 1l, userType.getId(), 1l,
+        Mockito.when(aclEntryRepository.findEntryPermissionWriteResource(aclResourceType.getId(), 1L, userType.getId(), 1L,
                 groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
 
         // when
-        List<Long> ids = aclService.getResourceIdByResourceId(1l, 1l, resourceType,
+        List<Long> ids = aclService.getResourceIdByResourceId(1L, 1L, resourceType,
                 AclEntryPermission.WRITE.toString());
 
         // then
         Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
     }
 
     @Test
     public void whenGetResourceIdByResourceId_withPermissionDelete_thenReturn() {
         // setup
         AclEntry entry = new AclEntry();
-        entry.setResourceId(1l);
+        entry.setResourceId(1L);
 
         String resourceType = "COURSE";
-        AclResourceType aclResourceType = new AclResourceType(1l, "test");
-        AclSubjectType userType = new AclSubjectType(1l, "user");
-        AclSubjectType groupType = new AclSubjectType(2l, "group");
+        AclResourceType aclResourceType = new AclResourceType(1L, "test");
+        AclSubjectType userType = new AclSubjectType(1L, "user");
+        AclSubjectType groupType = new AclSubjectType(2L, "group");
 
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
 
@@ -353,22 +353,22 @@ public class BaseAclServiceTest {
         Mockito.when(aclSubjectTypeRepository.findByType(SubjectTypeCode.GROUP.toString())).thenReturn(Optional.of(groupType));
 
 
-        Mockito.when(aclEntryRepository.findEntryPermissionDeleteResource(aclResourceType.getId(), 1l, userType.getId(), 1l,
+        Mockito.when(aclEntryRepository.findEntryPermissionDeleteResource(aclResourceType.getId(), 1L, userType.getId(), 1L,
                 groupType.getId(), groupDTO.getId(), groupIdOfUser)).thenReturn(Collections.singletonList(entry));
 
         // when
-        List<Long> ids = aclService.getResourceIdByResourceId(1l, 1l, resourceType,
+        List<Long> ids = aclService.getResourceIdByResourceId(1L, 1L, resourceType,
                 AclEntryPermission.DELETE.toString());
 
         // then
         Assert.assertEquals(ids.size(), 1);
-        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong == entry.getResourceId()));
+        Assert.assertTrue(ids.stream().anyMatch(aLong -> aLong.equals(entry.getResourceId())));
     }
 
     @Test
     public void whenFindById_withIdNotFound_thenException() {
         try {
-            long entryId = 1l;
+            long entryId = 1L;
             Mockito.when(aclEntryRepository.findById(entryId)).thenReturn(Optional.empty());
 
             aclService.findById(entryId);
@@ -381,7 +381,7 @@ public class BaseAclServiceTest {
     @Test
     public void whenFindById_withIdFound_thenReturnEntry() {
         AclEntry entry = new AclEntry();
-        entry.setId(1l);
+        entry.setId(1L);
 
         Mockito.when(aclEntryRepository.findById(entry.getId())).thenReturn(Optional.of(entry));
 
@@ -392,8 +392,8 @@ public class BaseAclServiceTest {
 
     @Test
     public void whenSave_withNoGrant_thenReturnEmptyEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, false, false, false, null, false);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, false, false, false, null, false);
 
         AclEntry result = aclService.save(entry);
 
@@ -402,9 +402,9 @@ public class BaseAclServiceTest {
 
     @Test
     public void whenSave_withGrant_thenReturnEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, true, false, false, null, false);
-        entry.setId(1l);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, true, false, false, null, false);
+        entry.setId(1L);
 
         Mockito.when(aclEntryRepository.save(entry)).thenReturn(entry);
 
@@ -416,9 +416,9 @@ public class BaseAclServiceTest {
     @Test
     public void whenUpdate_withGrant_thenReturnEntry() {
         // setup
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, true, false, false, null, false);
-        entry.setId(1l);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, true, false, false, null, false);
+        entry.setId(1L);
         Mockito.when(aclEntryRepository.save(entry)).thenReturn(entry);
 
         // when
@@ -431,9 +431,9 @@ public class BaseAclServiceTest {
     @Test
     public void whenUpdate_withNoGrant_thenReturnEntry() {
         // setup
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, false, false, false, null, false);
-        entry.setId(1l);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, false, false, false, null, false);
+        entry.setId(1L);
 
         // when
         AclEntry result = aclService.update(entry);
@@ -445,47 +445,47 @@ public class BaseAclServiceTest {
     @Test
     public void whenFindOne_withNotFound_thenReturnNull() {
         // setup
-        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1l, 1l,
-                1l, 1l)).thenReturn(null);
+        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1L, 1L,
+                1L, 1L)).thenReturn(null);
 
         // when and then
-        Assert.assertNull(aclService.findOne(1l, 1l, 1l, 1l));
+        Assert.assertNull(aclService.findOne(1L, 1L, 1L, 1L));
     }
 
     @Test
     public void whenFindOne_withEmpty_thenReturnNull() {
         // setup
-        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1l, 1l,
-                1l, 1l)).thenReturn(Collections.emptyList());
+        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1L, 1L,
+                1L, 1L)).thenReturn(Collections.emptyList());
 
         // when and then
-        Assert.assertNull(aclService.findOne(1l, 1l, 1l, 1l));
+        Assert.assertNull(aclService.findOne(1L, 1L, 1L, 1L));
     }
 
     @Test
     public void whenFindOne_withResult_thenReturnEntry() {
         // setup
         AclEntry entry1 = new AclEntry();
-        entry1.setId(1l);
+        entry1.setId(1L);
 
         AclEntry entry2 = new AclEntry();
-        entry2.setId(2l);
+        entry2.setId(2L);
 
         List<AclEntry> entries = new ArrayList<>();
         entries.add(entry1);
         entries.add(entry2);
 
-        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1l, 1l,
-                1l, 1l)).thenReturn(entries);
+        Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(1L, 1L,
+                1L, 1L)).thenReturn(entries);
 
         // when and then
-        Assert.assertEquals(aclService.findOne(1l, 1l, 1l, 1l).getId(), entry1.getId());
+        Assert.assertEquals(aclService.findOne(1L, 1L, 1L, 1L).getId(), entry1.getId());
     }
 
     @Test
     public void whenSaveOrUpdate_withNoGrantAndNotExistEntry_thenReturnEmptyEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, false, false, false, null, false);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, false, false, false, null, false);
         Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(entry.getResourceTypeId(), entry.getResourceId(),
                 entry.getSubjectTypeId(), entry.getSubjectId())).thenReturn(null);
 
@@ -494,11 +494,11 @@ public class BaseAclServiceTest {
 
     @Test
     public void whenSaveOrUpdate_withNoGrantAndExistEntry_thenReturnEmptyEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, false, false, false, null, false);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, false, false, false, null, false);
 
         AclEntry entry1 = new AclEntry();
-        entry1.setId(100l);
+        entry1.setId(100L);
 
         Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(entry.getResourceTypeId(), entry.getResourceId(),
                 entry.getSubjectTypeId(), entry.getSubjectId())).thenReturn(Collections.singletonList(entry1));
@@ -508,8 +508,8 @@ public class BaseAclServiceTest {
 
     @Test
     public void whenSaveOrUpdate_withGrantAndNotExistEntry_thenReturnEmptyEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, true, false, false, null, false);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, true, false, false, null, false);
 
         Mockito.when(aclEntryRepository.findByResourceTypeIdAndResourceIdAndSubjectTypeIdAndSubjectId(entry.getResourceTypeId(), entry.getResourceId(),
                 entry.getSubjectTypeId(), entry.getSubjectId())).thenReturn(null);
@@ -521,11 +521,11 @@ public class BaseAclServiceTest {
 
     @Test
     public void whenSaveOrUpdate_withGrantAndExistEntry_thenReturnEmptyEntry() {
-        AclEntry entry = new AclEntry(1l, 1l, 2l,
-                2l, true, false, false, null, false);
+        AclEntry entry = new AclEntry(1L, 1L, 2L,
+                2L, true, false, false, null, false);
 
         AclEntry aclEntry = new AclEntry();
-        aclEntry.setId(1l);
+        aclEntry.setId(1L);
         aclEntry.setWriteGrant(entry.isWriteGrant());
         aclEntry.setReadGrant(entry.isReadGrant());
         aclEntry.setPositionId(entry.getPositionId());

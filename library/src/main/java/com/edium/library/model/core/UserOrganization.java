@@ -1,6 +1,6 @@
 package com.edium.library.model.core;
 
-import com.edium.library.model.UserDateAudit;
+import com.edium.library.model.base.UserDateAudit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;
@@ -44,13 +44,6 @@ public class UserOrganization extends UserDateAudit {
         this.user = user;
         this.organizationId = organizationId;
         this.groupId = groupId;
-    }
-
-    public UserOrganization(@NotNull User user, @NotNull Long organizationId, @NotNull Long groupId, List<UserRole> roles) {
-        this.user = user;
-        this.organizationId = organizationId;
-        this.groupId = groupId;
-        //this.roles = roles;
     }
 
     public List<UserRole> getRoles() {

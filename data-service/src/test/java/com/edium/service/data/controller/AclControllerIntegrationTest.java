@@ -31,7 +31,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -43,8 +42,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @Transactional
 public class AclControllerIntegrationTest {
 
-    private static final GroupDTO groupDTO = new GroupDTO(2L, "test", null, 0L, "/1/2");
-
     @TestConfiguration
     static class AclControllerIntegrationTestContextConfiguration {
 
@@ -53,7 +50,7 @@ public class AclControllerIntegrationTest {
             return new AclServiceImpl() {
                 @Override
                 public GroupDTO getGroupOfUser(Long userId) {
-                    return groupDTO;
+                    return new GroupDTO(2L, "test", null, 0L, "/1/2");
                 }
             };
         }
@@ -81,14 +78,14 @@ public class AclControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.type", is(aclResourceType.getType())));
+                .andExpect(jsonPath("$.type", Matchers.is(aclResourceType.getType())));
 
         // getByType
         mvc.perform(get("/api/acl/resourceType/" + aclResourceType.getType())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.type", is(aclResourceType.getType())));
+                .andExpect(jsonPath("$.type", Matchers.is(aclResourceType.getType())));
 
         // getAll
         mvc.perform(get("/api/acl/resourceType")
@@ -102,7 +99,7 @@ public class AclControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success", is(true)));
+                .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getByType
         mvc.perform(get("/api/acl/resourceType/" + aclResourceType.getType())
@@ -190,14 +187,14 @@ public class AclControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(aclSubjectType)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.type", is(aclSubjectType.getType())));
+                .andExpect(jsonPath("$.type", Matchers.is(aclSubjectType.getType())));
 
         // getByType
         mvc.perform(get("/api/acl/subjectType/" + aclSubjectType.getType())
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.type", is(aclSubjectType.getType())));
+                .andExpect(jsonPath("$.type", Matchers.is(aclSubjectType.getType())));
 
         // getAll
         mvc.perform(get("/api/acl/subjectType")
@@ -211,7 +208,7 @@ public class AclControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success", is(true)));
+                .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getByType
         mvc.perform(get("/api/acl/subjectType/" + aclSubjectType.getType())
@@ -307,7 +304,7 @@ public class AclControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.resourceId", is(entryRequest.getResourceId().intValue())))
+                .andExpect(jsonPath("$.resourceId", Matchers.is(entryRequest.getResourceId().intValue())))
                 .andReturn();
         AclEntry entryInsert = objectMapper.readValue(response.getResponse().getContentAsString(), AclEntry.class);
 
@@ -316,7 +313,7 @@ public class AclControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.id", is(entryInsert.getId().intValue())));
+                .andExpect(jsonPath("$.id", Matchers.is(entryInsert.getId().intValue())));
 
         // update
         AclEntryRequest entryRequestUpdate = new AclEntryRequest(ResourceTypeCode.COURSE.toString(), 1L, SubjectTypeCode.GROUP.toString(), 2L);
@@ -327,8 +324,8 @@ public class AclControllerIntegrationTest {
                 .content(objectMapper.writeValueAsString(entryRequestUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.writeGrant", is(entryRequestUpdate.isWriteGrant())))
-                .andExpect(jsonPath("$.readGrant", is(entryRequestUpdate.isReadGrant())))
+                .andExpect(jsonPath("$.writeGrant", Matchers.is(entryRequestUpdate.isWriteGrant())))
+                .andExpect(jsonPath("$.readGrant", Matchers.is(entryRequestUpdate.isReadGrant())))
                 .andReturn();
 
         // delete
@@ -336,7 +333,7 @@ public class AclControllerIntegrationTest {
                 .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.success", is(true)));
+                .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getById
         mvc.perform(get("/api/acl/" + entryInsert.getId())
@@ -1023,4 +1020,5 @@ public class AclControllerIntegrationTest {
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("false"));
     }
+
 }

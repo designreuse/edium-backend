@@ -69,7 +69,7 @@ public abstract class BaseAclServiceImpl implements AclService {
         if (entries != null && !entries.isEmpty()) {
             List<Long> ids = new ArrayList<>();
 
-            entries.stream().forEach(aclEntry -> ids.add(aclEntry.getResourceId()));
+            entries.forEach(aclEntry -> ids.add(aclEntry.getResourceId()));
 
             return ids;
         }
@@ -112,7 +112,7 @@ public abstract class BaseAclServiceImpl implements AclService {
         if (entries != null && !entries.isEmpty()) {
             List<Long> ids = new ArrayList<>();
 
-            entries.stream().forEach(aclEntry -> ids.add(aclEntry.getResourceId()));
+            entries.forEach(aclEntry -> ids.add(aclEntry.getResourceId()));
 
             return ids;
         }

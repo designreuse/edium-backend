@@ -7,11 +7,15 @@ spring:
         dialect: org.hibernate.dialect.MySQL5InnoDBDialect
     show-sql: true
 
+policy:
+  json:
+    filePath: policy/default-policy.json
+
 ---
 
 spring:
   profiles: test
   datasource:
-    url: jdbc:mariadb://localhost:3306/data-db-test?useSSL=false
+    url: jdbc:mariadb://localhost:3306/dolphin-test?useSSL=false
     username: dolphin
     password: dolphinX2018

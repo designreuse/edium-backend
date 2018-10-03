@@ -4,7 +4,6 @@ import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.core.User;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.repository.core.UserOrganizationRepository;
-import com.edium.library.repository.core.UserRepository;
 import com.edium.library.util.BaseX;
 import com.edium.library.util.Utils;
 import com.edium.service.core.model.Group;
@@ -27,7 +26,7 @@ public class GroupServiceImpl implements GroupService {
     GroupRepository groupRepository;
 
     @Autowired
-    UserRepository userRepository;
+    UserService userService;
 
     @Autowired
     UserOrganizationRepository userOrganizationRepository;
@@ -84,32 +83,21 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public void delete(Group group) {
-        groupRepository.delete(group);
-    }
-
-    @Override
     public void deleteById(Long groupId) {
-        delete(findById(groupId));
+        groupRepository.delete(findById(groupId));
     }
 
     @Override
-    public List<Group> getAllChildenGroups(Long groupId) {
-        return groupRepository.getAllChildenGroups(groupId);
+    public List<Group> getAllChildrenGroups(Long groupId) {
+        return groupRepository.getAllChildrenGroups(groupId);
     }
 
     @Override
     public List<Group> getTreeGroupByGroupId(Long groupId) {
 
-        Group group = groupRepository.findById(groupId)
-                .orElseThrow(() -> new ResourceNotFoundException("Group", "id", groupId));
+        Group group = findById(groupId);
 
         return groupRepository.getTreeGroupByGroupPath(group.getEncodedRootPath());
-    }
-
-    @Override
-    public List<Group> getTreeGroupByGroupPath(String groupPath) {
-        return groupRepository.getTreeGroupByGroupPath(groupPath);
     }
 
     @Override
@@ -145,7 +133,7 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public Group getCurrentGroupOfUser(Long userId) {
-        User user = userRepository.findById(userId)
+        User user = userService.getById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         return findById(user.getGroupId());

@@ -6,14 +6,12 @@ import com.edium.library.spring.JwtAuthenticationEntryPoint;
 import org.apache.commons.io.IOUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
+import org.springframework.core.env.Environment;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.Resource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -26,10 +24,9 @@ import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
 
+import java.util.Arrays;
+
 @Configuration
-@ComponentScan("com.edium.library")
-@EnableJpaRepositories({"com.edium.library.repository", "com.edium.service.core.repository"})
-@EntityScan({"com.edium.library.model", "com.edium.service.core.model"})
 public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Value("${oauth2.resourceId}")
@@ -37,6 +34,9 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Value("${oauth2.paths.resource_file_uri}")
     private String resourceFileUri;
+
+    @Autowired
+    private Environment environment;
 
     @Autowired
     private CustomAccessTokenConverter customAccessTokenConverter;
@@ -81,17 +81,28 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        http
-                .headers().frameOptions().disable()
-                .and()
-                .csrf().disable()
-                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-                .authorizeRequests()
-                .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
-                .permitAll()
-                .antMatchers("/login*","/signin/**","/signup/**").permitAll()
-                .anyRequest()
-                .authenticated();
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("test"))) {
+            http
+                    .headers().frameOptions().disable()
+                    .and()
+                    .csrf().disable()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                    .authorizeRequests()
+                    .anyRequest()
+                    .permitAll();
+        } else {
+            http
+                    .headers().frameOptions().disable()
+                    .and()
+                    .csrf().disable()
+                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                    .authorizeRequests()
+                    .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
+                    .permitAll()
+                    .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
+                    .anyRequest()
+                    .authenticated();
+        }
     }
 
     @Bean

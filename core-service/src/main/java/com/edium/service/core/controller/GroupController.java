@@ -79,7 +79,7 @@ public class GroupController {
 
     @GetMapping("/{id}/children")
     public List<Group> getChildrens(@PathVariable(value = "id") Long groupId) {
-        return groupService.getAllChildenGroups(groupId);
+        return groupService.getAllChildrenGroups(groupId);
     }
 
     @GetMapping("/{id}/tree")

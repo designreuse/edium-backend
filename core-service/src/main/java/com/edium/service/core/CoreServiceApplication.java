@@ -9,9 +9,11 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
@@ -26,7 +28,9 @@ import java.util.TimeZone;
 @EntityScan(basePackageClasses = {
         CoreServiceApplication.class,
         Jsr310JpaConverters.class
-})
+}, basePackages = {"com.edium.library.model", "com.edium.service.core.model"})
+@ComponentScan({"com.edium.library", "com.edium.service.core"})
+@EnableJpaRepositories({"com.edium.library.repository", "com.edium.service.core.repository"})
 public class CoreServiceApplication {
 
     @Value("${server.port}")

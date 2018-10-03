@@ -1,4 +1,4 @@
-package com.edium.service.data.controller;
+package com.edium.library.controller;
 
 import com.edium.library.model.share.AclEntry;
 import com.edium.library.model.share.AclResourceType;

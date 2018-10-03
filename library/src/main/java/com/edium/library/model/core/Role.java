@@ -1,20 +1,27 @@
 package com.edium.library.model.core;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.Set;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_role_code", columnNames = "code")
+})
 public class Role implements Serializable {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank
+    @Column(nullable = false)
     private String code;
 
-    @NotNull
+    @NotBlank
+    @Column(nullable = false)
     private String label;
 
     @ManyToMany(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
@@ -26,12 +33,6 @@ public class Role implements Serializable {
     }
 
     public Role(@NotNull String code, @NotNull String label) {
-        this.code = code;
-        this.label = label;
-    }
-
-    public Role(Long id, @NotNull String code, @NotNull String label) {
-        this.id = id;
         this.code = code;
         this.label = label;
     }

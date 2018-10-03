@@ -15,15 +15,11 @@ public interface GroupService {
 
     Group update(Group group);
 
-    void delete(Group group);
-
     void deleteById(Long groupId);
 
-    List<Group> getAllChildenGroups(Long groupId);
+    List<Group> getAllChildrenGroups(Long groupId);
 
     List<Group> getTreeGroupByGroupId(Long groupId);
-
-    List<Group> getTreeGroupByGroupPath(String groupPath);
 
     List<Group> getTreeGroupOfOrganization(Long orgId);
 

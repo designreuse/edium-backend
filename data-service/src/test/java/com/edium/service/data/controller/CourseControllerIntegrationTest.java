@@ -8,8 +8,6 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -40,8 +38,6 @@ public class CourseControllerIntegrationTest {
     @Qualifier("serializingObjectMapper")
     @Autowired
     private ObjectMapper objectMapper;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(CourseControllerIntegrationTest.class);
 
     @Test
     public void givenCourse_whenCRUD_thenStatus200()

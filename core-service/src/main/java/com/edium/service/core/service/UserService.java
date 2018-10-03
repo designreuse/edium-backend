@@ -2,7 +2,6 @@ package com.edium.service.core.service;
 
 import com.edium.library.model.core.User;
 import com.edium.library.payload.PagedResponse;
-import com.edium.service.core.model.Group;
 import com.edium.service.core.payload.SignUpRequest;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public interface UserService {
 
     boolean existsByEmail(String email);
 
-    PagedResponse<User> findByOrganizationId(int page, int size);
+    PagedResponse<User> findByOrganizationId(long organizationId, int page, int size);
 
     Optional<User> getByUsernameOrEmail(String usernameOrEmail);
 

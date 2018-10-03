@@ -1,6 +1,6 @@
 package com.edium.library.model.core;
 
-import com.edium.library.model.UserDateAudit;
+import com.edium.library.model.base.UserDateAudit;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 
 import javax.persistence.*;

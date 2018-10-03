@@ -67,11 +67,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public PagedResponse<User> findByOrganizationId(int page, int size) {
+    public PagedResponse<User> findByOrganizationId(long organizationId, int page, int size) {
         Utils.validatePageNumberAndSize(page, size);
 
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "name");
-        Page<User> users = userRepository.findAll(pageable);
+        Page<User> users = userRepository.findByOrganizationId(organizationId, pageable);
 
         return new PagedResponse<>(users.getContent(), users.getNumber(),
                 users.getSize(), users.getTotalElements(), users.getTotalPages(), users .isLast());

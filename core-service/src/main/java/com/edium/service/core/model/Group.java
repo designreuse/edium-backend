@@ -1,6 +1,6 @@
 package com.edium.service.core.model;
 
-import com.edium.library.model.UserDateAudit;
+import com.edium.library.model.base.UserDateAudit;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
@@ -27,7 +27,7 @@ public class Group extends UserDateAudit {
 
     private Long parentId;
 
-    @ManyToOne(fetch = FetchType.EAGER)
+    @ManyToOne(fetch = FetchType.EAGER, optional = false)
     @JoinColumn(name = "organizationId")
     private Organization organization;
 
@@ -43,6 +43,16 @@ public class Group extends UserDateAudit {
 
     @Column(nullable = true, length = 1000)
     private String encodedRootPath;
+
+    public Group(@NotBlank String name, Long parentId, Organization organization, @NotNull Long groupLevel) {
+        this.name = name;
+        this.parentId = parentId;
+        this.organization = organization;
+        this.groupLevel = groupLevel;
+    }
+
+    public Group() {
+    }
 
     @Transient
     private String parentPath;

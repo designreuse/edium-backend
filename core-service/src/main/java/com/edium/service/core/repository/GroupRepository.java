@@ -11,10 +11,8 @@ import java.util.List;
 
 public interface GroupRepository extends JpaRepository<Group, Long> {
 
-    List<Group> findAllByOrganizationId(Long organizationId);
-
     @Query(value = "SELECT a FROM Group a WHERE a.parentId = :groupId ORDER BY a.name")
-    List<Group> getAllChildenGroups(@Param(value = "groupId") Long groupId);
+    List<Group> getAllChildrenGroups(@Param(value = "groupId") Long groupId);
 
     @Query(value = "SELECT a FROM Group a WHERE a.encodedRootPath LIKE CONCAT(:groupPath, '%') ORDER BY a.encodedRootPath")
     List<Group> getTreeGroupByGroupPath(@Param(value = "groupPath") String groupPath);

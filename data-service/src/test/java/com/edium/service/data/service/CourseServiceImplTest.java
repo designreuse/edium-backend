@@ -57,7 +57,7 @@ public class CourseServiceImplTest {
     public void whenFindById_thenReturnCourse() {
         // setup
         Course course = new Course("test", "test");
-        course.setId(50l);
+        course.setId(50L);
 
         Mockito.when(courseRepository.findById(course.getId())).thenReturn(Optional.of(course));
 
@@ -65,7 +65,7 @@ public class CourseServiceImplTest {
         Optional<Course> found = courseService.findById(course.getId());
 
         // then
-        Assert.assertNotNull(found.get());
+        Assert.assertTrue(found.isPresent());
         Assert.assertEquals(found.get().getName(), course.getName());
     }
 
@@ -73,7 +73,7 @@ public class CourseServiceImplTest {
     public void whenFindById_thenReturnEmpty() {
         // setup
         Course course = new Course("test", "test");
-        course.setId(1l);
+        course.setId(1L);
 
         Mockito.when(courseRepository.findById(course.getId())).thenReturn(Optional.empty());
 
@@ -88,7 +88,7 @@ public class CourseServiceImplTest {
     public void whenFindByOwnerId_thenReturnPage() {
         // setup
         Course course = new Course("test", "test");
-        course.setCreatedBy(1l);
+        course.setCreatedBy(1L);
 
         int page = Integer.parseInt(AppConstants.DEFAULT_PAGE_NUMBER), size = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
@@ -108,7 +108,7 @@ public class CourseServiceImplTest {
     public void whenFindByOwnerId_thenReturnEmpty() {
         // setup
         Course course = new Course("test", "test");
-        course.setCreatedBy(1l);
+        course.setCreatedBy(1L);
 
         int page = Integer.parseInt(AppConstants.DEFAULT_PAGE_NUMBER), size = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
@@ -127,7 +127,7 @@ public class CourseServiceImplTest {
     public void whenFindByOwnerIdSizeNegative_thenReturnPage() {
         // setup
         Course course = new Course("test", "test");
-        course.setCreatedBy(1l);
+        course.setCreatedBy(1L);
 
         int page = 0, size = -1;
 
@@ -139,7 +139,7 @@ public class CourseServiceImplTest {
     public void whenFindByOwnerIdPageAndSizeNegative_thenException() {
         // setup
         Course course = new Course("test", "test");
-        course.setCreatedBy(1l);
+        course.setCreatedBy(1L);
 
         int page = -1, size = 10;
 
@@ -151,7 +151,7 @@ public class CourseServiceImplTest {
     public void whenFindAll_thenReturnPage() {
         // setup
         Course course = new Course("test", "test");
-        course.setCreatedBy(1l);
+        course.setCreatedBy(1L);
 
         int page = Integer.parseInt(AppConstants.DEFAULT_PAGE_NUMBER), size = Integer.parseInt(AppConstants.DEFAULT_PAGE_SIZE);
 
@@ -202,9 +202,9 @@ public class CourseServiceImplTest {
     private EntryCourseGrantRequest setupGrantRequest() {
         EntryCourseGrantRequest grantRequest = new EntryCourseGrantRequest();
 
-        grantRequest.setCourseId(1l);
-        grantRequest.setGroupId(1l);
-        grantRequest.setUserId(1l);
+        grantRequest.setCourseId(1L);
+        grantRequest.setGroupId(1L);
+        grantRequest.setUserId(1L);
 
         return grantRequest;
     }
@@ -256,11 +256,11 @@ public class CourseServiceImplTest {
         // setup
         EntryCourseGrantRequest grantRequest = setupGrantRequest();
 
-        AclEntry entry = grantRequest.mapToAclEntry(1l, 1l);
+        AclEntry entry = grantRequest.mapToAclEntry(1L, 1L);
 
         Mockito.when(courseRepository.findById(grantRequest.getCourseId())).thenReturn(Optional.of(new Course("test", "test")));
-        Mockito.when(aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString())).thenReturn(new AclResourceType(1l, "test"));
-        Mockito.when(aclService.getSubjectTypeByType(SubjectTypeCode.GROUP.toString())).thenReturn(new AclSubjectType(1l, "test"));
+        Mockito.when(aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString())).thenReturn(new AclResourceType(1L, "test"));
+        Mockito.when(aclService.getSubjectTypeByType(SubjectTypeCode.GROUP.toString())).thenReturn(new AclSubjectType(1L, "test"));
         Mockito.when(aclService.saveOrUpdate(entry)).thenReturn(entry);
 
         // when
@@ -317,11 +317,11 @@ public class CourseServiceImplTest {
         // setup
         EntryCourseGrantRequest grantRequest = setupGrantRequest();
 
-        AclEntry entry = grantRequest.mapToAclEntry(1l, 1l);
+        AclEntry entry = grantRequest.mapToAclEntry(1L, 1L);
 
         Mockito.when(courseRepository.findById(grantRequest.getCourseId())).thenReturn(Optional.of(new Course("test", "test")));
-        Mockito.when(aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString())).thenReturn(new AclResourceType(1l, "test"));
-        Mockito.when(aclService.getSubjectTypeByType(SubjectTypeCode.USER.toString())).thenReturn(new AclSubjectType(1l, "test"));
+        Mockito.when(aclService.getResourceTypeByType(ResourceTypeCode.COURSE.toString())).thenReturn(new AclResourceType(1L, "test"));
+        Mockito.when(aclService.getSubjectTypeByType(SubjectTypeCode.USER.toString())).thenReturn(new AclSubjectType(1L, "test"));
         Mockito.when(aclService.saveOrUpdate(entry)).thenReturn(entry);
 
         // when
@@ -335,7 +335,7 @@ public class CourseServiceImplTest {
     public void whenFindPriCourseForUser_thenReturnCourses() {
         // setup
         long userId = 1;
-        List<Long> ids = Collections.singletonList(1l);
+        List<Long> ids = Collections.singletonList(1L);
         List<Course> courses = Collections.singletonList(new Course());
 
         Mockito.when(aclService.getAllResourceId(userId, ResourceTypeCode.COURSE.toString(), AclEntryPermission.READ.toString())).thenReturn(ids);
@@ -352,7 +352,7 @@ public class CourseServiceImplTest {
     public void whenFindWritableCourseForUser_thenReturnCourses() {
         // setup
         long userId = 1;
-        List<Long> ids = Collections.singletonList(1l);
+        List<Long> ids = Collections.singletonList(1L);
         List<Course> courses = Collections.singletonList(new Course());
 
         Mockito.when(aclService.getAllResourceId(userId, ResourceTypeCode.COURSE.toString(), AclEntryPermission.WRITE.toString())).thenReturn(ids);
@@ -369,7 +369,7 @@ public class CourseServiceImplTest {
     public void whenFindDeletableCourseForUser_thenReturnCourses() {
         // setup
         long userId = 1;
-        List<Long> ids = Collections.singletonList(1l);
+        List<Long> ids = Collections.singletonList(1L);
         List<Course> courses = Collections.singletonList(new Course());
 
         Mockito.when(aclService.getAllResourceId(userId, ResourceTypeCode.COURSE.toString(), AclEntryPermission.DELETE.toString())).thenReturn(ids);
@@ -388,7 +388,7 @@ public class CourseServiceImplTest {
         int page = 0, size = -1;
 
         // when
-        courseService.findPriCourseForUserNew(1l, AclEntryPermission.READ, page, size);
+        courseService.findPriCourseForUserNew(1L, AclEntryPermission.READ, page, size);
     }
 
     @Test(expected = BadRequestException.class)
@@ -397,7 +397,7 @@ public class CourseServiceImplTest {
         int page = -1, size = 10;
 
         // when
-        courseService.findPriCourseForUserNew(1l, AclEntryPermission.READ, page, size);
+        courseService.findPriCourseForUserNew(1L, AclEntryPermission.READ, page, size);
     }
 
     @Test(expected = RestClientException.class)
@@ -428,7 +428,7 @@ public class CourseServiceImplTest {
         int page = 0, size = 10;
         long userId = 1;
 
-        GroupDTO groupDTO = new GroupDTO(1l, "test", null, 0l, "/1");
+        GroupDTO groupDTO = new GroupDTO(1L, "test", null, 0L, "/1");
         List<Long> groupIdOfUser = Utils.getGroupPathOfGroup(groupDTO.getRootPath(), groupDTO.getId());
         Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, "createdAt");
 

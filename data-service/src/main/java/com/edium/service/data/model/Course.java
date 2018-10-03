@@ -1,6 +1,6 @@
 package com.edium.service.data.model;
 
-import com.edium.library.model.UserDateAudit;
+import com.edium.library.model.base.UserDateAudit;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;

@@ -23,9 +23,8 @@ import org.springframework.data.domain.Sort;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
-import java.sql.SQLException;
 import java.util.ArrayList;
-import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 @RunWith(SpringRunner.class)
@@ -51,29 +50,29 @@ public class CourseRepositoryTest {
         entityManager.persist(course1);
         entityManager.persist(course2);
 
-        entityManager.persist(new AclSubjectType(1l, SubjectTypeCode.GROUP.toString()));
-        entityManager.persist(new AclSubjectType(2l, SubjectTypeCode.USER.toString()));
+        entityManager.persist(new AclSubjectType(1L, SubjectTypeCode.GROUP.toString()));
+        entityManager.persist(new AclSubjectType(2L, SubjectTypeCode.USER.toString()));
 
-        entityManager.persist(new AclResourceType(1l, ResourceTypeCode.COURSE.toString()));
-        entityManager.persist(new AclResourceType(2l, ResourceTypeCode.USER.toString()));
+        entityManager.persist(new AclResourceType(1L, ResourceTypeCode.COURSE.toString()));
+        entityManager.persist(new AclResourceType(2L, ResourceTypeCode.USER.toString()));
 
-        entityManager.persist(new AclEntry(1l, course.getId(), 1l,
-                1l, true, false, false, null, false));
-        entityManager.persist(new AclEntry(1l, course1.getId(), 1l,
-                1l, false, true, false, null, false));
-        entityManager.persist(new AclEntry(1l, course2.getId(), 1l,
-                1l, false, false, true, null, false));
+        entityManager.persist(new AclEntry(1L, course.getId(), 1L,
+                1L, true, false, false, null, false));
+        entityManager.persist(new AclEntry(1L, course1.getId(), 1L,
+                1L, false, true, false, null, false));
+        entityManager.persist(new AclEntry(1L, course2.getId(), 1L,
+                1L, false, false, true, null, false));
 
         entityManager.flush();
     }
 
     @Test
-    public void whenFindCoursePermissionRead_thenReturnCourses() throws SQLException {
+    public void whenFindCoursePermissionRead_thenReturnCourses() {
 
         // when
         Pageable pageable = PageRequest.of(0, 10, new Sort(Sort.Direction.ASC, "name"));
 
-        Page<Course> courses = courseRepository.findCoursePermissionRead(1l, 1l, Arrays.asList(1l),
+        Page<Course> courses = courseRepository.findCoursePermissionRead(1L, 1L, Collections.singletonList(1L),
                 ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(), pageable);
 
         // then
@@ -86,11 +85,11 @@ public class CourseRepositoryTest {
     }
 
     @Test
-    public void whenFindCoursePermissionWrite_thenReturnCourses() throws SQLException {
+    public void whenFindCoursePermissionWrite_thenReturnCourses() {
         // when
         Pageable pageable = PageRequest.of(0, 10, new Sort(Sort.Direction.ASC, "name"));
 
-        Page<Course> courses = courseRepository.findCoursePermissionWrite(1l, 1l, Arrays.asList(1l),
+        Page<Course> courses = courseRepository.findCoursePermissionWrite(1L, 1L, Collections.singletonList(1L),
                 ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(), pageable);
 
         // then
@@ -103,11 +102,11 @@ public class CourseRepositoryTest {
     }
 
     @Test
-    public void whenFindCoursePermissionDelete_thenReturnCourses() throws SQLException {
+    public void whenFindCoursePermissionDelete_thenReturnCourses() {
         // when
         Pageable pageable = PageRequest.of(0, 10, new Sort(Sort.Direction.ASC, "name"));
 
-        Page<Course> courses = courseRepository.findCoursePermissionDelete(1l, 1l, Arrays.asList(1l),
+        Page<Course> courses = courseRepository.findCoursePermissionDelete(1L, 1L, Collections.singletonList(1L),
                 ResourceTypeCode.COURSE.toString(), SubjectTypeCode.USER.toString(), SubjectTypeCode.GROUP.toString(), pageable);
 
         // then

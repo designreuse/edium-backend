@@ -1,8 +1,9 @@
 package com.edium.service.core.model;
 
-import com.edium.library.model.UserDateAudit;
+import com.edium.library.model.base.UserDateAudit;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
 public class Organization extends UserDateAudit {
@@ -10,6 +11,7 @@ public class Organization extends UserDateAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotBlank
     @Column(nullable = false, unique = true)
     private String name;
 

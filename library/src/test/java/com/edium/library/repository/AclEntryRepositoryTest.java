@@ -1,6 +1,6 @@
 package com.edium.library.repository;
 
-import com.edium.library.config.UnitTestConfig;
+import com.edium.library.config.UnitTestShareConfig;
 import com.edium.library.model.share.AclEntry;
 import com.edium.library.repository.share.AclEntryRepository;
 import org.hamcrest.CoreMatchers;
@@ -24,7 +24,7 @@ import java.util.List;
 @ActiveProfiles("test")
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE, connection = EmbeddedDatabaseConnection.NONE)
-@ContextConfiguration(classes = UnitTestConfig.class)
+@ContextConfiguration(classes = UnitTestShareConfig.class)
 public class AclEntryRepositoryTest {
 
     @Autowired
@@ -33,23 +33,23 @@ public class AclEntryRepositoryTest {
     @Autowired
     private AclEntryRepository aclEntryRepository;
 
-    private AclEntry entry1, entry2, entry3, entry4, entry5, entry6;
+    private AclEntry entry1, entry2, entry3, entry5, entry6;
 
     @Before
     public void setup() {
-        entry1 = new AclEntry(1l, 1l, 1l,
-                2l, true, false, false, null, false);
-        entry2 = new AclEntry(1l, 2l, 1l,
-                2l, false, true, false, null, false);
-        entry3 = new AclEntry(1l, 3l, 1l,
-                2l, false, false, true, null, false);
+        entry1 = new AclEntry(1L, 1L, 1L,
+                2L, true, false, false, null, false);
+        entry2 = new AclEntry(1L, 2L, 1L,
+                2L, false, true, false, null, false);
+        entry3 = new AclEntry(1L, 3L, 1L,
+                2L, false, false, true, null, false);
 
-        entry4 = new AclEntry(1l, 4l, 1l,
-                3l, true, false, false, null, true);
-        entry5 = new AclEntry(1l, 5l, 1l,
-                3l, false, true, false, null, true);
-        entry6 = new AclEntry(1l, 6l, 1l,
-                3l, false, false, true, null, true);
+        AclEntry entry4 = new AclEntry(1L, 4L, 1L,
+                3L, true, false, false, null, true);
+        entry5 = new AclEntry(1L, 5L, 1L,
+                3L, false, true, false, null, true);
+        entry6 = new AclEntry(1L, 6L, 1L,
+                3L, false, false, true, null, true);
 
         entityManager.persist(entry1);
         entityManager.persist(entry2);
@@ -63,8 +63,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionRead_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionRead(1l, 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionRead(1L, 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -74,8 +74,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionReadInherit_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionRead(1l, 2l,
-                1l, 1l, 4l, Arrays.asList(new Long[] {1l, 3l, 4l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionRead(1L, 2L,
+                1L, 1L, 4L, Arrays.asList(1L, 3L, 4L));
 
         // then
         Assert.assertNotNull(entries);
@@ -85,8 +85,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionReadResource_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionReadResource(1l, entry1.getResourceId(), 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionReadResource(1L, entry1.getResourceId(), 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -97,8 +97,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionWrite_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWrite(1l, 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWrite(1L, 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -109,8 +109,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionWriteInherit_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWrite(1l, 2l,
-                1l, 1l, 4l, Arrays.asList(new Long[] {1l, 3l, 4l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWrite(1L, 2L,
+                1L, 1L, 4L, Arrays.asList(1L, 3L, 4L));
 
         // then
         Assert.assertNotNull(entries);
@@ -121,8 +121,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionWriteResource_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWriteResource(1l, entry2.getResourceId(), 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionWriteResource(1L, entry2.getResourceId(), 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -133,8 +133,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionDelete_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDelete(1l, 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDelete(1L, 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -145,8 +145,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionDeleteInherit_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDelete(1l, 2l,
-                1l, 1l, 4l, Arrays.asList(new Long[] {1l, 3l, 4l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDelete(1L, 2L,
+                1L, 1L, 4L, Arrays.asList(1L, 3L, 4L));
 
         // then
         Assert.assertNotNull(entries);
@@ -157,8 +157,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenFindEntryPermissionDeleteResource_thenReturnEntries() {
         // when
-        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDeleteResource(1l, entry3.getResourceId(), 2l,
-                1l, 1l, 2l, Arrays.asList(new Long[] {1l, 2l}));
+        List<AclEntry> entries = aclEntryRepository.findEntryPermissionDeleteResource(1L, entry3.getResourceId(), 2L,
+                1L, 1L, 2L, Arrays.asList(1L, 2L));
 
         // then
         Assert.assertNotNull(entries);
@@ -169,8 +169,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenSave_withResourceTypeNull_thenException() {
         try {
-            AclEntry entry = new AclEntry(null, 1l, 2l,
-                    2l, true, false, false, null, false);
+            AclEntry entry = new AclEntry(null, 1L, 2L,
+                    2L, true, false, false, null, false);
 
             aclEntryRepository.save(entry);
         } catch (Exception ex) {
@@ -182,8 +182,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenSave_withResourceIdNull_thenException() {
         try {
-            AclEntry entry = new AclEntry(1l, null, 2l,
-                    2l, true, false, false, null, false);
+            AclEntry entry = new AclEntry(1L, null, 2L,
+                    2L, true, false, false, null, false);
 
             aclEntryRepository.save(entry);
         } catch (Exception ex) {
@@ -195,8 +195,8 @@ public class AclEntryRepositoryTest {
     @Test
     public void whenSave_withSubjectTypeNull_thenException() {
         try {
-            AclEntry entry = new AclEntry(1l, 1l, null,
-                    2l, true, false, false, null, false);
+            AclEntry entry = new AclEntry(1L, 1L, null,
+                    2L, true, false, false, null, false);
 
             aclEntryRepository.save(entry);
         } catch (Exception ex) {
@@ -208,7 +208,7 @@ public class AclEntryRepositoryTest {
     @Test(expected = Exception.class)
     public void whenSave_withSubjectIdNull_thenException() {
         try {
-            AclEntry entry = new AclEntry(1l, 1l, 2l,
+            AclEntry entry = new AclEntry(1L, 1L, 2L,
                     null, true, false, false, null, false);
 
             aclEntryRepository.save(entry);

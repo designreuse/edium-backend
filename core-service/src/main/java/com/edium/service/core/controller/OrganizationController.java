@@ -2,7 +2,6 @@ package com.edium.service.core.controller;
 
 import com.edium.library.model.core.User;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.spring.ContextAwarePolicyEnforcement;
 import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
@@ -28,9 +27,6 @@ public class OrganizationController {
 
     @Autowired
     GroupService groupService;
-
-    @Autowired
-    private ContextAwarePolicyEnforcement policy;
 
     @GetMapping("")
     public PagedResponse<Organization> getAllOrganizations(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -61,7 +57,7 @@ public class OrganizationController {
         return organizationService.save(org);
     }
 
-    @PreAuthorize("hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).READ)")
+    @PreAuthorize("hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).WRITE)")
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteOrganization(@PathVariable(value = "id") Long orgId) {
         organizationService.deleteById(orgId);
@@ -79,9 +75,10 @@ public class OrganizationController {
         return groupService.getRootGroupOfOrganization(orgId);
     }
 
-    @GetMapping("{id}/user")
-    public PagedResponse<User> getUserOfOrganization(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
-                                                   @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
-        return userService.findByOrganizationId(page, size);
+    @GetMapping("/{id}/user")
+    public PagedResponse<User> getUserOfOrganization(@PathVariable(value = "id") long id,
+                                                     @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                     @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+        return userService.findByOrganizationId(id, page, size);
     }
 }

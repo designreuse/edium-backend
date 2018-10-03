@@ -1,22 +1,26 @@
 package com.edium.library.model.core;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
 @Entity
+@Table(uniqueConstraints = {
+        @UniqueConstraint(name = "uk_authority_code", columnNames = "code")
+})
 public class Authority {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NotNull
+    @NotBlank
+    @Column(nullable = false)
     private String code;
 
     public Authority() {
     }
 
-    public Authority(Long id, @NotNull String code) {
-        this.id = id;
+    public Authority(@NotNull String code) {
         this.code = code;
     }
 

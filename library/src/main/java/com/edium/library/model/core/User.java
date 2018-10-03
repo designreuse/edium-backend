@@ -1,6 +1,6 @@
 package com.edium.library.model.core;
 
-import com.edium.library.model.DateAudit;
+import com.edium.library.model.base.DateAudit;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import org.hibernate.annotations.NaturalId;
 

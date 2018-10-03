@@ -1,4 +1,4 @@
-package com.edium.library.model;
+package com.edium.library.model.base;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import org.springframework.data.annotation.CreatedDate;
