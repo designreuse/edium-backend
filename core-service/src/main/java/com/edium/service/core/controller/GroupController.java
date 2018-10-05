@@ -1,14 +1,12 @@
 package com.edium.service.core.controller;
 
-import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.spring.ContextAwarePolicyEnforcement;
 import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
 import com.edium.service.core.payload.GroupRequest;
-import com.edium.service.core.repository.OrganizationRepository;
 import com.edium.service.core.service.GroupService;
+import com.edium.service.core.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -23,10 +21,7 @@ public class GroupController {
     GroupService groupService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
-
-    @Autowired
-    private ContextAwarePolicyEnforcement policy;
+    OrganizationService organizationService;
 
     @GetMapping("")
     public PagedResponse<Group> getAllGroup(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -38,8 +33,7 @@ public class GroupController {
     public Group createGroup(@Valid @RequestBody GroupRequest details) throws Exception {
         Group group = new Group();
 
-        Organization organization = organizationRepository.findById(details.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", details.getOrganizationId()));
+        Organization organization = organizationService.findById(details.getOrganizationId());
 
         mapGroupRequestToModel(details, group, organization);
 
@@ -57,8 +51,7 @@ public class GroupController {
 
         Group group = groupService.findById(id);
 
-        Organization organization = organizationRepository.findById(details.getOrganizationId())
-                .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", details.getOrganizationId()));
+        Organization organization = organizationService.findById(details.getOrganizationId());
 
         mapGroupRequestToModel(details, group, organization);
 

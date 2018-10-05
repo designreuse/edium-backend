@@ -1,4 +1,4 @@
-package com.edium.service.core.security;
+package com.edium.library.spring;
 
 public enum  PermissionObject {
     ORGANIZATION

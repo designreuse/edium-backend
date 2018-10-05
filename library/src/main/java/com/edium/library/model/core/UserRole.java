@@ -18,8 +18,9 @@ public class UserRole extends UserDateAudit {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "userOrganizationId")
+    @JoinColumn(name = "userOrganizationId", nullable = false)
     @JsonBackReference
+    @NotNull
     private UserOrganization userOrganization;
 
     @ManyToOne()
@@ -30,7 +31,7 @@ public class UserRole extends UserDateAudit {
     public UserRole() {
     }
 
-    public UserRole(UserOrganization userOrganization, @NotNull Role role) {
+    public UserRole(@NotNull UserOrganization userOrganization, @NotNull Role role) {
         this.userOrganization = userOrganization;
         this.role = role;
     }

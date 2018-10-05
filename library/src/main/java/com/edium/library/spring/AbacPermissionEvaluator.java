@@ -5,8 +5,6 @@ import com.edium.library.policy.PolicySubject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.access.PermissionEvaluator;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
@@ -39,7 +37,7 @@ public class AbacPermissionEvaluator implements PermissionEvaluator {
 
         PolicySubject policySubject = new PolicySubject(authentication);
 
-        logger.debug("hasPersmission({}, {}, {})", policySubject, targetDomainObject, permission);
+        logger.debug("hasPermission({}, {}, {})", policySubject, targetDomainObject, permission);
         return policy.check(policySubject, targetDomainObject, permission, environment);
     }
 

@@ -49,7 +49,7 @@ public class UserPrincipal implements UserDetails {
         this.organizationId = organizationId;
 
         roles = new ArrayList<>();
-        authorities.stream().forEach(o -> roles.add(((GrantedAuthority) o).getAuthority()));
+        authorities.stream().forEach(o -> roles.add(o.getAuthority()));
     }
 
 //    public static UserPrincipal create(User user) {

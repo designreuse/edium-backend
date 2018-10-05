@@ -1,6 +1,7 @@
 package com.edium.service.core.config;
 
 import com.edium.library.config.CustomAccessTokenConverter;
+import com.edium.library.config.CustomTokenConverter;
 import com.edium.library.spring.AbacPermissionEvaluator;
 import com.edium.library.spring.JwtAuthenticationEntryPoint;
 import org.apache.commons.io.IOUtils;
@@ -23,6 +24,7 @@ import org.springframework.security.oauth2.provider.token.ResourceServerTokenSer
 import org.springframework.security.oauth2.provider.token.TokenStore;
 import org.springframework.security.oauth2.provider.token.store.JwtAccessTokenConverter;
 import org.springframework.security.oauth2.provider.token.store.JwtTokenStore;
+import org.springframework.security.oauth2.provider.token.store.KeyStoreKeyFactory;
 
 import java.util.Arrays;
 
@@ -58,7 +60,7 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
 
     @Bean
     public JwtAccessTokenConverter accessTokenConverter() {
-        JwtAccessTokenConverter jwtAccessTokenConverter = new JwtAccessTokenConverter();
+        JwtAccessTokenConverter jwtAccessTokenConverter = new CustomTokenConverter();
         jwtAccessTokenConverter.setAccessTokenConverter(customAccessTokenConverter);
         final Resource resource = new ClassPathResource(resourceFileUri);
         String publicKey;
@@ -68,6 +70,13 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
             throw new RuntimeException(ex);
         }
         jwtAccessTokenConverter.setVerifierKey(publicKey);
+
+        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("test"))) {
+            KeyStoreKeyFactory keyStoreKeyFactory =
+                    new KeyStoreKeyFactory(new ClassPathResource(environment.getProperty("oauth2.keystore_file_uri")), environment.getProperty("oauth2.keystore_password").toCharArray());
+            jwtAccessTokenConverter.setKeyPair(keyStoreKeyFactory.getKeyPair(environment.getProperty("oauth2.keystore_alias")));
+        }
+
         return jwtAccessTokenConverter;
     }
 
@@ -79,30 +88,30 @@ public class ResourceServerConfig extends ResourceServerConfigurerAdapter {
         return defaultTokenServices;
     }
 
+    @Bean
+    public DefaultTokenServices testTokenServices() {
+        DefaultTokenServices defaultTokenServices = new DefaultTokenServices();
+
+        defaultTokenServices.setTokenStore(tokenStore());
+        defaultTokenServices.setSupportRefreshToken(true);
+        defaultTokenServices.setTokenEnhancer(accessTokenConverter());
+
+        return defaultTokenServices;
+    }
+
     @Override
     public void configure(HttpSecurity http) throws Exception {
-        if (Arrays.stream(environment.getActiveProfiles()).anyMatch(env -> env.equalsIgnoreCase("test"))) {
-            http
-                    .headers().frameOptions().disable()
-                    .and()
-                    .csrf().disable()
-                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-                    .authorizeRequests()
-                    .anyRequest()
-                    .permitAll();
-        } else {
-            http
-                    .headers().frameOptions().disable()
-                    .and()
-                    .csrf().disable()
-                    .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
-                    .authorizeRequests()
-                    .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
-                    .permitAll()
-                    .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
-                    .anyRequest()
-                    .authenticated();
-        }
+        http
+                .headers().frameOptions().disable()
+                .and()
+                .csrf().disable()
+                .exceptionHandling().authenticationEntryPoint(authenticationEntryPoint).and()
+                .authorizeRequests()
+                .antMatchers("/api/user/checkUsernameAvailability", "/api/user/checkEmailAvailability")
+                .permitAll()
+                .antMatchers("/login*", "/signin/**", "/signup/**").permitAll()
+                .anyRequest()
+                .authenticated();
     }
 
     @Bean

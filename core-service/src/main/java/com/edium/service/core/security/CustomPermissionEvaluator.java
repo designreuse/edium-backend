@@ -1,5 +1,7 @@
 package com.edium.service.core.security;
 
+import com.edium.library.spring.PermissionObject;
+import com.edium.library.spring.PermissionType;
 import com.edium.service.core.exception.PermissionNotDefinedException;
 import com.google.common.base.Enums;
 import org.springframework.security.access.PermissionEvaluator;

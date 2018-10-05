@@ -41,10 +41,7 @@ public class OrganizationServiceImpl implements OrganizationService {
     }
 
     @Override
-    public void deleteById(Long organizationId) {
-        Organization organization = organizationRepository.findById(organizationId)
-                .orElseThrow(() -> new ResourceNotFoundException("Organization", "id", organizationId));
-
+    public void delete(Organization organization) {
         organizationRepository.delete(organization);
     }
 }

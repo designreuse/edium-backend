@@ -57,6 +57,10 @@ management:
 
 oauth2:
   resourceId: core-service
+  keystore_file_uri: key/mykey.jks
+  keystore_password: $ampl3
+  keystore_alias: mykey
+  custom_token_field_name: custom_field
   paths:
     resource_file_uri: key/jwt_oauth2_key.pub
 

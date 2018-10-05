@@ -3,7 +3,6 @@ package com.edium.library.spring;
 import com.edium.library.policy.PolicyEnforcement;
 import com.edium.library.policy.PolicySubject;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -18,7 +17,7 @@ public class ContextAwarePolicyEnforcement {
     @Autowired
     protected PolicyEnforcement policy;
 
-    public void checkPermission(Object resource, String permission) {
+    public void checkPermission(Object resource, String permission, String resourceType) {
         Authentication auth = SecurityContextHolder.getContext().getAuthentication();
 
         Map<String, Object> environment = new HashMap<>();
@@ -35,7 +34,11 @@ public class ContextAwarePolicyEnforcement {
 
         PolicySubject policySubject = new PolicySubject(auth);
 
-        if(!policy.check(policySubject, resource, permission, environment))
+        if(!policy.check(policySubject, resource, permission + "_" + resourceType, environment))
             throw new AccessDeniedException("Access is denied");
+    }
+
+    public void checkPermission(Object resource, PermissionType permission, PermissionObject resourceType) {
+        checkPermission(resource, permission.toString(), resourceType.toString());
     }
 }

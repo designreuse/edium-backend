@@ -1,8 +1,8 @@
 package com.edium.auth.config;
 
-import com.edium.auth.security.CustomTokenConverter;
 import com.edium.auth.security.CustomTokenService;
 import com.edium.auth.security.CustomUserDetailsService;
+import com.edium.library.config.CustomTokenConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.domain.EntityScan;

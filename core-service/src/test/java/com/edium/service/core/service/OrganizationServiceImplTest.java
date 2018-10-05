@@ -65,29 +65,12 @@ public class OrganizationServiceImplTest {
         Assert.assertEquals(organizationService.findById(organization.getId()), organization);
     }
 
-    @Test(expected = ResourceNotFoundException.class)
-    public void whenDeleteById_withIdNotFound_thenException() {
-        try {
-            long orgId = 1L;
-
-            Mockito.when(organizationRepository.findById(orgId)).thenReturn(Optional.empty());
-
-            organizationService.deleteById(orgId);
-        } catch (ResourceNotFoundException ex) {
-            Assert.assertEquals(ex.getResourceName(), "Organization");
-            Assert.assertEquals(ex.getFieldName(), "id");
-            throw ex;
-        }
-    }
-
     @Test
-    public void whenDeleteById_thenOk() {
+    public void whenDelete_thenOk() {
         Organization organization = new Organization(String.valueOf(System.currentTimeMillis()));
         organization.setId(1L);
 
-        Mockito.when(organizationRepository.findById(organization.getId())).thenReturn(Optional.of(organization));
-
-        organizationService.deleteById(organization.getId());
+        organizationService.delete(organization);
     }
 
     @Test

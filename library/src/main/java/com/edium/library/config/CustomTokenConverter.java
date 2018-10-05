@@ -1,4 +1,4 @@
-package com.edium.auth.security;
+package com.edium.library.config;
 
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.spring.Principal;

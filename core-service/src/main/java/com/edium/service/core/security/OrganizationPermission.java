@@ -1,5 +1,6 @@
 package com.edium.service.core.security;
 
+import com.edium.library.spring.PermissionType;
 import com.edium.service.core.model.Organization;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.provider.authentication.OAuth2AuthenticationDetails;

@@ -1,7 +1,11 @@
 package com.edium.service.core.controller;
 
 import com.edium.library.model.core.User;
+import com.edium.library.payload.ApiResponse;
 import com.edium.library.payload.PagedResponse;
+import com.edium.library.spring.ContextAwarePolicyEnforcement;
+import com.edium.library.spring.PermissionObject;
+import com.edium.library.spring.PermissionType;
 import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
@@ -9,8 +13,6 @@ import com.edium.service.core.service.GroupService;
 import com.edium.service.core.service.OrganizationService;
 import com.edium.service.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -28,6 +30,9 @@ public class OrganizationController {
     @Autowired
     GroupService groupService;
 
+    @Autowired
+    private ContextAwarePolicyEnforcement policyEnforcement;
+
     @GetMapping("")
     public PagedResponse<Organization> getAllOrganizations(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                            @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
@@ -39,30 +44,37 @@ public class OrganizationController {
         return organizationService.save(org);
     }
 
-    @PreAuthorize("hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).READ)")
     @GetMapping("/{id}")
     public Organization getOrganizationById(@PathVariable(value = "id") Long orgId) {
-        return organizationService.findById(orgId);
+        Organization organization = organizationService.findById(orgId);
+
+        policyEnforcement.checkPermission(organization, PermissionType.READ, PermissionObject.ORGANIZATION);
+
+        return organization;
     }
 
-    @PreAuthorize("hasPermission(#orgDetails, T(com.edium.service.core.security.PermissionType).WRITE + '_' + T(com.edium.service.core.security.PermissionObject).ORGANIZATION)")
     @PutMapping("/{id}")
     public Organization updateOrganization(@PathVariable(value = "id") Long orgId,
                            @Valid @RequestBody Organization orgDetails) {
 
         Organization org = organizationService.findById(orgId);
 
+        policyEnforcement.checkPermission(org, PermissionType.WRITE, PermissionObject.ORGANIZATION);
+
         org.setName(orgDetails.getName());
 
         return organizationService.save(org);
     }
 
-    @PreAuthorize("hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).WRITE)")
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteOrganization(@PathVariable(value = "id") Long orgId) {
-        organizationService.deleteById(orgId);
+    public ApiResponse deleteOrganization(@PathVariable(value = "id") Long orgId) {
+        Organization organization = organizationService.findById(orgId);
 
-        return ResponseEntity.ok().build();
+        policyEnforcement.checkPermission(organization, PermissionType.DELETE, PermissionObject.ORGANIZATION);
+
+        organizationService.delete(organization);
+
+        return new ApiResponse(true, "success");
     }
 
     @GetMapping("/{id}/tree-group")

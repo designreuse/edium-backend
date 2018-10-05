@@ -11,6 +11,6 @@ public interface OrganizationService {
 
     Organization save(Organization organization);
 
-    void deleteById(Long organizationId);
+    void delete(Organization organization);
 
 }

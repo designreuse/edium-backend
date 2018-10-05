@@ -7,14 +7,13 @@ import org.hibernate.annotations.NaturalId;
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
-import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 import java.util.List;
 
 @Entity
 @Table(uniqueConstraints = {
-        @UniqueConstraint(name = "uk_user_idx1", columnNames = {"username"}),
-        @UniqueConstraint(name = "uk_user_idx2", columnNames = {"email"})
+        @UniqueConstraint(name = "uk_user_username", columnNames = {"username"}),
+        @UniqueConstraint(name = "uk_user_email", columnNames = {"email"})
 })
 public class User extends DateAudit {
 
@@ -22,49 +21,42 @@ public class User extends DateAudit {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Size(min = 8, max = 255, message = "Username have to be greater than 8 characters")
-    @Column(nullable = false, unique = true)
-    @NotNull
+    @Size(min = 8, max = 255)
+    @Column(nullable = false)
+    @NotBlank
     private String username;
 
-    @NotNull
-    @Size(min = 8, max = 255, message = "Password have to be greater than 8 characters")
+    @NotBlank
+    @Size(min = 8, max = 255)
     @JsonIgnore
     private String password;
 
     @NotBlank
     @Size(max = 40)
+    @Column(nullable = false)
     private String name;
 
     @NaturalId
     @NotBlank
     @Size(max = 40)
     @Email
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String email;
 
-    @NotNull
+    @Column(nullable = false)
     private boolean enabled = true;
 
     private String provider;
 
-    @NotNull
+    @Column(nullable = false)
     private boolean isPasswordDefault = false;
-
-    public boolean isPasswordDefault() {
-        return isPasswordDefault;
-    }
-
-    public void setPasswordDefault(boolean passwordDefault) {
-        isPasswordDefault = passwordDefault;
-    }
-
-    @Transient
-    private List<UserOrganization> userOrganizations;
 
     private Long organizationId;
 
     private Long groupId;
+
+    @Transient
+    private List<UserOrganization> userOrganizations;
 
     public User() {
     }
@@ -74,6 +66,14 @@ public class User extends DateAudit {
         this.username = username;
         this.email = email;
         this.password = password;
+    }
+
+    public boolean isPasswordDefault() {
+        return isPasswordDefault;
+    }
+
+    public void setPasswordDefault(boolean passwordDefault) {
+        isPasswordDefault = passwordDefault;
     }
 
     public Long getGroupId() {

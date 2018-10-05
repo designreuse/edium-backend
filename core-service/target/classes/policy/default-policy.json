@@ -2,13 +2,19 @@
   {
     "name": "Admin",
     "description": "Admin can do all.",
-    "target": "subject.roles.contains('ADMIN')",
+    "target": "subject.roles.contains('ROLE_ADMIN')",
     "condition": "true"
   },
   {
-    "name": "User view ",
-    "description": "Admin can do all.",
-    "target": "subject.roles.contains('ROLE_USER')",
-    "condition": "subject.organizationId == resource.organizationId"
+    "name": "User view",
+    "description": "Ai cung co the xem duoc thong tin to chuc",
+    "target": "action == 'READ_ORGANIZATION'",
+    "condition": "subject.organizationId == resource.id"
+  },
+  {
+    "name": "User view",
+    "description": "Ai tao thi moi co the cap nhat, xoa thong tin to chuc",
+    "target": "(action == 'WRITE_ORGANIZATION' or action == 'DELETE_ORGANIZATION') and !subject.roles.contains('ROLE_ADMIN')",
+    "condition": "subject.userId == resource.createdBy"
   }
 ]
