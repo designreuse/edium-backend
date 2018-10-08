@@ -12,5 +12,5 @@ public interface AppConstants {
     long DEFAULT_GROUP_ID = -1;
     RoleCode DEFAULT_ROLE = RoleCode.ROLE_NORMAL_USER;
 
-    String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss zzz";
+    String DATE_FORMAT = "yyyy-MM-dd HH:mm:ss";
 }

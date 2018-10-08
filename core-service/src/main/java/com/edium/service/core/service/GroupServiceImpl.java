@@ -51,6 +51,9 @@ public class GroupServiceImpl implements GroupService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Group save(Group group) {
+
+        checkParent(group);
+
         Group newGroup = groupRepository.save(group);
 
         BaseX base62 = new BaseX();
@@ -65,8 +68,20 @@ public class GroupServiceImpl implements GroupService {
         return groupRepository.save(newGroup);
     }
 
+    private void checkParent(Group group) {
+        if (group.getParentId() != null) {
+            Group parent = findById(group.getParentId());
+
+            group.setGroupLevel(parent.getGroupLevel() + 1);
+            group.setParentPath(parent.getRootPath());
+            group.setParentEncodedPath(parent.getEncodedRootPath());
+        }
+    }
+
     @Override
     public Group update(Group group) {
+        checkParent(group);
+
         setPath(group);
 
         return groupRepository.save(group);

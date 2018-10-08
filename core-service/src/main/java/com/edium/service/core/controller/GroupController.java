@@ -1,5 +1,6 @@
 package com.edium.service.core.controller;
 
+import com.edium.library.payload.ApiResponse;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
@@ -8,7 +9,6 @@ import com.edium.service.core.payload.GroupRequest;
 import com.edium.service.core.service.GroupService;
 import com.edium.service.core.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -17,11 +17,14 @@ import java.util.List;
 @RestController
 @RequestMapping("/api/group")
 public class GroupController {
-    @Autowired
-    GroupService groupService;
+    private final GroupService groupService;
+    private final OrganizationService organizationService;
 
     @Autowired
-    OrganizationService organizationService;
+    public GroupController(GroupService groupService, OrganizationService organizationService) {
+        this.groupService = groupService;
+        this.organizationService = organizationService;
+    }
 
     @GetMapping("")
     public PagedResponse<Group> getAllGroup(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -47,7 +50,7 @@ public class GroupController {
 
     @PutMapping("/{id}")
     public Group updateGroup(@PathVariable(value = "id") Long id,
-                                           @Valid @RequestBody GroupRequest details) {
+                             @Valid @RequestBody GroupRequest details) {
 
         Group group = groupService.findById(id);
 
@@ -59,10 +62,10 @@ public class GroupController {
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteGroup(@PathVariable(value = "id") Long id) {
+    public ApiResponse deleteGroup(@PathVariable(value = "id") Long id) {
         groupService.deleteById(id);
 
-        return ResponseEntity.ok().build();
+        return new ApiResponse(true, "success");
     }
 
     @GetMapping("/{id}/parent")
@@ -71,7 +74,7 @@ public class GroupController {
     }
 
     @GetMapping("/{id}/children")
-    public List<Group> getChildrens(@PathVariable(value = "id") Long groupId) {
+    public List<Group> getChildren(@PathVariable(value = "id") Long groupId) {
         return groupService.getAllChildrenGroups(groupId);
     }
 
@@ -84,13 +87,5 @@ public class GroupController {
         group.setName(details.getName());
         group.setOrganization(organization);
         group.setParentId(details.getParentId());
-
-        if (details.getParentId() != null) {
-            Group parent = groupService.findById(details.getParentId());
-
-            group.setGroupLevel(parent.getGroupLevel() + 1);
-            group.setParentPath(parent.getRootPath());
-            group.setParentEncodedPath(parent.getEncodedRootPath());
-        }
     }
 }

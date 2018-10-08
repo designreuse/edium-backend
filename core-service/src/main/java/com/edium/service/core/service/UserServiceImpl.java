@@ -7,10 +7,10 @@ import com.edium.library.model.core.User;
 import com.edium.library.model.core.UserOrganization;
 import com.edium.library.model.core.UserRole;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.repository.core.RoleRepository;
 import com.edium.library.repository.core.UserOrganizationRepository;
 import com.edium.library.repository.core.UserRepository;
 import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.service.RoleService;
 import com.edium.library.util.AppConstants;
 import com.edium.library.util.Utils;
 import com.edium.service.core.model.Group;
@@ -46,7 +46,7 @@ public class UserServiceImpl implements UserService {
     OrganizationService organizationService;
 
     @Autowired
-    RoleRepository roleRepository;
+    RoleService roleService;
 
     @Autowired
     PasswordEncoder passwordEncoder;
@@ -105,8 +105,7 @@ public class UserServiceImpl implements UserService {
         userOrganization.setUser(user);
 
         UserRole userRole = new UserRole();
-        userRole.setRole(roleRepository.findByCode(AppConstants.DEFAULT_ROLE.toString())
-                .orElseThrow(() -> new ResourceNotFoundException("Role", "code", AppConstants.DEFAULT_ROLE.toString())));
+        userRole.setRole(roleService.findByCode(AppConstants.DEFAULT_ROLE.toString()));
         userRole.setUserOrganization(userOrganization);
 
         return userRoleRepository.save(userRole).getUserOrganization().getUser();
@@ -137,7 +136,7 @@ public class UserServiceImpl implements UserService {
         if (roles == null || roles.isEmpty()) {
             throw new AppException("Role list is empty");
         }
-        List<Role> roleList = roleRepository.findAll();
+        List<Role> roleList = roleService.findAll(0, Integer.MAX_VALUE).getContent();
         Map<String, Role> mapRole = new HashMap<>();
         roleList.forEach(role -> mapRole.put(role.getCode(), role));
 
@@ -197,6 +196,11 @@ public class UserServiceImpl implements UserService {
                 }
             });
         }
+    }
+
+    @Override
+    public User save(User user) {
+        return userRepository.save(user);
     }
 
 }

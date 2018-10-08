@@ -77,12 +77,12 @@ public class OrganizationController {
         return new ApiResponse(true, "success");
     }
 
-    @GetMapping("/{id}/tree-group")
+    @GetMapping("/{id}/treeGroup")
     public List<Group> getTreeGroup(@PathVariable(value = "id") Long orgId) {
         return groupService.getTreeGroupOfOrganization(orgId);
     }
 
-    @GetMapping("/{id}/root-group")
+    @GetMapping("/{id}/rootGroup")
     public List<Group> getRootGroup(@PathVariable(value = "id") Long orgId) {
         return groupService.getRootGroupOfOrganization(orgId);
     }

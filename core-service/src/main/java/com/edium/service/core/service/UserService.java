@@ -25,4 +25,6 @@ public interface UserService {
 
     void setGroup(Long userId, Long groupId, List<String> roles);
 
+    User save(User user);
+
 }

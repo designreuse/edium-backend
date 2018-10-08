@@ -33,15 +33,15 @@ public class Group extends UserDateAudit {
 
     @NotNull
     @Column(nullable = false)
-    private Long groupLevel = 0l;
+    private Long groupLevel = 0L;
 
-    @Column(nullable = true, length = 1000)
+    @Column(length = 1000)
     private String rootPath;
 
-    @Column(nullable = true)
+    @Column
     private String encodedId;
 
-    @Column(nullable = true, length = 1000)
+    @Column(length = 1000)
     private String encodedRootPath;
 
     public Group(@NotBlank String name, Long parentId, Organization organization, @NotNull Long groupLevel) {

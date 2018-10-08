@@ -6,6 +6,7 @@ import com.edium.library.model.core.UserOrganization;
 import com.edium.library.model.core.UserRole;
 import com.edium.library.repository.core.UserRepository;
 import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.service.RoleService;
 import com.edium.library.util.AppConstants;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

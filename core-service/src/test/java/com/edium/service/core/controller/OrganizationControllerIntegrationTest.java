@@ -2,10 +2,16 @@ package com.edium.service.core.controller;
 
 import com.edium.library.config.AuditingConfig;
 import com.edium.library.model.UserPrincipal;
+import com.edium.library.model.core.Role;
+import com.edium.library.model.core.User;
+import com.edium.library.service.RoleService;
 import com.edium.library.spring.OAuthHelper;
 import com.edium.service.core.CoreServiceApplication;
+import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
+import com.edium.service.core.service.GroupService;
 import com.edium.service.core.service.OrganizationService;
+import com.edium.service.core.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.hamcrest.Matchers;
 import org.junit.Before;
@@ -47,6 +53,15 @@ public class OrganizationControllerIntegrationTest {
 
     @Autowired
     private OrganizationService organizationService;
+
+    @Autowired
+    private GroupService groupService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RoleService roleService;
 
     private UserPrincipal USER, ADMIN;
 
@@ -249,4 +264,123 @@ public class OrganizationControllerIntegrationTest {
                 .andDo(print());
     }
 
+    @Test
+    public void whenGetAllOrganizations_withPageNegative_thenException() throws Exception {
+        mvc.perform(get("/api/organization?page=-1&size=10")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", Matchers.equalTo("Page number cannot be less than zero.")))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetAllOrganizations_withSizeNegative_thenException() throws Exception {
+        mvc.perform(get("/api/organization?page=0&size=-1")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", Matchers.equalTo("Page size cannot be less than zero.")))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetAllOrganizations_thenOk() throws Exception {
+        Organization organization = organizationService.save(new Organization("test" + System.currentTimeMillis()));
+
+        mvc.perform(get("/api/organization?page=0&size=10")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content[0].id", Matchers.equalTo(organization.getId().intValue())))
+                .andExpect(jsonPath("$.totalElements", Matchers.equalTo(1)))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetTreeGroup_thenOk() throws Exception {
+        Organization organization = organizationService.save(new Organization("test" + System.currentTimeMillis()));
+
+        Organization organization1 = organizationService.save(new Organization("test_" + System.currentTimeMillis()));
+
+        Group group = groupService.save(new Group("test" + System.currentTimeMillis(), null, organization, 0L));
+        Group group1 = groupService.save(new Group("test" + System.currentTimeMillis(), group.getId(), organization, 1L));
+
+        groupService.save(new Group("test_" + System.currentTimeMillis(), null, organization1, 0L));
+
+        mvc.perform(get("/api/organization/" + organization.getId() + "/treeGroup")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$[*].id", Matchers.hasItem(group.getId().intValue())))
+                .andExpect(jsonPath("$[*].id", Matchers.hasItem(group1.getId().intValue())))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetRootGroup_thenOk() throws Exception {
+        Organization organization = organizationService.save(new Organization("test" + System.currentTimeMillis()));
+
+        Group group = groupService.save(new Group("test" + System.currentTimeMillis(), null, organization, 0L));
+        groupService.save(new Group("test" + System.currentTimeMillis(), group.getId(), organization, 1L));
+
+        mvc.perform(get("/api/organization/" + organization.getId() + "/rootGroup")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$", Matchers.hasSize(1)))
+                .andExpect(jsonPath("$[*].id", Matchers.hasItem(group.getId().intValue())))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetUserOfOrganization_withPageNegative_thenException() throws Exception {
+        mvc.perform(get("/api/organization/1/user?page=-1&size=10")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", Matchers.equalTo("Page number cannot be less than zero.")))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetUserOfOrganization_withSizeNegative_thenException() throws Exception {
+        mvc.perform(get("/api/organization/1/user?page=0&size=-1")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.message", Matchers.equalTo("Page size cannot be less than zero.")))
+                .andDo(print());
+    }
+
+    @Test
+    public void whenGetUserOfOrganization_withSizeNegative_thenOk() throws Exception {
+        Organization organization = organizationService.save(new Organization("test" + System.currentTimeMillis()));
+        Organization organization1 = organizationService.save(new Organization("test_" + System.currentTimeMillis()));
+
+        Group group = groupService.save(new Group("test" + System.currentTimeMillis(), null, organization, 0L));
+        Group group1 = groupService.save(new Group("test" + System.currentTimeMillis(), group.getId(), organization, 1L));
+
+        Group group2 = groupService.save(new Group("test_" + System.currentTimeMillis(), null, organization1, 0L));
+
+        User user = userService.save(new User("user123", "username123", "user123@gmail.com", "123456789"));
+        User user1 = userService.save(new User("user1234", "username1234", "user1234@gmail.com", "123456789"));
+        User user2 = userService.save(new User("user12345", "username12345", "user12345@gmail.com", "123456789"));
+
+        Role role = roleService.save(new Role("test" + System.currentTimeMillis(), "test" + System.currentTimeMillis()));
+
+        userService.setGroup(user.getId(), group.getId(), Collections.singletonList(role.getCode()));
+        userService.setGroup(user1.getId(), group1.getId(), Collections.singletonList(role.getCode()));
+        userService.setGroup(user2.getId(), group2.getId(), Collections.singletonList(role.getCode()));
+
+        mvc.perform(get("/api/organization/" + organization.getId() + "/user?page=0&size=10")
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
+                .andExpect(status().isOk())
+                .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.content", Matchers.hasSize(2)))
+                .andExpect(jsonPath("$.content[*].id", Matchers.hasItem(user.getId().intValue())))
+                .andExpect(jsonPath("$.content[*].id", Matchers.hasItem(user1.getId().intValue())))
+                .andDo(print());
+    }
 }

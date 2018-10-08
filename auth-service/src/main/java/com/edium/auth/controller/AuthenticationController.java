@@ -6,13 +6,12 @@ import com.edium.auth.security.CustomTokenService;
 import com.edium.auth.security.RestFB;
 import com.edium.auth.security.TokenUtils;
 import com.edium.auth.service.UserService;
-import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.model.core.User;
 import com.edium.library.model.core.UserOrganization;
 import com.edium.library.model.core.UserRole;
-import com.edium.library.repository.core.RoleRepository;
 import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.service.RoleService;
 import com.edium.library.util.AppConstants;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -64,7 +63,7 @@ public class AuthenticationController extends BaseController{
     private TokenUtils tokenUtils;
 
     @Autowired
-    RoleRepository roleRepository;
+    private RoleService roleService;
 
     @Autowired
     UserRoleRepository userRoleRepository;
@@ -107,8 +106,7 @@ public class AuthenticationController extends BaseController{
             userOrganization.setUser(localUser);
 
             UserRole userRole = new UserRole();
-            userRole.setRole(roleRepository.findByCode(AppConstants.DEFAULT_ROLE.toString())
-                    .orElseThrow(() -> new ResourceNotFoundException("Role", "code", AppConstants.DEFAULT_ROLE.toString())));
+            userRole.setRole(roleService.findByCode(AppConstants.DEFAULT_ROLE.toString()));
             userRole.setUserOrganization(userOrganization);
 
             userRoleRepository.save(userRole);
