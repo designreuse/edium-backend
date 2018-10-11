@@ -120,9 +120,12 @@ public class GroupServiceImplTest {
     public void whenSaveGroup_withParent_thenReturn() throws Exception {
         Group group = new Group(String.valueOf(System.currentTimeMillis()), 1L, new Organization(), 1L);
         group.setId(2L);
-        group.setParentPath("/1");
-        group.setParentEncodedPath("11");
 
+        Group groupParent = new Group(String.valueOf(System.currentTimeMillis()), null, new Organization(), 0L);
+        groupParent.setRootPath("/1");
+        groupParent.setEncodedRootPath("11");
+
+        Mockito.when(groupRepository.findById(group.getParentId())).thenReturn(Optional.of(groupParent));
         Mockito.when(groupRepository.save(Mockito.any(Group.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
         Group response = groupService.save(group);
@@ -130,6 +133,21 @@ public class GroupServiceImplTest {
         Assert.assertEquals(response.getEncodedId(), "12");
         Assert.assertEquals(response.getRootPath(), "/1/2");
         Assert.assertEquals(response.getEncodedRootPath(), "11-12");
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void whenSaveGroup_withParentNotFound_thenException() throws Exception {
+        try {
+            Group group = new Group(String.valueOf(System.currentTimeMillis()), 1L, new Organization(), 1L);
+
+            Mockito.when(groupRepository.findById(group.getParentId())).thenReturn(Optional.empty());
+
+            groupService.save(group);
+        } catch (ResourceNotFoundException ex) {
+            Assert.assertEquals(ex.getFieldName(), "id");
+            Assert.assertEquals(ex.getResourceName(), "Group");
+            throw ex;
+        }
     }
 
     @Test
@@ -151,15 +169,36 @@ public class GroupServiceImplTest {
         Group group = new Group(String.valueOf(System.currentTimeMillis()), 1L, new Organization(), 1L);
         group.setId(2L);
         group.setEncodedId("12");
-        group.setParentPath("/1");
-        group.setParentEncodedPath("11");
 
+        Group groupParent = new Group(String.valueOf(System.currentTimeMillis()), null, new Organization(), 0L);
+        groupParent.setRootPath("/1");
+        groupParent.setEncodedRootPath("11");
+
+        Mockito.when(groupRepository.findById(group.getParentId())).thenReturn(Optional.of(groupParent));
         Mockito.when(groupRepository.save(Mockito.any(Group.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
 
         Group response = groupService.update(group);
 
         Assert.assertEquals(response.getRootPath(), "/1/2");
         Assert.assertEquals(response.getEncodedRootPath(), "11-12");
+    }
+
+    @Test(expected = ResourceNotFoundException.class)
+    public void whenUpdateGroup_withParentNotFound_thenReturn(){
+        try {
+            Group group = new Group(String.valueOf(System.currentTimeMillis()), 1L, new Organization(), 1L);
+            group.setId(2L);
+            group.setEncodedId("12");
+
+            Mockito.when(groupRepository.findById(group.getParentId())).thenReturn(Optional.empty());
+            Mockito.when(groupRepository.save(Mockito.any(Group.class))).thenAnswer(invocationOnMock -> invocationOnMock.getArguments()[0]);
+
+            groupService.update(group);
+        } catch (ResourceNotFoundException ex) {
+            Assert.assertEquals(ex.getFieldName(), "id");
+            Assert.assertEquals(ex.getResourceName(), "Group");
+            throw ex;
+        }
     }
 
     @Test

@@ -10,8 +10,6 @@ import com.edium.service.core.model.Group;
 import com.edium.service.core.payload.SetGroupRequest;
 import com.edium.service.core.service.GroupService;
 import com.edium.service.core.service.UserService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
@@ -21,13 +19,14 @@ import javax.validation.Valid;
 @RestController
 @RequestMapping("/api/user")
 public class UserController {
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
+    private final GroupService groupService;
 
     @Autowired
-    private GroupService groupService;
-
-    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+    public UserController(UserService userService, GroupService groupService) {
+        this.userService = userService;
+        this.groupService = groupService;
+    }
 
     @GetMapping("/{id}")
     public User getUserById(@PathVariable(name = "id") Long id) {
@@ -41,7 +40,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}/groups")
-    public PagedResponse<Group> getCurrentGroupOfUser(@PathVariable(name = "id") Long id,
+    public PagedResponse<Group> getGroupsOfUser(@PathVariable(name = "id") Long id,
                                                       @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                       @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return groupService.getGroupsOfUser(id, page, size);
@@ -55,7 +54,7 @@ public class UserController {
         return new ApiResponse(true, "SUCCESS");
     }
 
-    @PostMapping("/{id}/setGroup/")
+    @PostMapping("/{id}/setGroup")
     public ApiResponse changeGroup(@PathVariable(name = "id") Long userId,
                                    @Valid @RequestBody SetGroupRequest setGroupRequest) {
         userService.setGroup(userId, setGroupRequest.getGroupId(), setGroupRequest.getRoles());

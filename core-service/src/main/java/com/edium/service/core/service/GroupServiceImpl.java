@@ -2,6 +2,7 @@ package com.edium.service.core.service;
 
 import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserOrganization;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.repository.core.UserOrganizationRepository;
 import com.edium.library.util.BaseX;
@@ -132,7 +133,8 @@ public class GroupServiceImpl implements GroupService {
 
     @Override
     public Long getGroupOfUserInOrganization(Long userId, Long organizationId) {
-        return userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId).getGroupId();
+        UserOrganization userOrganization = userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId);
+        return userOrganization == null ? null : userOrganization.getGroupId();
     }
 
     @Override

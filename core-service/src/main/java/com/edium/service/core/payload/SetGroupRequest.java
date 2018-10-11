@@ -1,5 +1,6 @@
 package com.edium.service.core.payload;
 
+import javax.validation.constraints.NotEmpty;
 import javax.validation.constraints.NotNull;
 import java.util.List;
 
@@ -7,8 +8,16 @@ public class SetGroupRequest {
     @NotNull
     private Long groupId;
 
-    @NotNull
+    @NotEmpty
     private List<String> roles;
+
+    public SetGroupRequest(@NotNull Long groupId, @NotEmpty List<String> roles) {
+        this.groupId = groupId;
+        this.roles = roles;
+    }
+
+    public SetGroupRequest() {
+    }
 
     public Long getGroupId() {
         return groupId;

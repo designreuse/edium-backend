@@ -15,9 +15,9 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     Optional<User> findByUsernameOrEmail(String username, String email);
 
-    Boolean existsByUsername(String username);
+    boolean existsByUsername(String username);
 
-    Boolean existsByEmail(String email);
+    boolean existsByEmail(String email);
 
     @Query(value = "SELECT a FROM User a where a.id in (SELECT b.user.id FROM UserOrganization b WHERE b.organizationId = :organizationId)")
     Page<User> findByOrganizationId(@Param(value = "organizationId") Long organizationId, Pageable pageable);

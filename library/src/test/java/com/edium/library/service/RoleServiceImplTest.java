@@ -201,4 +201,35 @@ public class RoleServiceImplTest {
         }
     }
 
+    @Test(expected = ResourceExistException.class)
+    public void whenUpdate_withCodeDuplicate_thenException() {
+        try {
+            Role role = new Role(String.valueOf(System.currentTimeMillis()), String.valueOf(System.currentTimeMillis()));
+            role.setId(1L);
+
+            Role role1 = new Role(role.getCode(), String.valueOf(System.currentTimeMillis()));
+            role1.setId(2L);
+
+            Mockito.when(roleRepository.findByCode(role.getCode())).thenReturn(Optional.of(role1));
+
+            roleService.save(role);
+        } catch (ResourceExistException ex) {
+            Assert.assertEquals(ex.getFieldName(), "code");
+            Assert.assertEquals(ex.getResourceName(), "Role");
+            throw ex;
+        }
+    }
+
+    @Test
+    public void whenUpdate_thenReturn() {
+        Role role = new Role(String.valueOf(System.currentTimeMillis()), String.valueOf(System.currentTimeMillis()));
+        role.setId(1L);
+
+        Mockito.when(roleRepository.findByCode(role.getCode())).thenReturn(Optional.of(role));
+
+        Mockito.when(roleRepository.save(role)).thenReturn(role);
+
+        Assert.assertEquals(roleService.save(role), role);
+    }
+
 }

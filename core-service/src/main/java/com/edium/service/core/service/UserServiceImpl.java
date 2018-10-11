@@ -1,6 +1,7 @@
 package com.edium.service.core.service;
 
 import com.edium.library.exception.AppException;
+import com.edium.library.exception.ResourceExistException;
 import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.core.Role;
 import com.edium.library.model.core.User;
@@ -30,26 +31,28 @@ import java.util.*;
 @Service
 public class UserServiceImpl implements UserService {
 
-    @Autowired
-    UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final UserOrganizationRepository userOrganizationRepository;
+
+    private final GroupService groupService;
+    private final OrganizationService organizationService;
+    private final RoleService roleService;
+
+    private final PasswordEncoder passwordEncoder;
 
     @Autowired
-    UserRoleRepository userRoleRepository;
-
-    @Autowired
-    UserOrganizationRepository userOrganizationRepository;
-
-    @Autowired
-    GroupService groupService;
-
-    @Autowired
-    OrganizationService organizationService;
-
-    @Autowired
-    RoleService roleService;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository,
+                           UserOrganizationRepository userOrganizationRepository, GroupService groupService,
+                           OrganizationService organizationService, RoleService roleService, PasswordEncoder passwordEncoder) {
+        this.userRepository = userRepository;
+        this.userRoleRepository = userRoleRepository;
+        this.userOrganizationRepository = userOrganizationRepository;
+        this.groupService = groupService;
+        this.organizationService = organizationService;
+        this.roleService = roleService;
+        this.passwordEncoder = passwordEncoder;
+    }
 
     @Override
     public Optional<User> getById(Long userId) {
@@ -74,7 +77,7 @@ public class UserServiceImpl implements UserService {
         Page<User> users = userRepository.findByOrganizationId(organizationId, pageable);
 
         return new PagedResponse<>(users.getContent(), users.getNumber(),
-                users.getSize(), users.getTotalElements(), users.getTotalPages(), users .isLast());
+                users.getSize(), users.getTotalElements(), users.getTotalPages(), users.isLast());
     }
 
     @Override
@@ -83,14 +86,14 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    @Transactional(rollbackFor = RuntimeException.class, noRollbackFor = AppException.class)
+    @Transactional(rollbackFor = RuntimeException.class, noRollbackFor = ResourceExistException.class)
     public User register(SignUpRequest signUpRequest) {
-        if(userRepository.existsByUsername(signUpRequest.getUsername())) {
-            throw new AppException("Username is already taken!");
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            throw new ResourceExistException("User", "username", signUpRequest.getUsername());
         }
 
-        if(userRepository.existsByEmail(signUpRequest.getEmail())) {
-            throw new AppException("Email Address already in use!");
+        if (userRepository.existsByEmail(signUpRequest.getEmail())) {
+            throw new ResourceExistException("User", "email", signUpRequest.getEmail());
         }
 
         // Creating user's account
@@ -112,16 +115,25 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public void setCurrentOrganization(Long userId, Long organizationId) {
+    public User setCurrentOrganization(Long userId, Long organizationId) {
         Organization organization = organizationService.findById(organizationId);
 
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
 
         user.setOrganizationId(organization.getId());
+
+        Long groupId = groupService.getGroupOfUserInOrganization(userId, organizationId);
+
+        if (groupId == null) {
+            throw new AppException("User does not belong to the organization");
+        } else {
+            groupService.findById(groupId);
+        }
+
         user.setGroupId(groupService.getGroupOfUserInOrganization(userId, organizationId));
 
-        userRepository.save(user);
+        return userRepository.save(user);
     }
 
     @Override
@@ -168,33 +180,36 @@ public class UserServiceImpl implements UserService {
                 userOrganizationRepository.save(userOrganization);
             }
 
-            // List roles in DB
-            List<UserRole> oldRoleList = userRoleRepository.getByUserOrganization_Id(userOrganization.getId());
-
             // List new roles to set
             List<UserRole> newRoleList = new ArrayList<>();
             roles.forEach(role -> newRoleList.add(new UserRole(userOrganization, mapRole.get(role))));
 
-            // Find role to delete
-            oldRoleList.forEach(userRole -> {
-                if (!roles.contains(userRole.getRole().getCode())) {
-                    userRoleRepository.delete(userRole);
-                }
-            });
-
-            // Find role to insert
-            newRoleList.forEach(userRole -> {
-                boolean flag = false;
-                for (UserRole userRole1 : oldRoleList) {
-                    if (userRole1.getRole().getCode().equals(userRole.getRole().getCode())) {
-                        flag = true;
-                        break;
+            // List roles in DB
+            List<UserRole> oldRoleList = userRoleRepository.getByUserOrganization_Id(userOrganization.getId());
+            if (oldRoleList == null || oldRoleList.isEmpty()) {
+                userRoleRepository.saveAll(newRoleList);
+            } else {
+                // Find role to delete
+                oldRoleList.forEach(userRole -> {
+                    if (!roles.contains(userRole.getRole().getCode())) {
+                        userRoleRepository.delete(userRole);
                     }
-                }
-                if (!flag) {
-                    userRoleRepository.save(userRole);
-                }
-            });
+                });
+
+                // Find role to insert
+                newRoleList.forEach(userRole -> {
+                    boolean flag = false;
+                    for (UserRole userRole1 : oldRoleList) {
+                        if (userRole1.getRole().getCode().equals(userRole.getRole().getCode())) {
+                            flag = true;
+                            break;
+                        }
+                    }
+                    if (!flag) {
+                        userRoleRepository.save(userRole);
+                    }
+                });
+            }
         }
     }
 

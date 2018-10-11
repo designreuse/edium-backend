@@ -21,7 +21,7 @@ public interface UserService {
 
     User register(SignUpRequest signUpRequest);
 
-    void setCurrentOrganization(Long userId, Long organizationId);
+    User setCurrentOrganization(Long userId, Long organizationId);
 
     void setGroup(Long userId, Long groupId, List<String> roles);
 
