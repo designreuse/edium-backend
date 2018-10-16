@@ -2,19 +2,25 @@ package com.edium.auth.model;
 
 import javax.persistence.Entity;
 import javax.persistence.Id;
+import javax.validation.constraints.NotBlank;
+import javax.validation.constraints.NotNull;
 
 @Entity
 public class TokenBlackList {
     @Id
     private String jti;
+
+    @NotBlank
     private String username;
+
+    @NotNull
     private Long expires;
     private boolean blackListed;
 
     public TokenBlackList() {
     }
 
-    public TokenBlackList(String username, String jti, Long expires) {
+    public TokenBlackList(String jti, @NotBlank String username, @NotNull Long expires) {
         this.jti = jti;
         this.username = username;
         this.expires = expires;

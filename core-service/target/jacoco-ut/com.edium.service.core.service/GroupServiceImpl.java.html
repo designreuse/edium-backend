@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.service</a> &gt; <span class="el_source">GroupServiceImpl.java</span></div><h1>GroupServiceImpl.java</h1><pre class="source lang-java linenums">package com.edium.service.core.service;
+
+import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserOrganization;
+import com.edium.library.payload.PagedResponse;
+import com.edium.library.repository.core.UserOrganizationRepository;
+import com.edium.library.util.BaseX;
+import com.edium.library.util.Utils;
+import com.edium.service.core.model.Group;
+import com.edium.service.core.repository.GroupRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.math.BigInteger;
+import java.util.List;
+
+@Service
+public class GroupServiceImpl implements GroupService {
+
+    private final GroupRepository groupRepository;
+
+    private final UserOrganizationRepository userOrganizationRepository;
+
+    @Autowired
+<span class="fc" id="L31">    public GroupServiceImpl(GroupRepository groupRepository, UserOrganizationRepository userOrganizationRepository) {</span>
+<span class="fc" id="L32">        this.groupRepository = groupRepository;</span>
+<span class="fc" id="L33">        this.userOrganizationRepository = userOrganizationRepository;</span>
+<span class="fc" id="L34">    }</span>
+
+    @Override
+    public PagedResponse&lt;Group&gt; findAll(int page, int size) {
+<span class="fc" id="L38">        Utils.validatePageNumberAndSize(page, size);</span>
+
+<span class="fc" id="L40">        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, &quot;createdAt&quot;);</span>
+<span class="fc" id="L41">        Page&lt;Group&gt; groups = groupRepository.findAll(pageable);</span>
+
+<span class="fc" id="L43">        return new PagedResponse&lt;&gt;(groups.getContent(), groups.getNumber(),</span>
+<span class="fc" id="L44">                groups.getSize(), groups.getTotalElements(), groups.getTotalPages(), groups.isLast());</span>
+    }
+
+    @Override
+    public Group findById(Long groupId) {
+<span class="fc" id="L49">        return groupRepository.findById(groupId)</span>
+<span class="fc" id="L50">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Group&quot;, &quot;id&quot;, groupId));</span>
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Group save(Group group) {
+
+<span class="fc" id="L57">        checkParent(group);</span>
+
+<span class="fc" id="L59">        Group newGroup = groupRepository.save(group);</span>
+
+<span class="fc" id="L61">        BaseX base62 = new BaseX();</span>
+<span class="fc" id="L62">        String encode = base62.encode(BigInteger.valueOf(newGroup.getId()));</span>
+
+<span class="fc" id="L64">        newGroup.setEncodedId(base62.encode(BigInteger.valueOf(encode.length())) + encode);</span>
+<span class="fc" id="L65">        newGroup.setParentPath(group.getParentPath());</span>
+<span class="fc" id="L66">        newGroup.setParentEncodedPath(group.getParentEncodedPath());</span>
+
+<span class="fc" id="L68">        setPath(newGroup);</span>
+
+<span class="fc" id="L70">        return groupRepository.save(newGroup);</span>
+    }
+
+    private void checkParent(Group group) {
+<span class="fc bfc" id="L74" title="All 2 branches covered.">        if (group.getParentId() != null) {</span>
+<span class="fc" id="L75">            Group parent = findById(group.getParentId());</span>
+
+<span class="fc" id="L77">            group.setGroupLevel(parent.getGroupLevel() + 1);</span>
+<span class="fc" id="L78">            group.setParentPath(parent.getRootPath());</span>
+<span class="fc" id="L79">            group.setParentEncodedPath(parent.getEncodedRootPath());</span>
+        }
+<span class="fc" id="L81">    }</span>
+
+    @Override
+    public Group update(Group group) {
+<span class="fc" id="L85">        checkParent(group);</span>
+
+<span class="fc" id="L87">        setPath(group);</span>
+
+<span class="fc" id="L89">        return groupRepository.save(group);</span>
+    }
+
+    private void setPath(Group group) {
+<span class="fc bfc" id="L93" title="All 2 branches covered.">        if (group.getParentId() == null) {</span>
+<span class="fc" id="L94">            group.setRootPath(&quot;/&quot; + group.getId());</span>
+<span class="fc" id="L95">            group.setEncodedRootPath(group.getEncodedId());</span>
+        } else {
+<span class="fc" id="L97">            group.setEncodedRootPath(group.getParentEncodedPath() + &quot;-&quot; + group.getEncodedId());</span>
+<span class="fc" id="L98">            group.setRootPath(group.getParentPath() + &quot;/&quot; + group.getId());</span>
+        }
+<span class="fc" id="L100">    }</span>
+
+    @Override
+    public void deleteById(Long groupId) {
+<span class="fc" id="L104">        groupRepository.delete(findById(groupId));</span>
+<span class="fc" id="L105">    }</span>
+
+    @Override
+    public List&lt;Group&gt; getAllChildrenGroups(Long groupId) {
+<span class="fc" id="L109">        return groupRepository.getAllChildrenGroups(groupId);</span>
+    }
+
+    @Override
+    public List&lt;Group&gt; getTreeGroupByGroupId(Long groupId) {
+
+<span class="fc" id="L115">        Group group = findById(groupId);</span>
+
+<span class="fc" id="L117">        return groupRepository.getTreeGroupByGroupPath(group.getEncodedRootPath());</span>
+    }
+
+    @Override
+    public List&lt;Group&gt; getTreeGroupOfOrganization(Long orgId) {
+<span class="fc" id="L122">        return groupRepository.getTreeGroupOfOrganization(orgId);</span>
+    }
+
+    @Override
+    public List&lt;Group&gt; getRootGroupOfOrganization(Long orgId) {
+<span class="fc" id="L127">        return groupRepository.getRootGroupOfOrganization(orgId);</span>
+    }
+
+    @Override
+    public Group getParentOfGroup(Long groupId) {
+<span class="fc" id="L132">        return groupRepository.getParentOfGroup(groupId);</span>
+    }
+
+    @Override
+    public Long getGroupOfUserInOrganization(Long userId, Long organizationId) {
+<span class="fc" id="L137">        UserOrganization userOrganization = userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId);</span>
+<span class="fc bfc" id="L138" title="All 2 branches covered.">        return userOrganization == null ? null : userOrganization.getGroupId();</span>
+    }
+
+    @Override
+    public PagedResponse&lt;Group&gt; getGroupsOfUser(Long userId, int page, int size) {
+<span class="fc" id="L143">        Utils.validatePageNumberAndSize(page, size);</span>
+
+<span class="fc" id="L145">        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, &quot;createdAt&quot;);</span>
+<span class="fc" id="L146">        Page&lt;Group&gt; groups = groupRepository.getGroupsOfUser(userId, pageable);</span>
+
+<span class="fc" id="L148">        return new PagedResponse&lt;&gt;(groups.getContent(), groups.getNumber(),</span>
+<span class="fc" id="L149">                groups.getSize(), groups.getTotalElements(), groups.getTotalPages(), groups.isLast());</span>
+    }
+
+    @Override
+    public Group getCurrentGroupOfUser(User user) {
+<span class="fc" id="L154">        return findById(user.getGroupId());</span>
+    }
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

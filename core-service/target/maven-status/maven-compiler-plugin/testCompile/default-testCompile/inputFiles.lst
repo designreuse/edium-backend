@@ -1,1 +1,11 @@
-/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/EdiumApiGatewayApplicationTests.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/repository/GroupRepositoryTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/service/UserServiceImplTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/controller/AclControllerIntegrationTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/service/GroupServiceImplTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/controller/UserControllerIntegrationTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/controller/OrganizationControllerIntegrationTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/CoreServiceApplicationTests.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/repository/OrganizationRepositoryTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/controller/GroupControllerIntegrationTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/controller/RoleControllerIntegrationTest.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/test/java/com/edium/service/core/service/OrganizationServiceImplTest.java

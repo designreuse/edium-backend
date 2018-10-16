@@ -6,6 +6,8 @@ import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.core.Role;
 import com.edium.library.payload.PagedResponse;
 import com.edium.library.repository.core.RoleRepository;
+import com.edium.library.service.core.RoleService;
+import com.edium.library.service.core.RoleServiceImpl;
 import org.hamcrest.Matchers;
 import org.junit.Assert;
 import org.junit.Test;

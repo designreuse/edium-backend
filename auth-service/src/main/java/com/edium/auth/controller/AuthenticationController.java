@@ -11,7 +11,7 @@ import com.edium.library.model.core.User;
 import com.edium.library.model.core.UserOrganization;
 import com.edium.library.model.core.UserRole;
 import com.edium.library.repository.core.UserRoleRepository;
-import com.edium.library.service.RoleService;
+import com.edium.library.service.core.RoleService;
 import com.edium.library.util.AppConstants;
 import org.apache.commons.lang.RandomStringUtils;
 import org.springframework.beans.factory.annotation.Autowired;

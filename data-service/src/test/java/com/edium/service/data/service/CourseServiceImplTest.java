@@ -10,7 +10,7 @@ import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.GroupDTO;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.service.AclService;
+import com.edium.library.service.share.AclService;
 import com.edium.library.util.AppConstants;
 import com.edium.library.util.Utils;
 import com.edium.service.data.model.Course;
@@ -20,10 +20,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.*;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.web.client.RestClientException;
@@ -35,23 +31,11 @@ import java.util.Optional;
 @RunWith(SpringRunner.class)
 public class CourseServiceImplTest {
 
-    @TestConfiguration
-    static class CourseServiceImplTestContextConfiguration {
+    private CourseRepository courseRepository = Mockito.mock(CourseRepository.class);
 
-        @Bean
-        public CourseService courseService() {
-            return new CourseServiceImpl();
-        }
-    }
+    private AclService aclService = Mockito.mock(AclService.class);
 
-    @Autowired
-    private CourseService courseService;
-
-    @MockBean
-    private CourseRepository courseRepository;
-
-    @MockBean
-    private AclService aclService;
+    private CourseService courseService = new CourseServiceImpl(courseRepository, aclService);
 
     @Test
     public void whenFindById_thenReturnCourse() {
@@ -132,7 +116,7 @@ public class CourseServiceImplTest {
         int page = 0, size = -1;
 
         // when
-         courseService.findByOwnerId(course.getCreatedBy(), page, size);
+        courseService.findByOwnerId(course.getCreatedBy(), page, size);
     }
 
     @Test(expected = BadRequestException.class)

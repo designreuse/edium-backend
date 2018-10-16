@@ -1,15 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>GroupController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.controller</a> &gt; <span class="el_source">GroupController.java</span></div><h1>GroupController.java</h1><pre class="source lang-java linenums">package com.edium.service.core.controller;
 
-import com.edium.library.exception.ResourceNotFoundException;
-import com.edium.library.spring.ContextAwarePolicyEnforcement;
+import com.edium.library.payload.ApiResponse;
+import com.edium.library.payload.PagedResponse;
+import com.edium.library.util.AppConstants;
 import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
 import com.edium.service.core.payload.GroupRequest;
-import com.edium.service.core.repository.GroupRepository;
-import com.edium.service.core.repository.NoteRepository;
-import com.edium.service.core.repository.OrganizationRepository;
+import com.edium.service.core.service.GroupService;
+import com.edium.service.core.service.OrganizationService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -17,90 +16,77 @@ import java.util.List;
 
 @RestController
 @RequestMapping(&quot;/api/group&quot;)
-<span class="fc" id="L20">public class GroupController {</span>
-    @Autowired
-    GroupRepository groupRepository;
+public class GroupController {
+    private final GroupService groupService;
+    private final OrganizationService organizationService;
 
     @Autowired
-    OrganizationRepository organizationRepository;
-
-    @Autowired
-    NoteRepository noteRepository;
-
-    @Autowired
-    private ContextAwarePolicyEnforcement policy;
+<span class="fc" id="L24">    public GroupController(GroupService groupService, OrganizationService organizationService) {</span>
+<span class="fc" id="L25">        this.groupService = groupService;</span>
+<span class="fc" id="L26">        this.organizationService = organizationService;</span>
+<span class="fc" id="L27">    }</span>
 
     @GetMapping(&quot;&quot;)
-    public List&lt;Group&gt; getAllGroup() {
-<span class="nc" id="L35">        return groupRepository.findAll();</span>
+    public PagedResponse&lt;Group&gt; getAllGroup(@RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                            @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="fc" id="L32">        return groupService.findAll(page, size);</span>
     }
 
     @PostMapping(&quot;&quot;)
-    public Group createGroup(@Valid @RequestBody GroupRequest details) {
-<span class="nc" id="L40">        Group group = new Group();</span>
+    public Group createGroup(@Valid @RequestBody GroupRequest details) throws Exception {
+<span class="fc" id="L37">        Group group = new Group();</span>
 
-<span class="nc" id="L42">        Organization organization = organizationRepository.findById(details.getOrganizationId())</span>
-<span class="nc" id="L43">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, details.getOrganizationId()));</span>
+<span class="fc" id="L39">        Organization organization = organizationService.findById(details.getOrganizationId());</span>
 
-<span class="nc" id="L45">        group.setName(details.getName());</span>
-<span class="nc" id="L46">        group.setOrganization(organization);</span>
-<span class="nc" id="L47">        group.setParentId(details.getParentId());</span>
+<span class="fc" id="L41">        mapGroupRequestToModel(details, group, organization);</span>
 
-<span class="nc bnc" id="L49" title="All 2 branches missed.">        if (details.getParentId() != null) {</span>
-<span class="nc" id="L50">            Group parent = groupRepository.findById(details.getParentId())</span>
-<span class="nc" id="L51">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Group&quot;, &quot;id&quot;, details.getParentId()));</span>
-
-<span class="nc" id="L53">            group.setGroupLevel(parent.getGroupLevel() + 1);</span>
-<span class="nc" id="L54">            group.setRootPath(parent.getRootPath() + &quot;/&quot; + parent.getId());</span>
-<span class="nc" id="L55">        } else {</span>
-<span class="nc" id="L56">            group.setGroupLevel(0l);</span>
-<span class="nc" id="L57">            group.setRootPath(&quot;/&quot;);</span>
-        }
-
-<span class="nc" id="L60">        return groupRepository.save(group);</span>
+<span class="fc" id="L43">        return groupService.save(group);</span>
     }
 
     @GetMapping(&quot;/{id}&quot;)
     public Group getGroupById(@PathVariable(value = &quot;id&quot;) Long id) {
-<span class="nc" id="L65">        return groupRepository.findById(id)</span>
-<span class="nc" id="L66">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, id));</span>
+<span class="fc" id="L48">        return groupService.findById(id);</span>
     }
 
     @PutMapping(&quot;/{id}&quot;)
     public Group updateGroup(@PathVariable(value = &quot;id&quot;) Long id,
-                                           @Valid @RequestBody GroupRequest details) {
+                             @Valid @RequestBody GroupRequest details) {
 
-<span class="nc" id="L73">        Group group = groupRepository.findById(id)</span>
-<span class="nc" id="L74">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Group&quot;, &quot;id&quot;, id));</span>
+<span class="fc" id="L55">        Group group = groupService.findById(id);</span>
 
-<span class="nc" id="L76">        Organization organization = organizationRepository.findById(details.getOrganizationId())</span>
-<span class="nc" id="L77">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, details.getOrganizationId()));</span>
+<span class="fc" id="L57">        Organization organization = organizationService.findById(details.getOrganizationId());</span>
 
-<span class="nc" id="L79">        group.setName(details.getName());</span>
-<span class="nc" id="L80">        group.setOrganization(organization);</span>
-<span class="nc" id="L81">        group.setParentId(details.getParentId());</span>
+<span class="fc" id="L59">        mapGroupRequestToModel(details, group, organization);</span>
 
-<span class="nc bnc" id="L83" title="All 2 branches missed.">        if (details.getParentId() != null) {</span>
-<span class="nc" id="L84">            Group parent = groupRepository.findById(details.getParentId())</span>
-<span class="nc" id="L85">                    .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Group&quot;, &quot;id&quot;, details.getParentId()));</span>
-<span class="nc" id="L86">            group.setGroupLevel(parent.getGroupLevel() + 1);</span>
-<span class="nc" id="L87">            group.setRootPath(parent.getRootPath() + &quot;/&quot; + parent.getId());</span>
-<span class="nc" id="L88">        } else {</span>
-<span class="nc" id="L89">            group.setGroupLevel(0l);</span>
-<span class="nc" id="L90">            group.setRootPath(&quot;/&quot;);</span>
-        }
-
-<span class="nc" id="L93">        return groupRepository.save(group);</span>
+<span class="fc" id="L61">        return groupService.update(group);</span>
     }
 
     @DeleteMapping(&quot;/{id}&quot;)
-    public ResponseEntity&lt;?&gt; deleteGroup(@PathVariable(value = &quot;id&quot;) Long id) {
-<span class="nc" id="L98">        Group group = groupRepository.findById(id)</span>
-<span class="nc" id="L99">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Group&quot;, &quot;id&quot;, id));</span>
+    public ApiResponse deleteGroup(@PathVariable(value = &quot;id&quot;) Long id) {
+<span class="fc" id="L66">        groupService.deleteById(id);</span>
 
-<span class="nc" id="L101">        groupRepository.delete(group);</span>
-
-<span class="nc" id="L103">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L68">        return new ApiResponse(true, &quot;success&quot;);</span>
     }
+
+    @GetMapping(&quot;/{id}/parent&quot;)
+    public Group getParentGroup(@PathVariable(value = &quot;id&quot;) Long groupId) {
+<span class="fc" id="L73">        return groupService.getParentOfGroup(groupId);</span>
+    }
+
+    @GetMapping(&quot;/{id}/children&quot;)
+    public List&lt;Group&gt; getChildren(@PathVariable(value = &quot;id&quot;) Long groupId) {
+<span class="fc" id="L78">        return groupService.getAllChildrenGroups(groupId);</span>
+    }
+
+    @GetMapping(&quot;/{id}/tree&quot;)
+    public List&lt;Group&gt; getTree(@PathVariable(value = &quot;id&quot;) Long groupId) {
+<span class="fc" id="L83">        return groupService.getTreeGroupByGroupId(groupId);</span>
+    }
+
+    private void mapGroupRequestToModel(GroupRequest details, Group group, Organization organization) {
+<span class="fc" id="L87">        group.setName(details.getName());</span>
+<span class="fc" id="L88">        group.setOrganization(organization);</span>
+<span class="fc" id="L89">        group.setParentId(details.getParentId());</span>
+<span class="fc" id="L90">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

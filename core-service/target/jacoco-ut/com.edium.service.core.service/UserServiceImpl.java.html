@@ -1,0 +1,222 @@
+<?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserServiceImpl.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.service</a> &gt; <span class="el_source">UserServiceImpl.java</span></div><h1>UserServiceImpl.java</h1><pre class="source lang-java linenums">package com.edium.service.core.service;
+
+import com.edium.library.exception.AppException;
+import com.edium.library.exception.ResourceExistException;
+import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.model.core.Role;
+import com.edium.library.model.core.User;
+import com.edium.library.model.core.UserOrganization;
+import com.edium.library.model.core.UserRole;
+import com.edium.library.payload.PagedResponse;
+import com.edium.library.repository.core.UserOrganizationRepository;
+import com.edium.library.repository.core.UserRepository;
+import com.edium.library.repository.core.UserRoleRepository;
+import com.edium.library.service.core.RoleService;
+import com.edium.library.util.AppConstants;
+import com.edium.library.util.Utils;
+import com.edium.service.core.model.Group;
+import com.edium.service.core.model.Organization;
+import com.edium.service.core.payload.SignUpRequest;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.util.*;
+
+@Service
+public class UserServiceImpl implements UserService {
+
+    private final UserRepository userRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final UserOrganizationRepository userOrganizationRepository;
+
+    private final GroupService groupService;
+    private final OrganizationService organizationService;
+    private final RoleService roleService;
+
+    private final PasswordEncoder passwordEncoder;
+
+    @Autowired
+    public UserServiceImpl(UserRepository userRepository, UserRoleRepository userRoleRepository,
+                           UserOrganizationRepository userOrganizationRepository, GroupService groupService,
+<span class="fc" id="L47">                           OrganizationService organizationService, RoleService roleService, PasswordEncoder passwordEncoder) {</span>
+<span class="fc" id="L48">        this.userRepository = userRepository;</span>
+<span class="fc" id="L49">        this.userRoleRepository = userRoleRepository;</span>
+<span class="fc" id="L50">        this.userOrganizationRepository = userOrganizationRepository;</span>
+<span class="fc" id="L51">        this.groupService = groupService;</span>
+<span class="fc" id="L52">        this.organizationService = organizationService;</span>
+<span class="fc" id="L53">        this.roleService = roleService;</span>
+<span class="fc" id="L54">        this.passwordEncoder = passwordEncoder;</span>
+<span class="fc" id="L55">    }</span>
+
+    @Override
+    public Optional&lt;User&gt; getById(Long userId) {
+<span class="fc" id="L59">        return userRepository.findById(userId);</span>
+    }
+
+    @Override
+    public boolean existsByUsername(String username) {
+<span class="fc" id="L64">        return userRepository.existsByUsername(username);</span>
+    }
+
+    @Override
+    public boolean existsByEmail(String email) {
+<span class="fc" id="L69">        return userRepository.existsByEmail(email);</span>
+    }
+
+    @Override
+    public PagedResponse&lt;User&gt; findByOrganizationId(long organizationId, int page, int size) {
+<span class="fc" id="L74">        Utils.validatePageNumberAndSize(page, size);</span>
+
+<span class="fc" id="L76">        Pageable pageable = PageRequest.of(page, size, Sort.Direction.DESC, &quot;name&quot;);</span>
+<span class="fc" id="L77">        Page&lt;User&gt; users = userRepository.findByOrganizationId(organizationId, pageable);</span>
+
+<span class="fc" id="L79">        return new PagedResponse&lt;&gt;(users.getContent(), users.getNumber(),</span>
+<span class="fc" id="L80">                users.getSize(), users.getTotalElements(), users.getTotalPages(), users.isLast());</span>
+    }
+
+    @Override
+    public Optional&lt;User&gt; getByUsernameOrEmail(String usernameOrEmail) {
+<span class="fc" id="L85">        return userRepository.findByUsernameOrEmail(usernameOrEmail, usernameOrEmail);</span>
+    }
+
+    @Override
+    @Transactional(rollbackFor = RuntimeException.class, noRollbackFor = ResourceExistException.class)
+    public User register(SignUpRequest signUpRequest) {
+<span class="fc bfc" id="L91" title="All 2 branches covered.">        if (userRepository.existsByUsername(signUpRequest.getUsername())) {</span>
+<span class="fc" id="L92">            throw new ResourceExistException(&quot;User&quot;, &quot;username&quot;, signUpRequest.getUsername());</span>
+        }
+
+<span class="fc bfc" id="L95" title="All 2 branches covered.">        if (userRepository.existsByEmail(signUpRequest.getEmail())) {</span>
+<span class="fc" id="L96">            throw new ResourceExistException(&quot;User&quot;, &quot;email&quot;, signUpRequest.getEmail());</span>
+        }
+
+        // Creating user's account
+<span class="fc" id="L100">        User user = new User(signUpRequest.getName(), signUpRequest.getUsername(),</span>
+<span class="fc" id="L101">                signUpRequest.getEmail(), signUpRequest.getPassword());</span>
+
+<span class="fc" id="L103">        user.setPassword(passwordEncoder.encode(user.getPassword()));</span>
+
+<span class="fc" id="L105">        UserOrganization userOrganization = new UserOrganization();</span>
+<span class="fc" id="L106">        userOrganization.setOrganizationId(AppConstants.DEFAULT_ORGANIZATION_ID);</span>
+<span class="fc" id="L107">        userOrganization.setGroupId(AppConstants.DEFAULT_GROUP_ID);</span>
+<span class="fc" id="L108">        userOrganization.setUser(user);</span>
+
+<span class="fc" id="L110">        UserRole userRole = new UserRole();</span>
+<span class="fc" id="L111">        userRole.setRole(roleService.findByCode(AppConstants.DEFAULT_ROLE.toString()));</span>
+<span class="fc" id="L112">        userRole.setUserOrganization(userOrganization);</span>
+
+<span class="fc" id="L114">        return userRoleRepository.save(userRole).getUserOrganization().getUser();</span>
+    }
+
+    @Override
+    public User setCurrentOrganization(Long userId, Long organizationId) {
+<span class="fc" id="L119">        Organization organization = organizationService.findById(organizationId);</span>
+
+<span class="fc" id="L121">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L122">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User&quot;, &quot;id&quot;, userId));</span>
+
+<span class="fc" id="L124">        user.setOrganizationId(organization.getId());</span>
+
+<span class="fc" id="L126">        Long groupId = groupService.getGroupOfUserInOrganization(userId, organizationId);</span>
+
+<span class="fc bfc" id="L128" title="All 2 branches covered.">        if (groupId == null) {</span>
+<span class="fc" id="L129">            throw new AppException(&quot;User does not belong to the organization&quot;);</span>
+        } else {
+<span class="fc" id="L131">            groupService.findById(groupId);</span>
+        }
+
+<span class="fc" id="L134">        user.setGroupId(groupService.getGroupOfUserInOrganization(userId, organizationId));</span>
+
+<span class="fc" id="L136">        return userRepository.save(user);</span>
+    }
+
+    @Override
+    @Transactional(noRollbackFor = {ResourceNotFoundException.class, AppException.class}, rollbackFor = RuntimeException.class)
+    public void setGroup(Long userId, Long groupId, List&lt;String&gt; roles) {
+<span class="fc" id="L142">        User user = userRepository.findById(userId)</span>
+<span class="fc" id="L143">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User&quot;, &quot;id&quot;, userId));</span>
+
+<span class="fc" id="L145">        Group group = groupService.findById(groupId);</span>
+
+        // Check role list
+<span class="pc bpc" id="L148" title="1 of 4 branches missed.">        if (roles == null || roles.isEmpty()) {</span>
+<span class="fc" id="L149">            throw new AppException(&quot;Role list is empty&quot;);</span>
+        }
+<span class="fc" id="L151">        List&lt;Role&gt; roleList = roleService.findAll(0, Integer.MAX_VALUE).getContent();</span>
+<span class="fc" id="L152">        Map&lt;String, Role&gt; mapRole = new HashMap&lt;&gt;();</span>
+<span class="fc" id="L153">        roleList.forEach(role -&gt; mapRole.put(role.getCode(), role));</span>
+
+<span class="fc" id="L155">        roles.forEach(role -&gt; {</span>
+<span class="fc bfc" id="L156" title="All 2 branches covered.">            if (!mapRole.containsKey(role)) {</span>
+<span class="fc" id="L157">                throw new ResourceNotFoundException(&quot;Role&quot;, &quot;code&quot;, role);</span>
+            }
+<span class="fc" id="L159">        });</span>
+
+<span class="fc" id="L161">        UserOrganization userOrganization = userOrganizationRepository.getByUser_IdAndOrganizationId(user.getId(), group.getOrganization().getId());</span>
+
+<span class="fc bfc" id="L163" title="All 2 branches covered.">        if (userOrganization == null) {</span>
+            // User don't in Organization
+<span class="fc" id="L165">            UserOrganization userOrganization1 = new UserOrganization();</span>
+<span class="fc" id="L166">            userOrganization1.setGroupId(groupId);</span>
+<span class="fc" id="L167">            userOrganization1.setUser(user);</span>
+<span class="fc" id="L168">            userOrganization1.setOrganizationId(group.getOrganization().getId());</span>
+
+<span class="fc" id="L170">            List&lt;UserRole&gt; userRoleList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L171">            roles.forEach(role -&gt; userRoleList.add(new UserRole(userOrganization1, mapRole.get(role))));</span>
+
+<span class="fc" id="L173">            userRoleRepository.saveAll(userRoleList);</span>
+<span class="fc" id="L174">        } else {</span>
+            // User in Organization
+<span class="pc bpc" id="L176" title="1 of 2 branches missed.">            if (!group.getId().equals(userOrganization.getGroupId())) {</span>
+                // Group change
+<span class="fc" id="L178">                userOrganization.setGroupId(group.getId());</span>
+
+<span class="fc" id="L180">                userOrganizationRepository.save(userOrganization);</span>
+            }
+
+            // List new roles to set
+<span class="fc" id="L184">            List&lt;UserRole&gt; newRoleList = new ArrayList&lt;&gt;();</span>
+<span class="fc" id="L185">            roles.forEach(role -&gt; newRoleList.add(new UserRole(userOrganization, mapRole.get(role))));</span>
+
+            // List roles in DB
+<span class="fc" id="L188">            List&lt;UserRole&gt; oldRoleList = userRoleRepository.getByUserOrganization_Id(userOrganization.getId());</span>
+<span class="pc bpc" id="L189" title="2 of 4 branches missed.">            if (oldRoleList == null || oldRoleList.isEmpty()) {</span>
+<span class="nc" id="L190">                userRoleRepository.saveAll(newRoleList);</span>
+            } else {
+                // Find role to delete
+<span class="fc" id="L193">                oldRoleList.forEach(userRole -&gt; {</span>
+<span class="pc bpc" id="L194" title="1 of 2 branches missed.">                    if (!roles.contains(userRole.getRole().getCode())) {</span>
+<span class="fc" id="L195">                        userRoleRepository.delete(userRole);</span>
+                    }
+<span class="fc" id="L197">                });</span>
+
+                // Find role to insert
+<span class="fc" id="L200">                newRoleList.forEach(userRole -&gt; {</span>
+<span class="fc" id="L201">                    boolean flag = false;</span>
+<span class="fc bfc" id="L202" title="All 2 branches covered.">                    for (UserRole userRole1 : oldRoleList) {</span>
+<span class="pc bpc" id="L203" title="1 of 2 branches missed.">                        if (userRole1.getRole().getCode().equals(userRole.getRole().getCode())) {</span>
+<span class="nc" id="L204">                            flag = true;</span>
+<span class="nc" id="L205">                            break;</span>
+                        }
+<span class="fc" id="L207">                    }</span>
+<span class="pc bpc" id="L208" title="1 of 2 branches missed.">                    if (!flag) {</span>
+<span class="fc" id="L209">                        userRoleRepository.save(userRole);</span>
+                    }
+<span class="fc" id="L211">                });</span>
+            }
+        }
+<span class="fc" id="L214">    }</span>
+
+    @Override
+    public User save(User user) {
+<span class="fc" id="L218">        return userRepository.save(user);</span>
+    }
+
+}
+</pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -3,7 +3,7 @@ package com.edium.service.core.controller;
 import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.model.core.Role;
-import com.edium.library.service.RoleService;
+import com.edium.library.service.core.RoleService;
 import com.edium.library.spring.OAuthHelper;
 import com.edium.service.core.CoreServiceApplication;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,7 +17,6 @@ import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMock
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
-import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
@@ -278,7 +277,6 @@ public class RoleControllerIntegrationTest {
     }
 
     @Test
-    @Rollback(false)
     public void whenUpdateRole_withCodeDuplicate_thenBadRequest() throws Exception {
         Role role = roleService.save(new Role("test" + System.currentTimeMillis(), "test"));
         Role role1 = roleService.save(new Role("test" + System.currentTimeMillis(), "test"));

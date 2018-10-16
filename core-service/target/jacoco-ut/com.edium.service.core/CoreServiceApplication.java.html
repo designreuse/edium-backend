@@ -9,9 +9,11 @@ import org.springframework.cloud.client.circuitbreaker.EnableCircuitBreaker;
 import org.springframework.cloud.commons.util.InetUtils;
 import org.springframework.cloud.netflix.eureka.EurekaInstanceConfigBean;
 import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.jpa.convert.threeten.Jsr310JpaConverters;
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing;
+import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.oauth2.config.annotation.web.configuration.EnableResourceServer;
 
@@ -26,40 +28,42 @@ import java.util.TimeZone;
 @EntityScan(basePackageClasses = {
         CoreServiceApplication.class,
         Jsr310JpaConverters.class
-})
-<span class="fc" id="L30">public class CoreServiceApplication {</span>
+}, basePackages = {&quot;com.edium.library.model&quot;, &quot;com.edium.service.core.model&quot;})
+@ComponentScan({&quot;com.edium.library&quot;, &quot;com.edium.service.core&quot;})
+@EnableJpaRepositories({&quot;com.edium.library.repository&quot;, &quot;com.edium.service.core.repository&quot;})
+<span class="fc" id="L34">public class CoreServiceApplication {</span>
 
     @Value(&quot;${server.port}&quot;)
     private int port;
 
     @PostConstruct
     void init() {
-<span class="fc" id="L37">        TimeZone.setDefault(TimeZone.getTimeZone(&quot;UTC&quot;));</span>
-<span class="fc" id="L38">    }</span>
+<span class="fc" id="L41">        TimeZone.setDefault(TimeZone.getTimeZone(&quot;UTC&quot;));</span>
+<span class="fc" id="L42">    }</span>
 
     public static void main(String[] args) {
-<span class="nc" id="L41">        SpringApplication.run(CoreServiceApplication.class, args);</span>
-<span class="nc" id="L42">    }</span>
+<span class="nc" id="L45">        SpringApplication.run(CoreServiceApplication.class, args);</span>
+<span class="nc" id="L46">    }</span>
 
     @Bean
     @Profile({&quot;dev&quot;, &quot;prod&quot;})
     public EurekaInstanceConfigBean eurekaInstanceConfig(InetUtils inetUtils) {
-<span class="nc" id="L47">        System.out.println(&quot;hehe&quot;);</span>
-<span class="nc" id="L48">        EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);</span>
-<span class="nc" id="L49">        AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild(&quot;eureka&quot;);</span>
+<span class="nc" id="L51">        System.out.println(&quot;hehe&quot;);</span>
+<span class="nc" id="L52">        EurekaInstanceConfigBean config = new EurekaInstanceConfigBean(inetUtils);</span>
+<span class="nc" id="L53">        AmazonInfo info = AmazonInfo.Builder.newBuilder().autoBuild(&quot;eureka&quot;);</span>
 
-<span class="nc bnc" id="L51" title="All 2 branches missed.">        if (info != null) {</span>
-<span class="nc" id="L52">            config.setDataCenterInfo(info);</span>
-<span class="nc" id="L53">            info.getMetadata()</span>
-<span class="nc" id="L54">                    .put(AmazonInfo.MetaDataKey.publicHostname.getName(), info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
-<span class="nc" id="L55">            config.setHostname(info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
-<span class="nc" id="L56">            config.setIpAddress(info.get(AmazonInfo.MetaDataKey.publicIpv4));</span>
-<span class="nc" id="L57">            config.setNonSecurePort(port);</span>
+<span class="nc bnc" id="L55" title="All 2 branches missed.">        if (info != null) {</span>
+<span class="nc" id="L56">            config.setDataCenterInfo(info);</span>
+<span class="nc" id="L57">            info.getMetadata()</span>
+<span class="nc" id="L58">                    .put(AmazonInfo.MetaDataKey.publicHostname.getName(), info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
+<span class="nc" id="L59">            config.setHostname(info.get(AmazonInfo.MetaDataKey.publicHostname));</span>
+<span class="nc" id="L60">            config.setIpAddress(info.get(AmazonInfo.MetaDataKey.publicIpv4));</span>
+<span class="nc" id="L61">            config.setNonSecurePort(port);</span>
         } else {
-<span class="nc" id="L59">            System.out.println(&quot;AmazonInfo is null&quot;);</span>
+<span class="nc" id="L63">            System.out.println(&quot;AmazonInfo is null&quot;);</span>
         }
 
-<span class="nc" id="L62">        return config;</span>
+<span class="nc" id="L66">        return config;</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

@@ -3,7 +3,7 @@ package com.edium.service.core.controller;
 import com.edium.library.model.core.Role;
 import com.edium.library.payload.ApiResponse;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.service.RoleService;
+import com.edium.library.service.core.RoleService;
 import com.edium.library.util.AppConstants;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;

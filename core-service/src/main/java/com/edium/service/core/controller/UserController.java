@@ -36,7 +36,10 @@ public class UserController {
 
     @GetMapping("/{id}/currentGroup")
     public Group getCurrentGroupOfUser(@PathVariable(name = "id") Long id) {
-        return groupService.getCurrentGroupOfUser(id);
+        User user = userService.getById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id));
+
+        return groupService.getCurrentGroupOfUser(user);
     }
 
     @GetMapping("/{id}/groups")

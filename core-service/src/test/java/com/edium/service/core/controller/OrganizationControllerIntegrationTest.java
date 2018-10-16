@@ -4,7 +4,7 @@ import com.edium.library.config.AuditingConfig;
 import com.edium.library.model.UserPrincipal;
 import com.edium.library.model.core.Role;
 import com.edium.library.model.core.User;
-import com.edium.library.service.RoleService;
+import com.edium.library.service.core.RoleService;
 import com.edium.library.spring.OAuthHelper;
 import com.edium.service.core.CoreServiceApplication;
 import com.edium.service.core.model.Group;

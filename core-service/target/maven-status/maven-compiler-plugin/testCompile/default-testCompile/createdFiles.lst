@@ -1,1 +1,13 @@
-com/edium/service/core/EdiumApiGatewayApplicationTests.class
+com/edium/service/core/controller/AclControllerIntegrationTest.class
+com/edium/service/core/service/UserServiceImplTest.class
+com/edium/service/core/controller/UserControllerIntegrationTest.class
+com/edium/service/core/service/OrganizationServiceImplTest.class
+com/edium/service/core/controller/GroupControllerIntegrationTest.class
+com/edium/service/core/repository/GroupRepositoryTest.class
+com/edium/service/core/controller/AclControllerIntegrationTest$AclControllerIntegrationTestContextConfiguration$1.class
+com/edium/service/core/repository/OrganizationRepositoryTest.class
+com/edium/service/core/controller/RoleControllerIntegrationTest.class
+com/edium/service/core/controller/AclControllerIntegrationTest$AclControllerIntegrationTestContextConfiguration.class
+com/edium/service/core/service/GroupServiceImplTest.class
+com/edium/service/core/CoreServiceApplicationTests.class
+com/edium/service/core/controller/OrganizationControllerIntegrationTest.class

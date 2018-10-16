@@ -11,7 +11,7 @@ import com.edium.library.payload.PagedResponse;
 import com.edium.library.repository.core.UserOrganizationRepository;
 import com.edium.library.repository.core.UserRepository;
 import com.edium.library.repository.core.UserRoleRepository;
-import com.edium.library.service.RoleService;
+import com.edium.library.service.core.RoleService;
 import com.edium.library.util.AppConstants;
 import com.edium.library.util.Utils;
 import com.edium.service.core.model.Group;

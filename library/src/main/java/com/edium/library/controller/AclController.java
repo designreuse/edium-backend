@@ -5,7 +5,7 @@ import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.AclEntryRequest;
 import com.edium.library.payload.ApiResponse;
-import com.edium.library.service.AclService;
+import com.edium.library.service.share.AclService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 

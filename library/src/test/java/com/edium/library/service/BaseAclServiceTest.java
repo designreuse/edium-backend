@@ -11,6 +11,8 @@ import com.edium.library.payload.GroupDTO;
 import com.edium.library.repository.share.AclEntryRepository;
 import com.edium.library.repository.share.AclResourceTypeRepository;
 import com.edium.library.repository.share.AclSubjectTypeRepository;
+import com.edium.library.service.share.AclService;
+import com.edium.library.service.share.BaseAclServiceImpl;
 import com.edium.library.util.Utils;
 import org.junit.Assert;
 import org.junit.Test;

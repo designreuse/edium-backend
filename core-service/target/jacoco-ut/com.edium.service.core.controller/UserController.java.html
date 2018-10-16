@@ -1,39 +1,89 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>UserController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.controller</a> &gt; <span class="el_source">UserController.java</span></div><h1>UserController.java</h1><pre class="source lang-java linenums">package com.edium.service.core.controller;
 
+import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.UserPrincipal;
-import com.edium.library.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.edium.library.model.core.User;
+import com.edium.library.payload.ApiResponse;
+import com.edium.library.payload.PagedResponse;
+import com.edium.library.util.AppConstants;
+import com.edium.service.core.model.Group;
+import com.edium.service.core.payload.SetGroupRequest;
+import com.edium.service.core.service.GroupService;
+import com.edium.service.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+
+import javax.validation.Valid;
 
 @RestController
 @RequestMapping(&quot;/api/user&quot;)
-<span class="fc" id="L16">public class UserController {</span>
-    @Autowired
-    private UserRepository userRepository;
+public class UserController {
+    private final UserService userService;
+    private final GroupService groupService;
 
-<span class="fc" id="L20">    private static final Logger logger = LoggerFactory.getLogger(UserController.class);</span>
+    @Autowired
+<span class="fc" id="L26">    public UserController(UserService userService, GroupService groupService) {</span>
+<span class="fc" id="L27">        this.userService = userService;</span>
+<span class="fc" id="L28">        this.groupService = groupService;</span>
+<span class="fc" id="L29">    }</span>
+
+    @GetMapping(&quot;/{id}&quot;)
+    public User getUserById(@PathVariable(name = &quot;id&quot;) Long id) {
+<span class="fc" id="L33">        return userService.getById(id)</span>
+<span class="fc" id="L34">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User&quot;, &quot;id&quot;, id));</span>
+    }
+
+    @GetMapping(&quot;/{id}/currentGroup&quot;)
+    public Group getCurrentGroupOfUser(@PathVariable(name = &quot;id&quot;) Long id) {
+<span class="fc" id="L39">        User user = userService.getById(id)</span>
+<span class="fc" id="L40">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User&quot;, &quot;id&quot;, id));</span>
+
+<span class="fc" id="L42">        return groupService.getCurrentGroupOfUser(user);</span>
+    }
+
+    @GetMapping(&quot;/{id}/groups&quot;)
+    public PagedResponse&lt;Group&gt; getGroupsOfUser(@PathVariable(name = &quot;id&quot;) Long id,
+                                                      @RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                      @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="fc" id="L49">        return groupService.getGroupsOfUser(id, page, size);</span>
+    }
+
+    @PutMapping(&quot;/{id}/setCurrentOrganization/{organizationId}&quot;)
+    public ApiResponse setCurrentOrganization(@PathVariable(name = &quot;id&quot;) Long userId,
+                                                    @PathVariable(name = &quot;organizationId&quot;) Long organizationId) {
+<span class="fc" id="L55">        userService.setCurrentOrganization(userId, organizationId);</span>
+
+<span class="fc" id="L57">        return new ApiResponse(true, &quot;SUCCESS&quot;);</span>
+    }
+
+    @PostMapping(&quot;/{id}/setGroup&quot;)
+    public ApiResponse changeGroup(@PathVariable(name = &quot;id&quot;) Long userId,
+                                   @Valid @RequestBody SetGroupRequest setGroupRequest) {
+<span class="fc" id="L63">        userService.setGroup(userId, setGroupRequest.getGroupId(), setGroupRequest.getRoles());</span>
+
+<span class="fc" id="L65">        return new ApiResponse(true, &quot;SUCCESS&quot;);</span>
+    }
+
+    @GetMapping(&quot;/getByUsernameOrEmail/{usernameOrEmail}&quot;)
+    public User getUserByUsername(@PathVariable(name = &quot;usernameOrEmail&quot;) String usernameOrEmail) {
+<span class="fc" id="L70">        return userService.getByUsernameOrEmail(usernameOrEmail)</span>
+<span class="fc" id="L71">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;User&quot;, &quot;username or email&quot;, usernameOrEmail));</span>
+    }
 
     @GetMapping(&quot;/me&quot;)
     public Object getCurrentUser(@AuthenticationPrincipal UserPrincipal currUser) {
-<span class="nc" id="L24">        return currUser;</span>
+<span class="fc" id="L76">        return currUser;</span>
     }
 
     @GetMapping(&quot;/checkUsernameAvailability&quot;)
     public boolean checkUsernameAvailability(@RequestParam(value = &quot;username&quot;) String username) {
-<span class="nc bnc" id="L29" title="All 2 branches missed.">        Boolean isAvailable = !userRepository.existsByUsername(username);</span>
-<span class="nc" id="L30">        return isAvailable;</span>
+<span class="fc bfc" id="L81" title="All 2 branches covered.">        return !userService.existsByUsername(username);</span>
     }
 
     @GetMapping(&quot;/checkEmailAvailability&quot;)
     public boolean checkEmailAvailability(@RequestParam(value = &quot;email&quot;) String email) {
-<span class="nc bnc" id="L35" title="All 2 branches missed.">        Boolean isAvailable = !userRepository.existsByEmail(email);</span>
-<span class="nc" id="L36">        return isAvailable;</span>
+<span class="fc bfc" id="L86" title="All 2 branches covered.">        return !userService.existsByEmail(email);</span>
     }
 
 }

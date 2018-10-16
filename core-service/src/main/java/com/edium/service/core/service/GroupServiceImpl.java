@@ -23,14 +23,15 @@ import java.util.List;
 @Service
 public class GroupServiceImpl implements GroupService {
 
-    @Autowired
-    GroupRepository groupRepository;
+    private final GroupRepository groupRepository;
+
+    private final UserOrganizationRepository userOrganizationRepository;
 
     @Autowired
-    UserService userService;
-
-    @Autowired
-    UserOrganizationRepository userOrganizationRepository;
+    public GroupServiceImpl(GroupRepository groupRepository, UserOrganizationRepository userOrganizationRepository) {
+        this.groupRepository = groupRepository;
+        this.userOrganizationRepository = userOrganizationRepository;
+    }
 
     @Override
     public PagedResponse<Group> findAll(int page, int size) {
@@ -149,10 +150,7 @@ public class GroupServiceImpl implements GroupService {
     }
 
     @Override
-    public Group getCurrentGroupOfUser(Long userId) {
-        User user = userService.getById(userId)
-                .orElseThrow(() -> new ResourceNotFoundException("User", "id", userId));
-
+    public Group getCurrentGroupOfUser(User user) {
         return findById(user.getGroupId());
     }
 }

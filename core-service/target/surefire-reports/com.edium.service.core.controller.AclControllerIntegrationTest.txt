@@ -1,0 +1,4 @@
+-------------------------------------------------------------------------------
+Test set: com.edium.service.core.controller.AclControllerIntegrationTest
+-------------------------------------------------------------------------------
+Tests run: 46, Failures: 0, Errors: 0, Skipped: 0, Time elapsed: 12.964 s - in com.edium.service.core.controller.AclControllerIntegrationTest

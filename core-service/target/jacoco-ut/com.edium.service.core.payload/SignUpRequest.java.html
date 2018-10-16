@@ -4,7 +4,7 @@ import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.Size;
 
-<span class="nc" id="L7">public class SignUpRequest {</span>
+public class SignUpRequest {
     @NotBlank
     @Size(min = 4, max = 40)
     private String name;
@@ -22,36 +22,47 @@ import javax.validation.constraints.Size;
     @Size(min = 6, max = 20)
     private String password;
 
+    public SignUpRequest(@NotBlank @Size(min = 4, max = 40) String name, @NotBlank @Size(min = 3, max = 15) String username,
+<span class="fc" id="L26">                         @NotBlank @Size(max = 40) @Email String email, @NotBlank @Size(min = 6, max = 20) String password) {</span>
+<span class="fc" id="L27">        this.name = name;</span>
+<span class="fc" id="L28">        this.username = username;</span>
+<span class="fc" id="L29">        this.email = email;</span>
+<span class="fc" id="L30">        this.password = password;</span>
+<span class="fc" id="L31">    }</span>
+
+<span class="nc" id="L33">    public SignUpRequest() {</span>
+<span class="nc" id="L34">    }</span>
+
     public String getName() {
-<span class="nc" id="L26">        return name;</span>
+<span class="fc" id="L37">        return name;</span>
     }
 
     public void setName(String name) {
-<span class="nc" id="L30">        this.name = name;</span>
-<span class="nc" id="L31">    }</span>
+<span class="nc" id="L41">        this.name = name;</span>
+<span class="nc" id="L42">    }</span>
 
     public String getUsername() {
-<span class="nc" id="L34">        return username;</span>
+<span class="fc" id="L45">        return username;</span>
     }
 
     public void setUsername(String username) {
-<span class="nc" id="L38">        this.username = username;</span>
-<span class="nc" id="L39">    }</span>
+<span class="nc" id="L49">        this.username = username;</span>
+<span class="nc" id="L50">    }</span>
 
     public String getEmail() {
-<span class="nc" id="L42">        return email;</span>
+<span class="fc" id="L53">        return email;</span>
     }
 
     public void setEmail(String email) {
-<span class="nc" id="L46">        this.email = email;</span>
-<span class="nc" id="L47">    }</span>
+<span class="nc" id="L57">        this.email = email;</span>
+<span class="nc" id="L58">    }</span>
 
     public String getPassword() {
-<span class="nc" id="L50">        return password;</span>
+<span class="fc" id="L61">        return password;</span>
     }
 
     public void setPassword(String password) {
-<span class="nc" id="L54">        this.password = password;</span>
-<span class="nc" id="L55">    }</span>
+<span class="nc" id="L65">        this.password = password;</span>
+<span class="nc" id="L66">    }</span>
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>

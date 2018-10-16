@@ -10,7 +10,7 @@ import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.GroupDTO;
 import com.edium.library.payload.PagedResponse;
-import com.edium.library.service.AclService;
+import com.edium.library.service.share.AclService;
 import com.edium.library.util.Utils;
 import com.edium.service.data.model.Course;
 import com.edium.service.data.payload.EntryCourseGrantRequest;
@@ -29,11 +29,15 @@ import java.util.Optional;
 @Transactional(propagation = Propagation.SUPPORTS, readOnly = true)
 public class CourseServiceImpl implements CourseService {
 
-    @Autowired
-    CourseRepository courseRepository;
+    private final CourseRepository courseRepository;
+
+    private final AclService aclService;
 
     @Autowired
-    AclService aclService;
+    public CourseServiceImpl(CourseRepository courseRepository, AclService aclService) {
+        this.courseRepository = courseRepository;
+        this.aclService = aclService;
+    }
 
     @Override
     public Optional<Course> findById(Long id) {

@@ -1,5 +1,6 @@
 package com.edium.service.core.service;
 
+import com.edium.library.model.core.User;
 import com.edium.library.payload.PagedResponse;
 import com.edium.service.core.model.Group;
 
@@ -31,6 +32,6 @@ public interface GroupService {
 
     PagedResponse<Group> getGroupsOfUser(Long userId, int page, int size);
 
-    Group getCurrentGroupOfUser(Long userId);
+    Group getCurrentGroupOfUser(User user);
 
 }

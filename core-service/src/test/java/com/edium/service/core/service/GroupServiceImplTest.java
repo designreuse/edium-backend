@@ -13,10 +13,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,26 +26,11 @@ import java.util.Optional;
 @RunWith(SpringRunner.class)
 public class GroupServiceImplTest {
 
-    @TestConfiguration
-    static class GroupServiceImplTestContextConfiguration {
+    private GroupRepository groupRepository = Mockito.mock(GroupRepository.class);
 
-        @Bean
-        public GroupService groupService() {
-            return new GroupServiceImpl();
-        }
-    }
+    private UserOrganizationRepository userOrganizationRepository = Mockito.mock(UserOrganizationRepository.class);
 
-    @Autowired
-    private GroupService groupService;
-
-    @MockBean
-    private GroupRepository groupRepository;
-
-    @MockBean
-    private UserService userService;
-
-    @MockBean
-    private UserOrganizationRepository userOrganizationRepository;
+    private GroupService groupService = new GroupServiceImpl(groupRepository, userOrganizationRepository);
 
     @Test(expected = ResourceNotFoundException.class)
     public void whenFindById_WithIdNotFound_thenException() {
@@ -311,17 +292,13 @@ public class GroupServiceImplTest {
         Assert.assertEquals(groupService.getParentOfGroup(groupId), returnGroup);
     }
 
-    @Test(expected = NullPointerException.class)
-    public void whenGetGroupOfUserInOrganization_withNullGroup_thenException() {
-        try {
-            long userId = 1L, organizationId = 2L;
+    @Test
+    public void whenGetGroupOfUserInOrganization_withNullGroup_thenReturnNull() {
+        long userId = 1L, organizationId = 2L;
 
-            Mockito.when(userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId)).thenReturn(null);
+        Mockito.when(userOrganizationRepository.getByUser_IdAndOrganizationId(userId, organizationId)).thenReturn(null);
 
-            groupService.getGroupOfUserInOrganization(userId, organizationId);
-        } catch (NullPointerException ex) {
-            throw ex;
-        }
+        Assert.assertNull(groupService.getGroupOfUserInOrganization(userId, organizationId));
     }
 
     @Test
@@ -376,31 +353,15 @@ public class GroupServiceImplTest {
     }
 
     @Test(expected = ResourceNotFoundException.class)
-    public void whenGetCurrentGroupOfUser_withUserNotFound_thenException() {
-        try {
-            long userId = 1L;
-
-            Mockito.when(userService.getById(userId)).thenReturn(Optional.empty());
-
-            groupService.getCurrentGroupOfUser(userId);
-        } catch (ResourceNotFoundException ex) {
-            Assert.assertEquals(ex.getResourceName(), "User");
-            Assert.assertEquals(ex.getFieldName(), "id");
-            throw ex;
-        }
-    }
-
-    @Test(expected = ResourceNotFoundException.class)
     public void whenGetCurrentGroupOfUser_withGroupNotFound_thenException() {
         try {
             User user = new User();
             user.setId(1L);
             user.setGroupId(2L);
 
-            Mockito.when(userService.getById(user.getId())).thenReturn(Optional.of(user));
             Mockito.when(groupRepository.findById(user.getGroupId())).thenReturn(Optional.empty());
 
-            groupService.getCurrentGroupOfUser(user.getId());
+            groupService.getCurrentGroupOfUser(user);
         } catch (ResourceNotFoundException ex) {
             Assert.assertEquals(ex.getResourceName(), "Group");
             Assert.assertEquals(ex.getFieldName(), "id");
@@ -416,9 +377,8 @@ public class GroupServiceImplTest {
 
         Group group = new Group();
 
-        Mockito.when(userService.getById(user.getId())).thenReturn(Optional.of(user));
         Mockito.when(groupRepository.findById(user.getGroupId())).thenReturn(Optional.of(group));
 
-        Assert.assertEquals(groupService.getCurrentGroupOfUser(user.getId()), group);
+        Assert.assertEquals(groupService.getCurrentGroupOfUser(user), group);
     }
 }

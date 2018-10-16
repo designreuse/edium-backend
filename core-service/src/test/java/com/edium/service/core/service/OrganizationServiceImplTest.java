@@ -8,10 +8,6 @@ import org.junit.Assert;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.context.annotation.Bean;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -25,20 +21,9 @@ import java.util.Optional;
 @RunWith(SpringRunner.class)
 public class OrganizationServiceImplTest {
 
-    @TestConfiguration
-    static class OrganizationServiceImplTestContextConfiguration {
+    private OrganizationRepository organizationRepository = Mockito.mock(OrganizationRepository.class);
 
-        @Bean
-        public OrganizationService organizationService() {
-            return new OrganizationServiceImpl();
-        }
-    }
-
-    @Autowired
-    private OrganizationService organizationService;
-
-    @MockBean
-    private OrganizationRepository organizationRepository;
+    private OrganizationService organizationService = new OrganizationServiceImpl(organizationRepository);
 
     @Test(expected = ResourceNotFoundException.class)
     public void whenFindById_withIdNotFound_thenException() {

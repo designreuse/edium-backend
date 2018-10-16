@@ -1,5 +1,4 @@
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/security/Permission.java
-/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/config/MethodSecurityConfig.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/model/Organization.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/controller/GroupController.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/CoreServiceApplication.java
@@ -14,13 +13,11 @@
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/payload/GroupRequest.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/payload/LoginRequest.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/service/AclServiceImpl.java
+/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/controller/RoleController.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/security/OrganizationPermission.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/controller/UserController.java
-/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/security/PermissionObject.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/payload/SignUpRequest.java
-/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/security/PermissionType.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/service/GroupService.java
-/Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/controller/AclController.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/service/UserServiceImpl.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/repository/GroupRepository.java
 /Users/hohien/IdeaProjects/edium-backend/core-service/src/main/java/com/edium/service/core/model/Group.java

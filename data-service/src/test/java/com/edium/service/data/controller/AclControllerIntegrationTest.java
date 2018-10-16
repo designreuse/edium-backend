@@ -4,12 +4,14 @@ import com.edium.library.exception.ResourceNotFoundException;
 import com.edium.library.model.AclEntryPermission;
 import com.edium.library.model.ResourceTypeCode;
 import com.edium.library.model.SubjectTypeCode;
+import com.edium.library.model.UserPrincipal;
 import com.edium.library.model.share.AclEntry;
 import com.edium.library.model.share.AclResourceType;
 import com.edium.library.model.share.AclSubjectType;
 import com.edium.library.payload.AclEntryRequest;
 import com.edium.library.payload.GroupDTO;
-import com.edium.library.service.AclService;
+import com.edium.library.service.share.AclService;
+import com.edium.library.spring.OAuthHelper;
 import com.edium.service.data.DataServiceApplication;
 import com.edium.service.data.service.AclServiceImpl;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -24,12 +26,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.MediaType;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.Collections;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
@@ -66,6 +71,12 @@ public class AclControllerIntegrationTest {
     @Autowired
     private AclService aclService;
 
+    @Autowired
+    private OAuthHelper oAuthHelper;
+
+    private final UserPrincipal ADMIN = new UserPrincipal(2L, "", "", "", "",
+            true, null, Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")));
+
     @Test
     public void givenResourceType_whenCRUD_thenStatus200() throws Exception {
         // setup
@@ -74,7 +85,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/resourceType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -82,28 +93,28 @@ public class AclControllerIntegrationTest {
 
         // getByType
         mvc.perform(get("/api/acl/resourceType/" + aclResourceType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.type", Matchers.is(aclResourceType.getType())));
 
         // getAll
         mvc.perform(get("/api/acl/resourceType")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[*].type", Matchers.hasItem(aclResourceType.getType())));
 
         // delete
         mvc.perform(delete("/api/acl/resourceType/" + aclResourceType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getByType
         mvc.perform(get("/api/acl/resourceType/" + aclResourceType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());
@@ -115,7 +126,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/resourceType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -130,7 +141,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/resourceType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -145,7 +156,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/resourceType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -157,7 +168,7 @@ public class AclControllerIntegrationTest {
     public void whenGetResourceByType_withTypeNotFound_thenException() throws Exception {
         // getByType
         mvc.perform(get("/api/acl/resourceType/no_exist_123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclResourceType not found with type")))
@@ -168,7 +179,7 @@ public class AclControllerIntegrationTest {
     public void whenDeleteResourceByType_withTypeNotFound_thenException() throws Exception {
         // delete
         mvc.perform(delete("/api/acl/resourceType/no_exist_123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclResourceType not found with type")))
@@ -183,7 +194,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/subjectType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclSubjectType)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -191,28 +202,28 @@ public class AclControllerIntegrationTest {
 
         // getByType
         mvc.perform(get("/api/acl/subjectType/" + aclSubjectType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.type", Matchers.is(aclSubjectType.getType())));
 
         // getAll
         mvc.perform(get("/api/acl/subjectType")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$[*].type", Matchers.hasItem(aclSubjectType.getType())));
 
         // delete
         mvc.perform(delete("/api/acl/subjectType/" + aclSubjectType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getByType
         mvc.perform(get("/api/acl/subjectType/" + aclSubjectType.getType())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());
@@ -224,7 +235,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/subjectType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -239,7 +250,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/subjectType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -254,7 +265,7 @@ public class AclControllerIntegrationTest {
 
         // create
         mvc.perform(post("/api/acl/subjectType")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(aclResourceType)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -266,7 +277,7 @@ public class AclControllerIntegrationTest {
     public void whenGetSubjectByType_withTypeNotFound_thenException() throws Exception {
         // getByType
         mvc.perform(get("/api/acl/subjectType/no_exist_123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -277,7 +288,7 @@ public class AclControllerIntegrationTest {
     public void whenDeleteSubjectByType_withTypeNotFound_thenException() throws Exception {
         // delete
         mvc.perform(delete("/api/acl/subjectType/no_exist_123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -300,7 +311,7 @@ public class AclControllerIntegrationTest {
 
         // create
         MvcResult response = mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -310,7 +321,7 @@ public class AclControllerIntegrationTest {
 
         // getById
         mvc.perform(get("/api/acl/" + entryInsert.getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.id", Matchers.is(entryInsert.getId().intValue())));
@@ -320,7 +331,7 @@ public class AclControllerIntegrationTest {
         entryRequestUpdate.setReadGrant(false);
         entryRequestUpdate.setWriteGrant(true);
         mvc.perform(put("/api/acl/" + entryInsert.getId())
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequestUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -330,14 +341,14 @@ public class AclControllerIntegrationTest {
 
         // delete
         mvc.perform(delete("/api/acl/" + entryInsert.getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.success", Matchers.is(true)));
 
         // getById
         mvc.perform(get("/api/acl/" + entryInsert.getId())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andDo(print());
@@ -348,7 +359,7 @@ public class AclControllerIntegrationTest {
     public void whenGetEntryById_withIdNotFound_thenException() throws Exception {
         // getById
         mvc.perform(get("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("Entry not found with id")))
@@ -361,7 +372,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -379,7 +390,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -393,7 +404,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -408,7 +419,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -423,7 +434,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -438,7 +449,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -463,7 +474,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setDeleteGrant(false);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -485,7 +496,7 @@ public class AclControllerIntegrationTest {
         entryRequest.setReadGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -496,7 +507,7 @@ public class AclControllerIntegrationTest {
         entryRequest1.setWriteGrant(true);
 
         mvc.perform(post("/api/acl")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest1)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -519,7 +530,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -534,7 +545,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -550,7 +561,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -566,7 +577,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -582,7 +593,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequest)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -598,7 +609,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequestUpdate)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -617,7 +628,7 @@ public class AclControllerIntegrationTest {
 
         // update
         mvc.perform(put("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequestUpdate)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -646,7 +657,7 @@ public class AclControllerIntegrationTest {
         entryRequestUpdate.setDeleteGrant(false);
 
         mvc.perform(put("/api/acl/" + entry.getId())
-                .contentType(MediaType.APPLICATION_JSON)
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN))
                 .content(objectMapper.writeValueAsString(entryRequestUpdate)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
@@ -666,7 +677,7 @@ public class AclControllerIntegrationTest {
     @Test
     public void whenDeleteEntry_withIdNotFound_then400() throws Exception {
         mvc.perform(delete("/api/acl/-1")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("Entry not found with id")))
@@ -677,7 +688,7 @@ public class AclControllerIntegrationTest {
     @Rollback(false)
     public void whenGetAllResourceIds_withResourceTypeNotFound_then400() throws Exception {
         mvc.perform(get("/api/acl/resources/user/1?resourceType=no_exist123&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclResourceType not found with type")))
@@ -692,7 +703,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=no_exist123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("[]"))
@@ -707,7 +718,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -727,7 +738,7 @@ public class AclControllerIntegrationTest {
         aclService.saveSubjectType(userSubjectType);
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -761,20 +772,20 @@ public class AclControllerIntegrationTest {
         aclService.save(entry3);
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(4)));
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.WRITE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$[0]", Matchers.equalTo(entry2.getResourceId().intValue())));
 
         mvc.perform(get("/api/acl/resources/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.DELETE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
@@ -785,7 +796,7 @@ public class AclControllerIntegrationTest {
     @Rollback(false)
     public void whenGetResourceIdByResourceId_withResourceTypeNotFound_then400() throws Exception {
         mvc.perform(get("/api/acl/resources/1/user/1?resourceType=no_exist123&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclResourceType not found with type")))
@@ -800,7 +811,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/1/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=no_exist123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("[]"))
@@ -815,7 +826,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/1/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -835,7 +846,7 @@ public class AclControllerIntegrationTest {
         aclService.saveSubjectType(userSubjectType);
 
         mvc.perform(get("/api/acl/resources/1/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -869,35 +880,35 @@ public class AclControllerIntegrationTest {
         aclService.save(entry3);
 
         mvc.perform(get("/api/acl/resources/" + entry.getResourceId() + "/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$[0]", Matchers.equalTo(entry.getResourceId().intValue())));
 
         mvc.perform(get("/api/acl/resources/" + entry1.getResourceId() + "/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$[0]", Matchers.equalTo(entry1.getResourceId().intValue())));
 
         mvc.perform(get("/api/acl/resources/" + entry2.getResourceId() + "/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.WRITE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$[0]", Matchers.equalTo(entry2.getResourceId().intValue())));
 
         mvc.perform(get("/api/acl/resources/" + entry3.getResourceId() + "/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.DELETE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$", Matchers.hasSize(1)))
                 .andExpect(jsonPath("$[0]", Matchers.equalTo(entry3.getResourceId().intValue())));
 
         mvc.perform(get("/api/acl/resources/-1/user/1?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("[]"));
@@ -907,7 +918,7 @@ public class AclControllerIntegrationTest {
     @Rollback(false)
     public void whenCheckPermission_withResourceTypeNotFound_then400() throws Exception {
         mvc.perform(get("/api/acl/resources/1/user/1/check?resourceType=no_exist123&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclResourceType not found with type")))
@@ -922,7 +933,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/1/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=no_exist123")
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("false"))
@@ -937,7 +948,7 @@ public class AclControllerIntegrationTest {
         aclService.saveResourceType(aclResourceType);
 
         mvc.perform(get("/api/acl/resources/1/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -957,7 +968,7 @@ public class AclControllerIntegrationTest {
         aclService.saveSubjectType(userSubjectType);
 
         mvc.perform(get("/api/acl/resources/1/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.message", Matchers.containsString("AclSubjectType not found with type")))
@@ -991,31 +1002,31 @@ public class AclControllerIntegrationTest {
         aclService.save(entry3);
 
         mvc.perform(get("/api/acl/resources/" + entry.getResourceId() + "/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("true"));
 
         mvc.perform(get("/api/acl/resources/" + entry1.getResourceId() + "/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("true"));
 
         mvc.perform(get("/api/acl/resources/" + entry2.getResourceId() + "/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.WRITE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("true"));
 
         mvc.perform(get("/api/acl/resources/" + entry3.getResourceId() + "/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.DELETE.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("true"));
 
         mvc.perform(get("/api/acl/resources/-1/user/1/check?resourceType=" + ResourceTypeCode.COURSE.toString() + "&permission=" + AclEntryPermission.READ.toString())
-                .contentType(MediaType.APPLICATION_JSON))
+                .contentType(MediaType.APPLICATION_JSON).with(oAuthHelper.bearerToken(ADMIN)))
                 .andExpect(status().isOk())
                 .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_JSON))
                 .andExpect(content().string("false"));

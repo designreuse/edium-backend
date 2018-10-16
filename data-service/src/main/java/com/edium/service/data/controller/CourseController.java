@@ -20,8 +20,12 @@ import javax.validation.Valid;
 @RequestMapping("api/courses")
 public class CourseController {
 
+    private final CourseService courseService;
+
     @Autowired
-    CourseService courseService;
+    public CourseController(CourseService courseService) {
+        this.courseService = courseService;
+    }
 
     @GetMapping("")
     public PagedResponse<Course> getAllCourse(@RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
@@ -104,14 +108,14 @@ public class CourseController {
     }
 
     @GetMapping("/user/{userId}/write")
-    public PagedResponse<Course> getAllWriteableCourse(@PathVariable(name = "userId") Long userId,
+    public PagedResponse<Course> getAllWritableCourse(@PathVariable(name = "userId") Long userId,
                                               @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                               @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return courseService.findPriCourseForUserNew(userId, AclEntryPermission.WRITE, page, size);
     }
 
     @GetMapping("/user/{userId}/delete")
-    public PagedResponse<Course> getAllDeleteableCourse(@PathVariable(name = "userId") Long userId,
+    public PagedResponse<Course> getAllDeletableCourse(@PathVariable(name = "userId") Long userId,
                                                @RequestParam(value = "page", defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
                                                @RequestParam(value = "size", defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
         return courseService.findPriCourseForUserNew(userId, AclEntryPermission.DELETE, page, size);

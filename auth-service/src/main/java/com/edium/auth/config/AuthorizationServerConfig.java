@@ -5,13 +5,10 @@ import com.edium.auth.security.CustomUserDetailsService;
 import com.edium.library.config.CustomTokenConverter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.domain.EntityScan;
 import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Primary;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.data.jpa.repository.config.EnableJpaRepositories;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.oauth2.config.annotation.configurers.ClientDetailsServiceConfigurer;
@@ -34,9 +31,6 @@ import java.util.Arrays;
 
 @Configuration
 @EnableAuthorizationServer
-@ComponentScan({"com.edium.library", "com.edium.auth"})
-@EnableJpaRepositories({"com.edium.library.repository", "com.edium.auth.repository"})
-@EntityScan({"com.edium.library.model", "com.edium.auth.model"})
 public class AuthorizationServerConfig extends AuthorizationServerConfigurerAdapter {
 
     @Value("${oauth2.paths.token}")

@@ -1,7 +1,7 @@
 package com.edium.service.data.service;
 
 import com.edium.library.payload.GroupDTO;
-import com.edium.library.service.BaseAclServiceImpl;
+import com.edium.library.service.share.BaseAclServiceImpl;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.web.client.RestTemplate;

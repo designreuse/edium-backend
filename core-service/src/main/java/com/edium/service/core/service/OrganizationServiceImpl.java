@@ -15,8 +15,12 @@ import org.springframework.stereotype.Service;
 @Service
 public class OrganizationServiceImpl implements OrganizationService {
 
+    private final OrganizationRepository organizationRepository;
+
     @Autowired
-    OrganizationRepository organizationRepository;
+    public OrganizationServiceImpl(OrganizationRepository organizationRepository) {
+        this.organizationRepository = organizationRepository;
+    }
 
     @Override
     public PagedResponse<Organization> getAllOrganization(int page, int size) {

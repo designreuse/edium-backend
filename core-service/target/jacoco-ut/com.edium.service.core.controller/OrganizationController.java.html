@@ -1,14 +1,18 @@
 <?xml version="1.0" encoding="UTF-8"?><!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd"><html xmlns="http://www.w3.org/1999/xhtml" lang="en"><head><meta http-equiv="Content-Type" content="text/html;charset=UTF-8"/><link rel="stylesheet" href="../jacoco-resources/report.css" type="text/css"/><link rel="shortcut icon" href="../jacoco-resources/report.gif" type="image/gif"/><title>OrganizationController.java</title><link rel="stylesheet" href="../jacoco-resources/prettify.css" type="text/css"/><script type="text/javascript" src="../jacoco-resources/prettify.js"></script></head><body onload="window['PR_TAB_WIDTH']=4;prettyPrint()"><div class="breadcrumb" id="breadcrumb"><span class="info"><a href="../jacoco-sessions.html" class="el_session">Sessions</a></span><a href="../index.html" class="el_report">core-service</a> &gt; <a href="index.source.html" class="el_package">com.edium.service.core.controller</a> &gt; <span class="el_source">OrganizationController.java</span></div><h1>OrganizationController.java</h1><pre class="source lang-java linenums">package com.edium.service.core.controller;
 
-import com.edium.library.exception.ResourceNotFoundException;
+import com.edium.library.model.core.User;
+import com.edium.library.payload.ApiResponse;
+import com.edium.library.payload.PagedResponse;
 import com.edium.library.spring.ContextAwarePolicyEnforcement;
-import com.edium.service.core.model.Note;
+import com.edium.library.spring.PermissionObject;
+import com.edium.library.spring.PermissionType;
+import com.edium.library.util.AppConstants;
+import com.edium.service.core.model.Group;
 import com.edium.service.core.model.Organization;
-import com.edium.service.core.repository.NoteRepository;
-import com.edium.service.core.repository.OrganizationRepository;
+import com.edium.service.core.service.GroupService;
+import com.edium.service.core.service.OrganizationService;
+import com.edium.service.core.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
@@ -16,64 +20,78 @@ import java.util.List;
 
 @RestController
 @RequestMapping(&quot;/api/organization&quot;)
-<span class="fc" id="L19">public class OrganizationController {</span>
+<span class="fc" id="L23">public class OrganizationController {</span>
     @Autowired
-    OrganizationRepository organizationRepository;
+    OrganizationService organizationService;
 
     @Autowired
-    NoteRepository noteRepository;
+    UserService userService;
 
     @Autowired
-    private ContextAwarePolicyEnforcement policy;
+    GroupService groupService;
+
+    @Autowired
+    private ContextAwarePolicyEnforcement policyEnforcement;
 
     @GetMapping(&quot;&quot;)
-    public List&lt;Organization&gt; getAllOrganizations() {
-<span class="nc" id="L31">        return organizationRepository.findAll();</span>
+    public PagedResponse&lt;Organization&gt; getAllOrganizations(@RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                           @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="fc" id="L39">        return organizationService.getAllOrganization(page, size);</span>
     }
 
     @PostMapping(&quot;&quot;)
     public Organization createOrganization(@Valid @RequestBody Organization org) {
-<span class="nc" id="L36">        return organizationRepository.save(org);</span>
+<span class="fc" id="L44">        return organizationService.save(org);</span>
     }
 
-    @PreAuthorize(&quot;hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).READ)&quot;)
     @GetMapping(&quot;/{id}&quot;)
     public Organization getOrganizationById(@PathVariable(value = &quot;id&quot;) Long orgId) {
-<span class="nc" id="L42">        return organizationRepository.findById(orgId)</span>
-<span class="nc" id="L43">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, orgId));</span>
+<span class="fc" id="L49">        Organization organization = organizationService.findById(orgId);</span>
+
+<span class="fc" id="L51">        policyEnforcement.checkPermission(organization, PermissionType.READ, PermissionObject.ORGANIZATION);</span>
+
+<span class="fc" id="L53">        return organization;</span>
     }
 
-    //@PreAuthorize(&quot;hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).READ)&quot;)
-    @GetMapping(&quot;/{id}/notes&quot;)
-    public List&lt;Note&gt; getNotesByOrganization(@PathVariable(value = &quot;id&quot;) Long orgId) {
-<span class="nc" id="L49">        Organization org = new Organization();</span>
-<span class="nc" id="L50">        org.setId(orgId);</span>
-<span class="nc" id="L51">        policy.checkPermission(org, &quot;READ&quot;);</span>
-<span class="nc" id="L52">        return noteRepository.findAllByOrganizationId(orgId);</span>
-    }
-
-    @PreAuthorize(&quot;hasPermission(#orgDetails, T(com.edium.service.core.security.PermissionType).WRITE + '_' + T(com.edium.service.core.security.PermissionObject).ORGANIZATION)&quot;)
     @PutMapping(&quot;/{id}&quot;)
     public Organization updateOrganization(@PathVariable(value = &quot;id&quot;) Long orgId,
                            @Valid @RequestBody Organization orgDetails) {
 
-<span class="nc" id="L60">        Organization org = organizationRepository.findById(orgId)</span>
-<span class="nc" id="L61">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, orgId));</span>
+<span class="fc" id="L60">        Organization org = organizationService.findById(orgId);</span>
 
-<span class="nc" id="L63">        org.setName(orgDetails.getName());</span>
+<span class="fc" id="L62">        policyEnforcement.checkPermission(org, PermissionType.WRITE, PermissionObject.ORGANIZATION);</span>
 
-<span class="nc" id="L65">        return organizationRepository.save(org);</span>
+<span class="fc" id="L64">        org.setName(orgDetails.getName());</span>
+
+<span class="fc" id="L66">        return organizationService.save(org);</span>
     }
 
-    @PreAuthorize(&quot;hasPermission(#orgId, T(com.edium.service.core.security.PermissionObject).ORGANIZATION.toString(), T(com.edium.service.core.security.PermissionType).READ)&quot;)
     @DeleteMapping(&quot;/{id}&quot;)
-    public ResponseEntity&lt;?&gt; deleteOrganization(@PathVariable(value = &quot;id&quot;) Long orgId) {
-<span class="nc" id="L71">        Organization org = organizationRepository.findById(orgId)</span>
-<span class="nc" id="L72">                .orElseThrow(() -&gt; new ResourceNotFoundException(&quot;Organization&quot;, &quot;id&quot;, orgId));</span>
+    public ApiResponse deleteOrganization(@PathVariable(value = &quot;id&quot;) Long orgId) {
+<span class="fc" id="L71">        Organization organization = organizationService.findById(orgId);</span>
 
-<span class="nc" id="L74">        organizationRepository.delete(org);</span>
+<span class="fc" id="L73">        policyEnforcement.checkPermission(organization, PermissionType.DELETE, PermissionObject.ORGANIZATION);</span>
 
-<span class="nc" id="L76">        return ResponseEntity.ok().build();</span>
+<span class="fc" id="L75">        organizationService.delete(organization);</span>
+
+<span class="fc" id="L77">        return new ApiResponse(true, &quot;success&quot;);</span>
+    }
+
+    @GetMapping(&quot;/{id}/treeGroup&quot;)
+    public List&lt;Group&gt; getTreeGroup(@PathVariable(value = &quot;id&quot;) Long orgId) {
+<span class="fc" id="L82">        return groupService.getTreeGroupOfOrganization(orgId);</span>
+    }
+
+    @GetMapping(&quot;/{id}/rootGroup&quot;)
+    public List&lt;Group&gt; getRootGroup(@PathVariable(value = &quot;id&quot;) Long orgId) {
+<span class="fc" id="L87">        return groupService.getRootGroupOfOrganization(orgId);</span>
+    }
+
+    @GetMapping(&quot;/{id}/user&quot;)
+    public PagedResponse&lt;User&gt; getUserOfOrganization(@PathVariable(value = &quot;id&quot;) long id,
+                                                     @RequestParam(value = &quot;page&quot;, defaultValue = AppConstants.DEFAULT_PAGE_NUMBER) int page,
+                                                     @RequestParam(value = &quot;size&quot;, defaultValue = AppConstants.DEFAULT_PAGE_SIZE) int size) {
+<span class="fc" id="L94">        return userService.findByOrganizationId(id, page, size);</span>
     }
 }
 </pre><div class="footer"><span class="right">Created with <a href="http://www.jacoco.org/jacoco">JaCoCo</a> 0.8.1.201803210924</span></div></body></html>
